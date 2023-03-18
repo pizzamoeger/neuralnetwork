@@ -121,7 +121,6 @@ struct Network {
         // update weights and biases accordingly
         for (int i = 1; i < L; i++) {
             for (int j = 0; j < sizes[i]; j++) {
-                //cerr << updateB[i][j] << " ";
                 biases[i][j] -= (learning_rate/mini_batch.size())*updateB[i][j];
             }
         }
