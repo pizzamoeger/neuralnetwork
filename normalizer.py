@@ -1,8 +1,8 @@
 # transforms the mnist data to a version where the values are normalized to 0-1
 
 # open files
-fileIn = open("mnist_train.data", "r")
-fileOut = open("mnist_train_normalized.data", "w")
+fileIn = open("mnist_test.data", "r")
+fileOut = open("mnist_test_normalized.data", "w")
 
 for line in fileIn:
     if line == "\n":

@@ -26,7 +26,7 @@ vector<pair<vector<double>, vector<double>>> load_data(string filename) {
             if (label == -1) {
                 label = stoi(substr);
             } else {
-                input.push_back(stod(substr));
+                input.push_back(atof(substr.c_str()));
             }
         }
         output[label] = 1;
@@ -192,7 +192,7 @@ int main() {
             }
             if (training_data[k].second[max] == 1) correct++;
         }
-        cout << "accuracy in training data: " << (double)correct / test_data.size() << "\n";
+        cout << "accuracy in training data: " << (double)correct / training_data.size() << "\n";
     }
 
     // test network
