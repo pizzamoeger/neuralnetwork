@@ -75,7 +75,7 @@ int main() {
     while (getline(file, line)) {
         stringstream ss(line);
         vector<double> temp;
-        //cerr << line<<"\n";
+
         while (ss.good()) {
             string substr;
             getline(ss, substr, ' ');
@@ -88,7 +88,7 @@ int main() {
     file.close();
 
     // read the weights from weights.txt
-    // it is of form weight[0][0][0], weight[0][0][1], weight[0][0][2], ..., \n weight[0][1][0], weight[0][1][1], weight[0][1][2], ..., \n \n weight[1][0][0], weight[1][0][1], weight[1][0][2], ..., \n weight[1][1][0], weight[1][1][1], weight[1][1][2], ..., \n \n ...
+    // it is of form weight[0][0][0], weight[0][0][1], weight[0][0][2], ..., ^ weight[0][1][0], weight[0][1][1], weight[0][1][2], ..., ^ \n weight[1][0][0], weight[1][0][1], weight[1][0][2], ...,
 
     file.open("weights.txt");
     vector<vector<vector<double>>> weights;

@@ -21,7 +21,7 @@ struct Network {
     // bias[0] = {}.
     vector<vector<double>> biases;
     // weights[i][j][k] is weight of jth neuron in ith layer to kth neuron in i-1th layer.
-    // weights[0] = {{}}
+    // weights[0] = {}
     vector<vector<vector<double>>> weights;
 
     Network (vector<int> & sizes, vector<vector<double>> & biases, vector<vector<vector<double>>> & weights) {
@@ -41,8 +41,8 @@ struct Network {
                 for (int k = 0; k < sizes[i-1]; k++) newA[j] += weights[i][j][k]*a[k];
                 newA[j] += biases[i][j];
                 newA[j] = sigmoid(newA[j]);
-                // update a
             }
+            // update a
             a = newA;
         }
         return a;
@@ -51,8 +51,14 @@ struct Network {
     void SGD(vector<pair<vector<double>,vector<double>>> training_data, int epochs, int mini_batch_size, double learning_rate, vector<pair<vector<double>, vector<double>>> test_data) {
         int n = training_data.size();
         for (int i = 0; i < epochs; i++) {
+            // reduce learning rate
             learning_rate *= 0.98;
+
+            // time the epoch
+            auto start = chrono::high_resolution_clock::now();
+
             cerr << i << " ";
+
             // obtain a time-based seed
             unsigned seed = chrono::system_clock::now().time_since_epoch().count();
             shuffle(training_data.begin(), training_data.end(), default_random_engine(seed));
@@ -66,7 +72,12 @@ struct Network {
                 update_mini_batch(mini_batch, learning_rate);
             }
 
+            // end the timer
+            auto end = chrono::high_resolution_clock::now();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+
             // evaluate the network
+            start = chrono::high_resolution_clock::now();
             int correct = 0;
             for (int k = 0; k < test_data.size(); k++) {
                 vector<double> output = feedforward(test_data[k].first);
@@ -76,7 +87,8 @@ struct Network {
                 }
                 if (test_data[k].second[max] == 1) correct++;
             }
-            cerr << "Accuracy: " << (double)correct / test_data.size() << "\n";
+            end = chrono::high_resolution_clock::now();
+            cerr << "Accuracy: " << (double)correct / test_data.size() << ", trained in " << duration.count() << "ms, evaluated in " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
         }
     }
 

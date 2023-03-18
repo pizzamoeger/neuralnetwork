@@ -1,3 +1,5 @@
 # ninja log v5
 1	3388	7008411294444048	CMakeFiles/neuralnetwork.dir/main.cpp.obj	d7fd214645396b1c
 3394	3603	7008411296567174	neuralnetwork.exe	535ada090b9e9b7d
+4	3664	7008418382582275	CMakeFiles/neuralnetwork.dir/main.cpp.obj	d7fd214645396b1c
+3665	3892	7008418384820473	neuralnetwork.exe	535ada090b9e9b7d
