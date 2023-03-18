@@ -141,17 +141,19 @@ int main() {
             }
         }
     }
+    cerr << weights.size() << " weights loaded\n";
+    file.close();
 
     auto net = Network(sizes, biases, weights);
     cerr << "Network created\n";
 
     // train network
-    auto test_data = load_data("mnist_test.data");
+    auto test_data = load_data("mnist_test_normalized.data");
     cout << "train network? (1/0):";
     cin >> nw;
 
     if (nw) {
-        auto training_data = load_data("mnist_train.data");
+        auto training_data = load_data("mnist_train_normalized.data");
 
         int epochs; cout << "epochs:"; cin >> epochs; // 30
         int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size; // 128
@@ -175,7 +177,7 @@ int main() {
                 for (int k = 0; k < net.weights[i][j].size(); k++) {
                     file2 << net.weights[i][j][k] << " ";
                 }
-                file2 << "^";
+                file2 << "\n";
             }
             file2 << "\n";
         }
