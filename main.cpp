@@ -182,6 +182,17 @@ int main() {
             file2 << "\n";
         }
         file2.close();
+
+        int correct = 0;
+        for (int k = 0; k < training_data.size(); k++) {
+            vector<double> output = net.feedforward(training_data[k].first);
+            int max = 0;
+            for (int j = 0; j < output.size(); j++) {
+                if (output[j] > output[max]) max = j;
+            }
+            if (training_data[k].second[max] == 1) correct++;
+        }
+        cout << "accuracy in training data: " << (double)correct / test_data.size() << "\n";
     }
 
     // test network
@@ -194,7 +205,7 @@ int main() {
         }
         if (test_data[k].second[max] == 1) correct++;
     }
-    cout << "Accuracy: " << (double)correct / test_data.size() << "\n";
+    cout << "general accuracy: " << (double)correct / test_data.size() << "\n";
 
     return 0;
 }
