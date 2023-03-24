@@ -176,7 +176,7 @@ int main() {
                 for (int k = 0; k < net.weights[i][j].size(); k++) {
                     file2 << net.weights[i][j][k] << " ";
                 }
-                file2 << "\n";
+                file2 << "^";
             }
             file2 << "\n";
         }

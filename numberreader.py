@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import boundingbox
+import neuralnetwork
 
 pygame.init()
 screen = pygame.display.set_mode((560, 560))
@@ -19,6 +20,7 @@ def save():
     # save the image as number.jpg
     pygame.image.save(screen, "number.jpg")
     boundingbox.boundingbox()
+    neuralnetwork.getPred()
 
 while True:
     # let the user draw on the screen
