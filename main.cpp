@@ -206,5 +206,24 @@ int main() {
     }
     cout << "general accuracy: " << (double)correct / test_data.size() << "\n";
 
+    // test network on a single image
+
+    // load the image
+    vector<double> input (784);
+    file.open("number.data");
+    for (int i = 0; i < 784; i++) {
+        double x; file >> x;
+        input[i] = x;
+    }
+    file.close();
+
+    vector<double> output = net.feedforward(input);
+
+    int max = 0;
+    for (int j = 0; j < output.size(); j++) {
+        if (output[j] > output[max]) max = j;
+    }
+    cout << "the network thinks this is a " << max << "\n";
+
     return 0;
 }
