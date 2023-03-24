@@ -1,11 +1,10 @@
 import pygame
 from pygame.locals import *
 import boundingbox
-import neuralnetwork
 
 pygame.init()
 screen = pygame.display.set_mode((560, 560))
-pygame.display.set_caption("Number Reader")
+pygame.display.set_caption("Number")
 
 # set background to white
 background = pygame.Surface(screen.get_size())
@@ -27,7 +26,7 @@ while True:
     # position of the mouse
     m = pygame.mouse.get_pos()
     if (draw):
-        pygame.draw.circle(screen, (255, 255, 255), m, 28)
+        pygame.draw.circle(screen, (255, 255, 255), m, 23)
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
