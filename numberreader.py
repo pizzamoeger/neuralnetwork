@@ -4,7 +4,7 @@ import boundingbox
 import neuralnetwork
 
 pygame.init()
-screen = pygame.display.set_mode((560, 560))
+screen = pygame.display.set_mode((350, 350))
 pygame.display.set_caption("Number")
 
 # set background to white
@@ -23,29 +23,29 @@ def save():
     neuralnetwork.getPred()
 
 while True:
-    # let the user draw on the screen
-    # resolution is 28x28
-    # position of the mouse
-    m = pygame.mouse.get_pos()
-    if (draw):
-        pygame.draw.circle(screen, (255, 255, 255), m, 23)
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            exit()
-        elif event.type == MOUSEBUTTONDOWN:
-            draw = True
-        elif event.type == MOUSEBUTTONUP:
-            draw = False
-        elif event.type == KEYDOWN:
-            if event.key == K_RETURN:
-                # save the image to number.data
-                save()
-                # clear the screen
-                screen.blit(background, (0, 0))
-                pygame.display.flip()
+    while True:
+        # let the user draw on the screen
+        # resolution is 28x28
+        # position of the mouse
+        m = pygame.mouse.get_pos()
+        if (draw):
+            pygame.draw.circle(screen, (255, 255, 255), m, 15)
+        for event in pygame.event.get():
+            if event.type == QUIT:
                 pygame.quit()
                 exit()
+            elif event.type == MOUSEBUTTONDOWN:
+                draw = True
+            elif event.type == MOUSEBUTTONUP:
+                draw = False
+            elif event.type == KEYDOWN:
+                if event.key == K_RETURN:
+                    # save the image to number.data
+                    save()
+                    # clear the screen
+                    screen.blit(background, (0, 0))
+                    pygame.display.flip()
+                    break
 
-    pygame.display.flip()
+        pygame.display.flip()
 
