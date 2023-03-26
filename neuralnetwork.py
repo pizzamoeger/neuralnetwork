@@ -39,27 +39,45 @@ def getPred():
         b.append(line2)
 
     inputF = open('number.data', 'r')
-    input = inputF.readline().split(' ')
-    for i in range(len(input)):
-        if (input[i] == '\n'):
-            input.pop(i)
+    inputN = inputF.readline().split(' ')
+    for i in range(len(inputN)):
+        if (inputN[i] == '\n'):
+            inputN.pop(i)
             continue
-        input[i] = float(input[i])
+        inputN[i] = float(inputN[i])
+    inputO = inputN
 
     # feedforward
     for i in range(1, L):
         newInput = np.zeros(sizes[i])
         for j in range(sizes[i]):
             for k in range(sizes[i - 1]):
-                newInput[j] += w[i][j][k] * input[k]
+                newInput[j] += w[i][j][k] * inputN[k]
             newInput[j] += b[i][j]
             newInput[j] = sigmoid(newInput[j])
 
-        input = newInput
+        inputN = newInput
 
     # print the index with the highest value
     val = 0
-    for i in range(len(input)):
-        if (input[i] > input[val]):
+    for i in range(len(inputN)):
+        if (inputN[i] > inputN[val]):
             val = i
+
     print(val)
+    stp = input("add to training data? (0/1)")
+    if (stp == '1'):
+        label = input("correct label: ")
+
+
+        f = open('cmake-build-release/mnist_train_normalized.data', 'a')
+        f.write(label + ' ')
+        for i in range(len(inputO)):
+            f.write(str(inputO[i]) + ' ')
+        f.write('\n')
+        f.close()
+
+    weights.close()
+    biases.close()
+    architecture.close()
+    inputF.close()

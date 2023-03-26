@@ -10,6 +10,11 @@ def boundingbox():
     # Access the pixel values
     pixels = list(image.getdata())
 
+    # if every pixel is black, then the image is empty
+    if pixels.count((0, 0, 0)) == len(pixels):
+        print("empty image")
+        return
+
     for i in range(0, len(pixels)):
         if pixels[i] == (0, 0, 0):
             pixels[i] = 0
