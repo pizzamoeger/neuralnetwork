@@ -138,6 +138,7 @@ int main() {
                 double x; file >> x;
                 weights[i][j].push_back(x);
             }
+            char c; file >> c;
         }
     }
     cerr << weights.size() << " weights loaded\n";
@@ -164,17 +165,17 @@ int main() {
         // store the biases and weights in biases.txt and weights.txt
         ofstream file2;
         file2.open("biases.txt");
-        for (int i = 1; i < net.biases.size(); i++) {
-            for (int j = 0; j < net.biases[i].size(); j++) {
+        for (int i = 1; i < L; i++) {
+            for (int j = 0; j < sizes[i]; j++) {
                 file2 << net.biases[i][j] << " ";
             }
             file2 << "\n";
         }
         file2.close();
         file2.open("weights.txt");
-        for (int i = 1; i < net.weights.size(); i++) {
-            for (int j = 0; j < net.weights[i].size(); j++) {
-                for (int k = 0; k < net.weights[i][j].size(); k++) {
+        for (int i = 1; i < L; i++) {
+            for (int j = 0; j < sizes[i]; j++) {
+                for (int k = 0; k < sizes[i-1]; k++) {
                     file2 << net.weights[i][j][k] << " ";
                 }
                 file2 << "^";
@@ -206,25 +207,4 @@ int main() {
         if (test_data[k].second[max] == 1) correct++;
     }
     cout << "general accuracy: " << (double)correct / test_data.size() << "\n";
-
-    // test network on a single image
-
-    // load the image
-    vector<double> input (784);
-    file.open("number.data");
-    for (int i = 0; i < 784; i++) {
-        double x; file >> x;
-        input[i] = x;
-    }
-    file.close();
-
-    vector<double> output = net.feedforward(input);
-
-    int max = 0;
-    for (int j = 0; j < output.size(); j++) {
-        if (output[j] > output[max]) max = j;
-    }
-    cout << "the network thinks this is a " << max << "\n";
-
-    return 0;
 }
