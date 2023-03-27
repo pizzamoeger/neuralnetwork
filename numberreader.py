@@ -46,6 +46,9 @@ while True:
                     screen.blit(background, (0, 0))
                     pygame.display.flip()
                     break
+                elif event.key == K_ESCAPE:
+                    pygame.quit()
+                    exit()
 
         pygame.display.flip()
 
