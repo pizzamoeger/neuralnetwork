@@ -157,8 +157,9 @@ int main() {
         int epochs; cout << "epochs:"; cin >> epochs; // 30
         int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size; // 128
         double eta; cout << "eta:"; cin >> eta; // 0.5
+        double lambda; cout << "lambda:"; cin >> lambda;
 
-        net.SGD(training_data, epochs, mini_batch_size, eta, test_data);
+        net.SGD(training_data, epochs, mini_batch_size, eta, test_data, lambda);
 
         // store the biases and weights in biases.txt and weights.txt
         ofstream file2;

@@ -48,7 +48,7 @@ struct Network {
         return a;
     }
 
-    void SGD(vector<pair<vector<double>,vector<double>>> training_data, int epochs, int mini_batch_size, double learning_rate, vector<pair<vector<double>, vector<double>>> test_data) {
+    void SGD(vector<pair<vector<double>,vector<double>>> training_data, int epochs, int mini_batch_size, double learning_rate, vector<pair<vector<double>, vector<double>>> test_data, double lambda) {
         int n = training_data.size();
         for (int i = 0; i < epochs; i++) {
             // reduce learning rate
@@ -69,7 +69,7 @@ struct Network {
                 for (int k = 0; k < mini_batch_size && j*mini_batch_size+k<n; k++) {
                     mini_batch[k] = training_data[j*mini_batch_size+k];
                 }
-                update_mini_batch(mini_batch, learning_rate);
+                update_mini_batch(mini_batch, learning_rate, lambda, n);
             }
 
             // end the timer
@@ -92,7 +92,7 @@ struct Network {
         }
     }
 
-    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, double learning_rate) {
+    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, double learning_rate, double lambda, int n) {
         vector<vector<double>> updateB (L);
         vector<vector<vector<double>>> updateW (L);
 
@@ -124,9 +124,12 @@ struct Network {
                 biases[i][j] -= (learning_rate/mini_batch.size())*updateB[i][j];
             }
         }
+
         for (int i = 1; i < L; i++) {
             for (int j = 0; j < sizes[i]; j++) {
-                for (int k = 0; k < sizes[i-1]; k++) weights[i][j][k] -= (learning_rate/mini_batch.size())*updateW[i][j][k];
+                for (int k = 0; k < sizes[i-1]; k++) {
+                    weights[i][j][k] = (1-learning_rate*lambda/n)*weights[i][j][k]-(learning_rate/mini_batch.size())*updateW[i][j][k];
+                }
             }
         }
     }
@@ -157,7 +160,7 @@ struct Network {
 
         // backpropagate
         auto delta = costDerivative(activations[L-1], out);
-        for (int i = 0; i < delta.size(); i++) delta[i] *= sigmoidPrime(z[L-1][i]);
+        //for (int i = 0; i < delta.size(); i++) delta[i] *= sigmoidPrime(z[L-1][i]);
         updateB[L-1] = delta;
         for (int i = 0; i < delta.size(); i++) {
             for (int j = 0; j < activations[L-2].size(); j++) updateW[L-1][i][j] = delta[i]*activations[L-2][j];
@@ -180,6 +183,7 @@ struct Network {
         return {updateB, updateW};
     }
 
+    // cross entropy cost function
     vector<double> costDerivative(vector<double> & output_activations, vector<double> & out) {
         vector<double> ret = output_activations;
         for (int i = 0; i < ret.size(); i++) ret[i] -= out[i];
