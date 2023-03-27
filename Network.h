@@ -27,8 +27,6 @@ struct Network {
     Network (vector<int> & sizes, vector<vector<double>> & biases, vector<vector<vector<double>>> & weights) {
         this->L = sizes.size();
         this->sizes = sizes;
-        this->biases.resize(L);
-        this->weights.resize(L);
         this->biases = biases;
         this->weights = weights;
     }
@@ -159,7 +157,7 @@ struct Network {
         }
 
         // backpropagate
-        auto delta = costDerivative(activations[L-1], out);
+        auto delta = crossEntropyDelta(activations[L-1], out);
         //for (int i = 0; i < delta.size(); i++) delta[i] *= sigmoidPrime(z[L-1][i]);
         updateB[L-1] = delta;
         for (int i = 0; i < delta.size(); i++) {
@@ -184,7 +182,7 @@ struct Network {
     }
 
     // cross entropy cost function
-    vector<double> costDerivative(vector<double> & output_activations, vector<double> & out) {
+    vector<double> crossEntropyDelta(vector<double> & output_activations, vector<double> & out) {
         vector<double> ret = output_activations;
         for (int i = 0; i < ret.size(); i++) ret[i] -= out[i];
         return ret;
