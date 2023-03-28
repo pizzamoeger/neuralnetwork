@@ -155,12 +155,13 @@ int main() {
     if (nw) {
         auto training_data = load_data("mnist_train_normalized.data");
 
-        int epochs; cout << "epochs:"; cin >> epochs; // 30
-        int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size; // 128
-        double eta; cout << "eta:"; cin >> eta; // 0.5
+        int epochs; cout << "epochs:"; cin >> epochs;
+        int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size;
+        double eta; cout << "eta:"; cin >> eta;
         double lambda; cout << "lambda:"; cin >> lambda;
+        double momentum_coefficient; cout << "momentum coefficient:"; cin >> momentum_coefficient;
 
-        net.SGD(training_data, epochs, mini_batch_size, eta, test_data, lambda);
+        net.SGD(training_data, epochs, mini_batch_size, eta, test_data, lambda, momentum_coefficient);
 
         // store the biases and weights in biases.txt and weights.txt
         ofstream file2;

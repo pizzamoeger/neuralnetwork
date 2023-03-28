@@ -20,15 +20,27 @@ struct Network {
     // biases[i][j] is bias of jth neuron in ith layer.
     // bias[0] = {}.
     vector<vector<double>> biases;
+    vector<vector<double>> biasesVelocity;
     // weights[i][j][k] is weight of jth neuron in ith layer to kth neuron in i-1th layer.
     // weights[0] = {}
     vector<vector<vector<double>>> weights;
+    vector<vector<vector<double>>> weightsVelocity;
 
     Network (vector<int> & sizes, vector<vector<double>> & biases, vector<vector<vector<double>>> & weights) {
         this->L = sizes.size();
         this->sizes = sizes;
         this->biases = biases;
         this->weights = weights;
+
+        biasesVelocity = vector<vector<double>> (L);
+        for (int i = 1; i < L; i++) biasesVelocity[i] = vector<double> (sizes[i], 0);
+        weightsVelocity = vector<vector<vector<double>>> (L);
+        for (int i = 1; i < L; i++) {
+            weightsVelocity[i] = vector<vector<double>> (sizes[i]);
+            for (int j = 0; j < sizes[i]; j++) {
+                weightsVelocity[i][j] = vector<double> (sizes[i-1], 0);
+            }
+        }
     }
 
     vector<double> feedforward(vector<double> & a) {
@@ -46,7 +58,7 @@ struct Network {
         return a;
     }
 
-    void SGD(vector<pair<vector<double>,vector<double>>> training_data, int epochs, int mini_batch_size, double learning_rate, vector<pair<vector<double>, vector<double>>> test_data, double lambda) {
+    void SGD(vector<pair<vector<double>,vector<double>>> training_data, int epochs, int mini_batch_size, double learning_rate, vector<pair<vector<double>, vector<double>>> test_data, double lambda, double momentum_coefficient) {
         int n = training_data.size();
         for (int i = 0; i < epochs; i++) {
             // reduce learning rate
@@ -67,7 +79,7 @@ struct Network {
                 for (int k = 0; k < mini_batch_size && j*mini_batch_size+k<n; k++) {
                     mini_batch[k] = training_data[j*mini_batch_size+k];
                 }
-                update_mini_batch(mini_batch, learning_rate, lambda, n);
+                update_mini_batch(mini_batch, learning_rate, lambda, n, momentum_coefficient);
             }
 
             // end the timer
@@ -90,12 +102,12 @@ struct Network {
         }
     }
 
-    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, double learning_rate, double lambda, int n) {
-        vector<vector<double>> updateB (L);
-        vector<vector<vector<double>>> updateW (L);
+    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, double learning_rate, double lambda, int n, double momentum_coefficient) {
+        vector<vector<double>> updateBV (L);
+        vector<vector<vector<double>>> updateWV (L);
 
-        for (int i = 1; i < L; i++) updateB[i] = vector<double> (sizes[i], 0);
-        for (int i = 1; i < L; i++) updateW[i] = vector<vector<double>> (sizes[i], vector<double> (sizes[i-1], 0));
+        for (int i = 1; i < L; i++) updateBV[i] = vector<double> (sizes[i], 0);
+        for (int i = 1; i < L; i++) updateWV[i] = vector<vector<double>> (sizes[i], vector<double> (sizes[i-1], 0));
 
         for (auto [in, out] : mini_batch) {
             // get the errors
@@ -106,30 +118,46 @@ struct Network {
             // add them to the current error
             for (int i = 1; i < L; i++) {
                 for (int j = 0; j < sizes[i]; j++) {
-                    updateB[i][j] += deltaB[i][j];
+                    updateBV[i][j] += deltaB[i][j];
                 }
             }
             for (int i = 1; i < L; i++) {
                 for (int j = 0; j < sizes[i]; j++) {
-                    for (int k = 0; k < sizes[i-1]; k++) updateW[i][j][k] += deltaW[i][j][k];
+                    for (int k = 0; k < sizes[i-1]; k++) updateWV[i][j][k] += deltaW[i][j][k];
                 }
             }
         }
 
-        // update weights and biases accordingly
+
+        // update velocities
         for (int i = 1; i < L; i++) {
             for (int j = 0; j < sizes[i]; j++) {
-                biases[i][j] -= (learning_rate/mini_batch.size())*updateB[i][j];
+                biasesVelocity[i][j] = momentum_coefficient*biasesVelocity[i][j]-(learning_rate/mini_batch.size())*updateBV[i][j];
             }
         }
 
         for (int i = 1; i < L; i++) {
             for (int j = 0; j < sizes[i]; j++) {
                 for (int k = 0; k < sizes[i-1]; k++) {
-                    weights[i][j][k] = (1-learning_rate*lambda/n)*weights[i][j][k]-(learning_rate/mini_batch.size())*updateW[i][j][k];
+                    weightsVelocity[i][j][k] = momentum_coefficient*weightsVelocity[i][j][k]-(learning_rate/mini_batch.size())*updateWV[i][j][k];
                 }
             }
         }
+
+        // update weights and biases
+        for (int i = 1; i < L; i++) {
+            for (int j = 0; j < sizes[i]; j++) {
+                biases[i][j] = biases[i][j]+biasesVelocity[i][j];
+            }
+        }
+        for (int i = 1; i < L; i++) {
+            for (int j = 0; j < sizes[i]; j++) {
+                for (int k = 0; k < sizes[i-1]; k++) {
+                    weights[i][j][k] = (1-learning_rate*lambda/n)*weights[i][j][k]+weightsVelocity[i][j][k];
+                }
+            }
+        }
+
     }
 
     pair<vector<vector<double>>, vector<vector<vector<double>>>> backprop(vector<double> & in, vector<double> & out) {
