@@ -55,6 +55,12 @@ build CMakeFiles/neuralnetwork.dir/main.cpp.obj: CXX_COMPILER__neuralnetwork_Rel
   OBJECT_DIR = CMakeFiles\neuralnetwork.dir
   OBJECT_FILE_DIR = CMakeFiles\neuralnetwork.dir
 
+build CMakeFiles/neuralnetwork.dir/Network.cpp.obj: CXX_COMPILER__neuralnetwork_Release C$:/Users/ossha/CLionProjects/neuralnetwork/Network.cpp || cmake_object_order_depends_target_neuralnetwork
+  DEP_FILE = CMakeFiles\neuralnetwork.dir\Network.cpp.obj.d
+  FLAGS = -O3 -O3 -DNDEBUG -fdiagnostics-color=always   -O3
+  OBJECT_DIR = CMakeFiles\neuralnetwork.dir
+  OBJECT_FILE_DIR = CMakeFiles\neuralnetwork.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target neuralnetwork
@@ -63,7 +69,7 @@ build CMakeFiles/neuralnetwork.dir/main.cpp.obj: CXX_COMPILER__neuralnetwork_Rel
 #############################################
 # Link the executable neuralnetwork.exe
 
-build neuralnetwork.exe: CXX_EXECUTABLE_LINKER__neuralnetwork_Release CMakeFiles/neuralnetwork.dir/main.cpp.obj
+build neuralnetwork.exe: CXX_EXECUTABLE_LINKER__neuralnetwork_Release CMakeFiles/neuralnetwork.dir/main.cpp.obj CMakeFiles/neuralnetwork.dir/Network.cpp.obj
   FLAGS = -O3 -O3 -DNDEBUG
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\neuralnetwork.dir

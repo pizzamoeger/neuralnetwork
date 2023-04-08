@@ -1,158 +1,35 @@
-#include "Network.h"
-
+#include "includes.h"
 using namespace std;
 
-default_random_engine generator;
-normal_distribution<double> distribution(0.0, 1.0 / sqrt(784));
-
-vector<pair<vector<double>, vector<double>>> load_data(string filename) {
-    // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
-    ifstream file;
-    string line;
-
-    file.open(filename);
-    vector<pair<vector<double>, vector<double>>> data;
-
-    while (getline(file, line)) {
-        stringstream ss(line);
-        vector<double> input;
-        vector<double> output (10, 0);
-
-        int label = -1;
-        while (ss.good()) {
-            string substr;
-            getline(ss, substr, ' ');
-            if (label == -1) {
-                label = stoi(substr);
-            } else {
-                input.push_back(atof(substr.c_str()));
-            }
-        }
-        output[label] = 1;
-        data.push_back({input, output});
-    }
-
-    cerr << data.size() << " data loaded from " + filename + "\n";
-    file.close();
-    return data;
-}
-
-void initStructure() {
-    ofstream file;
-
-    cout << "num of hidden layers:";
-    int L; cin >> L;
-    L += 2;
-
-    file.open("structure.txt");
-    file << L << "\n";
-    file << "784 ";
-
-    cout << "sizes of hidden layers:";
-    for (int i = 1; i < L-1; i++) {
-        int x; cin >> x;
-        file << x << " ";
-    }
-
-    file << "10\n";
-    file.close();
-}
-
-void initBiases(vector<int> & sizes) {
-    ofstream file;
-    file.open("biases.txt");
-    for (int i = 1; i < sizes.size(); i++) {
-        for (int j = 0; j < sizes[i]; j++) {
-            file << (double)distribution(generator) << " ";
-        }
-        file << "\n";
-    }
-    file.close();
-}
-
-void initWeights(vector<int> & sizes) {
-    ofstream file;
-    file.open("weights.txt");
-    for (int i = 1; i < sizes.size(); i++) {
-        for (int j = 0; j < sizes[i]; j++) {
-            for (int k = 0; k < sizes[i-1]; k++) {
-                file << (double)distribution(generator) << " ";
-            }
-            file << "^";
-        }
-        file << "\n";
-    }
-    file.close();
-}
-
+#include "misc.cpp"
 
 int main() {
     srand(time(NULL));
 
     cout << "create new network? (1/0):";
-    bool nw; cin >> nw;
+    bool newNN; cin >> newNN;
+    Network net;
 
-    // init the structure
-    if (nw) initStructure();
+    if (newNN) {
+        int L; cout << "num of hidden layers: "; cin >> L;
+        L += 2;
+        vector<int> sizes (L); sizes[0] = 784; sizes[L-1] = 10;
 
-    // load the structure
-    ifstream file;
-    file.open("structure.txt");
-    int L; file >> L;
-    vector<int> sizes (L);
-    for (int i = 0; i < L; i++) file >> sizes[i];
-    file.close();
-    cerr << "Structure loaded\n";
+        cout << "sizes of hidden layers: ";
+        for (int i = 1; i < L-1; i++) cin >> sizes[i];
 
-    // init the biases and weights
-    if (nw) {
-        initBiases(sizes);
-        initWeights(sizes);
+        net.init(sizes, sigmoid, sigmoidPrime, crossEntropyPrime);
+    } else {
+        string filename; cout << "filename: "; cin >> filename;
+        net.load(filename);
     }
-
-    // load the biases form biases.txt
-    file.open("biases.txt");
-    vector<vector<double>> biases;
-
-    biases.push_back({});
-    for (int i = 1; i < L; i++) {
-        biases.push_back({});
-        for (int j = 0; j < sizes[i]; j++) {
-            double x; file >> x;
-            biases[i].push_back(x);
-        }
-    }
-    cerr << biases.size() << " biases loaded\n";
-    file.close();
-
-    // load the weights from weights.txt
-    file.open("weights.txt");
-    vector<vector<vector<double>>> weights;
-
-    weights.push_back({});
-    for (int i = 1; i < sizes.size(); i++) {
-        weights.push_back({});
-        for (int j = 0; j < sizes[i]; j++) {
-            weights[i].push_back({});
-            for (int k = 0; k < sizes[i-1]; k++) {
-                double x; file >> x;
-                weights[i][j].push_back(x);
-            }
-            char c; file >> c;
-        }
-    }
-    cerr << weights.size() << " weights loaded\n";
-    file.close();
-
-    auto net = Network(sizes, biases, weights);
-    cerr << "Network created\n";
 
     // train network
     auto test_data = load_data("mnist_test_normalized.data");
     cout << "train network? (1/0):";
-    cin >> nw;
+    bool train; cin >> train;
 
-    if (nw) {
+    if (train) {
         auto training_data = load_data("mnist_train_normalized.data");
 
         int epochs; cout << "epochs:"; cin >> epochs;
@@ -163,27 +40,11 @@ int main() {
 
         net.SGD(training_data, epochs, mini_batch_size, eta, test_data, lambda, momentum_coefficient);
 
-        // store the biases and weights in biases.txt and weights.txt
-        ofstream file2;
-        file2.open("biases.txt");
-        for (int i = 1; i < L; i++) {
-            for (int j = 0; j < sizes[i]; j++) {
-                file2 << net.biases[i][j] << " ";
-            }
-            file2 << "\n";
+        bool save; cout << "save network? (1/0):"; cin >> save;
+        if (save) {
+            string filename; cout << "filename: "; cin >> filename;
+            net.save(filename);
         }
-        file2.close();
-        file2.open("weights.txt");
-        for (int i = 1; i < L; i++) {
-            for (int j = 0; j < sizes[i]; j++) {
-                for (int k = 0; k < sizes[i-1]; k++) {
-                    file2 << net.weights[i][j][k] << " ";
-                }
-                file2 << "^";
-            }
-            file2 << "\n";
-        }
-        file2.close();
 
         int correct = 0;
         for (int k = 0; k < training_data.size(); k++) {
