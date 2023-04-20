@@ -1,4 +1,0 @@
-C:\Users\ossha\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\223.8214.51\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=C:/Users/ossha/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/223.8214.51/bin/ninja/win/ninja.exe -DCMAKE_CXX_FLAGS=-O3 -G Ninja -S C:\Users\ossha\CLionProjects\neuralnetwork -B C:\Users\ossha\CLionProjects\neuralnetwork\cmake-build-release
--- Configuring done
--- Generating done
--- Build files have been written to: C:/Users/ossha/CLionProjects/neuralnetwork/cmake-build-release
