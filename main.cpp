@@ -138,6 +138,7 @@ int main() {
                 double x; file >> x;
                 weights[i][j].push_back(x);
             }
+            char c; file >> c;
         }
     }
     cerr << weights.size() << " weights loaded\n";
@@ -154,29 +155,31 @@ int main() {
     if (nw) {
         auto training_data = load_data("mnist_train_normalized.data");
 
-        int epochs; cout << "epochs:"; cin >> epochs; // 30
-        int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size; // 128
-        double eta; cout << "eta:"; cin >> eta; // 0.5
+        int epochs; cout << "epochs:"; cin >> epochs;
+        int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size;
+        double eta; cout << "eta:"; cin >> eta;
+        double lambda; cout << "lambda:"; cin >> lambda;
+        double momentum_coefficient; cout << "momentum coefficient:"; cin >> momentum_coefficient;
 
-        net.SGD(training_data, epochs, mini_batch_size, eta, test_data);
+        net.SGD(training_data, epochs, mini_batch_size, eta, test_data, lambda, momentum_coefficient);
 
         // store the biases and weights in biases.txt and weights.txt
         ofstream file2;
         file2.open("biases.txt");
-        for (int i = 1; i < net.biases.size(); i++) {
-            for (int j = 0; j < net.biases[i].size(); j++) {
+        for (int i = 1; i < L; i++) {
+            for (int j = 0; j < sizes[i]; j++) {
                 file2 << net.biases[i][j] << " ";
             }
             file2 << "\n";
         }
         file2.close();
         file2.open("weights.txt");
-        for (int i = 1; i < net.weights.size(); i++) {
-            for (int j = 0; j < net.weights[i].size(); j++) {
-                for (int k = 0; k < net.weights[i][j].size(); k++) {
+        for (int i = 1; i < L; i++) {
+            for (int j = 0; j < sizes[i]; j++) {
+                for (int k = 0; k < sizes[i-1]; k++) {
                     file2 << net.weights[i][j][k] << " ";
                 }
-                file2 << "\n";
+                file2 << "^";
             }
             file2 << "\n";
         }
@@ -205,6 +208,4 @@ int main() {
         if (test_data[k].second[max] == 1) correct++;
     }
     cout << "general accuracy: " << (double)correct / test_data.size() << "\n";
-
-    return 0;
 }
