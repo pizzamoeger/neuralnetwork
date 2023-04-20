@@ -5,7 +5,8 @@ def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 def getPred():
-    network = open('cmake-build-release/network.txt', 'r').readlines()
+    filename = input("network file name: ")
+    network = open('cmake-build-release/'+filename, 'r').readlines()
 
     L = int(network[0][0])
     sizes = network[1].split(' ')

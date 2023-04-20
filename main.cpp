@@ -21,6 +21,8 @@ int main() {
         net.init(sizes, sigmoid, sigmoidPrime, crossEntropyPrime);
     } else {
         string filename; cout << "filename: "; cin >> filename;
+        vector<int> tmp = {};
+        net.init(tmp, sigmoid, sigmoidPrime, crossEntropyPrime);
         net.load(filename);
     }
 
@@ -48,7 +50,7 @@ int main() {
 
         int correct = 0;
         for (int k = 0; k < training_data.size(); k++) {
-            vector<double> output = net.feedforward(training_data[k].first);
+            vector<double> output = net.feedforward(training_data[k].first).first[net.L-1];
             int max = 0;
             for (int j = 0; j < output.size(); j++) {
                 if (output[j] > output[max]) max = j;
@@ -61,7 +63,7 @@ int main() {
     // test network
     int correct = 0;
     for (int k = 0; k < test_data.size(); k++) {
-        vector<double> output = net.feedforward(test_data[k].first);
+        vector<double> output = net.feedforward(test_data[k].first).first[net.L-1];
         int max = 0;
         for (int j = 0; j < output.size(); j++) {
             if (output[j] > output[max]) max = j;
