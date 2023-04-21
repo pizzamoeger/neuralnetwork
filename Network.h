@@ -3,9 +3,9 @@ using namespace std;
 #define double float
 
 struct hyperparams {
-    int learning_rate;
-    int L2_regularization_term;
-    int momentum_coefficent;
+    double learning_rate;
+    double L2_regularization_term;
+    double momentum_coefficent;
     int epochs;
     int mini_batch_size;
     int training_data_size;

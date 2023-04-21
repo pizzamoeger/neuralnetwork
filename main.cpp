@@ -36,6 +36,8 @@ int main() {
         auto training_data = load_data("mnist_train_normalized.data");
 
         auto params = get_params();
+        params.test_data_size  = test_data.size();
+        params.training_data_size = training_data.size();
 
         net.SGD(training_data, test_data, params);
 

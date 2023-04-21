@@ -38,7 +38,7 @@ vector<double> fullyConnectedLayer::feedforward(vector<double> & a) {
 void fullyConnectedLayer::update(hyperparams params) {
     // update velocities
     for (int j = 0; j < n_out; j++) {
-        biasesVelocity[j] = params.momentum_coefficent*biasesVelocity[j]-(params.learning_rate/params.learning_rate)*updateB[j];
+        biasesVelocity[j] = params.momentum_coefficent*biasesVelocity[j]-(params.learning_rate/params.mini_batch_size)*updateB[j];
     }
 
     for (int j = 0; j < n_out; j++) {
