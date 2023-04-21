@@ -5,19 +5,30 @@ def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 def getPred():
-    weights = open('cmake-build-release/weights.txt', 'r')
-    biases = open('cmake-build-release/biases.txt', 'r')
-    architecture = open('cmake-build-release/structure.txt', 'r')
+    filename = input("path to file: ")
+    network = open(filename, 'r').readlines()
 
-    L = int(architecture.readline())
-    sizes = architecture.readline().split(' ')
+    L = int(network[0][0])
+    sizes = network[1].split(' ')
     for i in range(len(sizes)):
+        if (sizes[i] == '\n'):
+            sizes.pop(i)
+            continue
         sizes[i] = int(sizes[i])
 
     w = [[]]
     b = [[]]
 
-    for line in weights:
+    for line in network[2:2+L-1]:
+        line2 = line.split(' ')
+        for i in range(len(line2)):
+            if (line2[i] == '\n' or line2[i] == ''):
+                line2.pop(i)
+                continue
+            line2[i] = float(line2[i])
+        b.append(line2)
+
+    for line in network[2+L-1:]:
         line2 = line.split('^')
         w.append([])
         for i in range(len(line2)):
@@ -28,15 +39,6 @@ def getPred():
                     continue
                 line3[j] = float(line3[j])
             w[-1].append(line3)
-
-    for line in biases:
-        line2 = line.split(' ')
-        for i in range(len(line2)):
-            if (line2[i] == '\n' or line2[i] == ''):
-                line2.pop(i)
-                continue
-            line2[i] = float(line2[i])
-        b.append(line2)
 
     inputF = open('number.data', 'r')
     inputN = inputF.readline().split(' ')
@@ -77,7 +79,4 @@ def getPred():
         f.write('\n')
         f.close()
 
-    weights.close()
-    biases.close()
-    architecture.close()
     inputF.close()
