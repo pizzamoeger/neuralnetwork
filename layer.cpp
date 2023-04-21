@@ -35,15 +35,15 @@ vector<double> fullyConnectedLayer::feedforward(vector<double> & a) {
     return z;
 }
 
-void fullyConnectedLayer::update(double learning_rate, double lambda, int n, double momentum_coefficient, int mini_batch_size) {
+void fullyConnectedLayer::update(hyperparams params) {
     // update velocities
     for (int j = 0; j < n_out; j++) {
-        biasesVelocity[j] = momentum_coefficient*biasesVelocity[j]-(learning_rate/mini_batch_size)*updateB[j];
+        biasesVelocity[j] = params.momentum_coefficent*biasesVelocity[j]-(params.learning_rate/params.learning_rate)*updateB[j];
     }
 
     for (int j = 0; j < n_out; j++) {
         for (int k = 0; k < n_in; k++) {
-            weightsVelocity[j][k] = momentum_coefficient*weightsVelocity[j][k]-(learning_rate/mini_batch_size)*updateW[j][k];
+            weightsVelocity[j][k] = params.momentum_coefficent*weightsVelocity[j][k]-(params.learning_rate/params.mini_batch_size)*updateW[j][k];
         }
     }
 
@@ -53,7 +53,7 @@ void fullyConnectedLayer::update(double learning_rate, double lambda, int n, dou
     }
     for (int j = 0; j < n_out; j++) {
         for (int k = 0; k < n_in; k++) {
-            weights[j][k] = (1-learning_rate*lambda/n)*weights[j][k]+weightsVelocity[j][k];
+            weights[j][k] = (1-params.learning_rate*params.L2_regularization_term/params.training_data_size)*weights[j][k]+weightsVelocity[j][k];
         }
     }
 

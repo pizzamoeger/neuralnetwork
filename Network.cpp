@@ -32,13 +32,11 @@ pair<vector<vector<double>>, vector<vector<double>>> Network::feedforward(vector
     return {activations, z};
 }
 
-void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, int epochs, int mini_batch_size,
-                  double learning_rate, vector<pair<vector<double>, vector<double>>> test_data, double lambda,
-                  double momentum_coefficient) {
-    int n = training_data.size();
-    for (int i = 0; i < epochs; i++) {
+void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, vector<pair<vector<double>, vector<double>>> test_data, hyperparams params) {
+
+    for (int i = 0; i < params.epochs; i++) {
         // reduce learning rate
-        learning_rate *= 0.98;
+        params.learning_rate *= 0.98;
 
         // time the epoch
         auto start = chrono::high_resolution_clock::now();
@@ -50,12 +48,12 @@ void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, in
         shuffle(training_data.begin(), training_data.end(), default_random_engine(seed));
 
         // create mini batches and update them
-        vector<pair<vector<double>, vector<double>>> mini_batch(mini_batch_size);
-        for (int j = 0; j < n / mini_batch_size; j++) {
-            for (int k = 0; k < mini_batch_size && j * mini_batch_size + k < n; k++) {
-                mini_batch[k] = training_data[j * mini_batch_size + k];
+        vector<pair<vector<double>, vector<double>>> mini_batch(params.mini_batch_size);
+        for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
+            for (int k = 0; k < params.mini_batch_size && j * params.mini_batch_size + k < params.training_data_size; k++) {
+                mini_batch[k] = training_data[j * params.mini_batch_size + k];
             }
-            update_mini_batch(mini_batch, learning_rate, lambda, n, momentum_coefficient);
+            update_mini_batch(mini_batch, params);
         }
 
         // end the timer
@@ -79,8 +77,7 @@ void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, in
     }
 }
 
-void Network::update_mini_batch(vector<pair<vector<double>, vector<double>>> &mini_batch, double learning_rate,
-                                double lambda, int n, double momentum_coefficient) {
+void Network::update_mini_batch(vector<pair<vector<double>, vector<double>>> &mini_batch, hyperparams params) {
     vector<vector<double>> updateBV(L);
     vector<vector<vector<double>>> updateWV(L);
 
@@ -90,7 +87,7 @@ void Network::update_mini_batch(vector<pair<vector<double>, vector<double>>> &mi
     for (auto [in, out]: mini_batch) backprop(in, out);
 
     // update velocities
-    for (int i = 1; i < L; i++) layers[i].update(learning_rate, lambda, n, momentum_coefficient, mini_batch.size());
+    for (int i = 1; i < L; i++) layers[i].update(params);
 }
 
 void Network::backprop(vector<double> &in, vector<double> &out) {

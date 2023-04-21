@@ -2,6 +2,16 @@ using namespace std;
 
 #define double float
 
+struct hyperparams {
+    int learning_rate;
+    int L2_regularization_term;
+    int momentum_coefficent;
+    int epochs;
+    int mini_batch_size;
+    int training_data_size;
+    int test_data_size;
+};
+
 struct fullyConnectedLayer {
     // number of neurons
     int n_in;
@@ -30,7 +40,7 @@ struct fullyConnectedLayer {
 
     vector<double> feedforward(vector<double> & a);
 
-    void update(double learning_rate, double lambda, int n, double momentum_coefficient, int mini_batch_size);
+    void update(hyperparams params);
 
     void backprop(vector<double> & delta, vector<double> & activations, vector<double> & z);
 
@@ -46,16 +56,6 @@ struct Network {
     // layers
     vector<fullyConnectedLayer> layers;
 
-    /*// biases[i][j] is bias of jth neuron in ith layer.
-    // bias[0] = {}.
-    vector<vector<double>> biases;
-    vector<vector<double>> biasesVelocity;
-
-    // weights[i][j][k] is weight of jth neuron in ith layer to kth neuron in i-1th layer.
-    // weights[0] = {}
-    vector<vector<vector<double>>> weights;
-    vector<vector<vector<double>>> weightsVelocity;*/
-
     // activation function
     function<double(double)> activationFunct;
     function<double(double)> activationFunctPrime;
@@ -67,9 +67,9 @@ struct Network {
 
     pair<vector<vector<double>>, vector<vector<double>>> feedforward(vector<double> & a);
 
-    void SGD(vector<pair<vector<double>,vector<double>>> training_data, int epochs, int mini_batch_size, double learning_rate, vector<pair<vector<double>, vector<double>>> test_data, double lambda, double momentum_coefficient);
+    void SGD(vector<pair<vector<double>,vector<double>>> training_data, vector<pair<vector<double>, vector<double>>> test_data, hyperparams params);
 
-    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, double learning_rate, double lambda, int n, double momentum_coefficient);
+    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, hyperparams params);
 
     void backprop(vector<double> & in, vector<double> & out);
 

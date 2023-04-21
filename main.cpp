@@ -2,6 +2,7 @@
 using namespace std;
 
 #include "misc.cpp"
+#include "hyperparams.cpp"
 
 int main() {
     srand(time(NULL));
@@ -34,13 +35,9 @@ int main() {
     if (train) {
         auto training_data = load_data("mnist_train_normalized.data");
 
-        int epochs; cout << "epochs:"; cin >> epochs;
-        int mini_batch_size; cout << "mini_batch_size:"; cin >> mini_batch_size;
-        double eta; cout << "eta:"; cin >> eta;
-        double lambda; cout << "lambda:"; cin >> lambda;
-        double momentum_coefficient; cout << "momentum coefficient:"; cin >> momentum_coefficient;
+        auto params = get_params();
 
-        net.SGD(training_data, epochs, mini_batch_size, eta, test_data, lambda, momentum_coefficient);
+        net.SGD(training_data, test_data, params);
 
         bool save; cout << "save network? (1/0):"; cin >> save;
         if (save) {
