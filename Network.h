@@ -1,7 +1,3 @@
-using namespace std;
-
-#define double float
-
 struct hyperparams {
     double learning_rate;
     double L2_regularization_term;
@@ -12,15 +8,46 @@ struct hyperparams {
     int test_data_size;
 };
 
+double sigmoid(double x);
+double sigmoidPrime(double x);
+double crossEntropyPrime(double output_activation, double y);
+vector<pair<vector<vector<double>>, vector<double>>> load_data(string filename);
+hyperparams get_params();
+
 struct network_data {
     int x;
     int y;
 };
 
-struct fully_connected_layer {
+struct layer_data {
+    int type; // 0: input, 1: convolutional, 2: max pooling, 3: flatten, 4: fully connected
+
+    network_data n_in;
+    network_data n_out;
+
+    int stride_length;
+    int receptive_field_length;
+
+    int feature_maps;
+
+    int summarized_region_length;
+};
+
+struct layer {
+    network_data n_out;
+    int feature_maps;
+    virtual void init(layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime) = 0;
+    virtual void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z) = 0;
+    virtual void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) = 0;
+    virtual void update(hyperparams params) = 0;
+};
+
+struct fully_connected_layer : public layer {
     // number of neurons
     int n_in;
     int n_out;
+
+    int feature_maps = 1;
 
     // biases[i] is bias of ith neuron.
     vector<double> biases;
@@ -41,22 +68,21 @@ struct fully_connected_layer {
     // cost function
     function<double(double, double)> costFunctPrime;
 
-    void init (int n_in, int n_out, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
 
-    pair<vector<double>,vector<double>> feedforward(vector<double> & a);
+    void feedforward(int _, vector<vector<vector<double>>> & a, vector<vector<vector<double>>> & z);
 
-    void backprop(vector<double> & delta, vector<double> & activations, vector<double> & z);
+    void backprop(int _, vector<double> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z);
 
     void update(hyperparams params);
 
 };
 
-struct convolutional_layer {
+struct convolutional_layer : public layer {
     // number of neurons
     network_data n_in;
     network_data n_out;
 
-    // cnn specific
     int stride_length;
     int receptive_field_length;
     int feature_maps;
@@ -80,9 +106,62 @@ struct convolutional_layer {
     // cost function
     function<double(double, double)> costFunctPrime;
 
-    void init (network_data n_in, int stride_length, int receptive_field_length, int feature_maps, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
 
-    pair<vector<vector<vector<double>>>,vector<vector<vector<double>>>> feedforward(int previous_feature_maps, vector<vector<vector<double>>> &a);
+    void feedforward(int previous_feature_maps, vector<vector<vector<double>>> &a, vector<vector<vector<double>>> &z);
+
+    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z);
+
+    void update(hyperparams params);
+
+};
+
+struct max_pooling_layer : public layer {
+    // number of neurons
+    network_data n_in;
+    network_data n_out;
+
+    int summarized_region_length;
+    int feature_maps = 1;
+
+    // no biases or velocities
+
+    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+
+    void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z);
+
+    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z);
+
+    void update(hyperparams params);
+
+};
+
+struct flatten_layer : public layer {
+    // number of neurons
+    network_data n_in;
+    network_data n_out;
+
+    int feature_maps = 1;
+
+    // no biases or velocities
+
+    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+
+    void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z);
+
+    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z);
+
+    void update(hyperparams params);
+
+};
+
+struct input_layer : public layer {
+
+    // no biases or velocities
+
+    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+
+    void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z);
 
     void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z);
 
@@ -94,11 +173,8 @@ struct Network {
     // number of layers
     int L;
 
-    // sizes of the layers
-    vector<int> sizes;
-
     // layers
-    vector<fully_connected_layer> layers;
+    vector<unique_ptr<layer>> layers;
 
     // activation function
     function<double(double)> activationFunct;
@@ -107,15 +183,15 @@ struct Network {
     // cost function
     function<double(double, double)> costFunctPrime;
 
-    void init (vector<int> & sizes, const function<double(double)> activationFunct, const function<double(double)> activationFunctPrime, const function<double(double, double)> costFunctPrime);
+    void init (vector<layer_data> & layers, const function<double(double)> activationFunct, const function<double(double)> activationFunctPrime, const function<double(double, double)> costFunctPrime);
 
-    pair<vector<vector<double>>, vector<vector<double>>> feedforward(vector<double> & a);
+    pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>>>>> feedforward(vector<vector<double>> &a);
 
-    void SGD(vector<pair<vector<double>,vector<double>>> training_data, vector<pair<vector<double>, vector<double>>> test_data, hyperparams params);
+    void SGD(vector<pair<vector<vector<double>>, vector<double>>> training_data, vector<pair<vector<vector<double>>, vector<double>>> test_data, hyperparams params);
 
-    void update_mini_batch(vector<pair<vector<double>,vector<double>>> & mini_batch, hyperparams params);
+    void update_mini_batch(vector<pair<vector<vector<double>>, vector<double>>> &mini_batch, hyperparams params);
 
-    void backprop(vector<double> & in, vector<double> & out);
+    void backprop(vector<vector<double>> &in, vector<double> &out);
 
     void save(string filename);
 

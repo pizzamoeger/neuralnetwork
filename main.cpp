@@ -1,9 +1,10 @@
 #include "includes.h"
+#define double float
 using namespace std;
 
 int main() {
     srand(time(NULL));
-
+/*
     cout << "create new network? (1/0):";
     bool newNN; cin >> newNN;
     Network net;
@@ -22,7 +23,45 @@ int main() {
         vector<int> tmp = {};
         net.init(tmp, sigmoid, sigmoidPrime, crossEntropyPrime);
         net.load(filename);
-    }
+    }*/
+
+    Network net;
+
+    layer_data input;
+    input.type = 0;
+    input.n_out = {28, 28};
+    input.feature_maps = 1;
+
+    layer_data convolutional;
+    convolutional.type = 1;
+    convolutional.n_in = input.n_out;
+    convolutional.stride_length = 1;
+    convolutional.receptive_field_length = 3;
+    convolutional.feature_maps = 3;
+
+    layer_data maxpool;
+    maxpool.type = 2;
+    maxpool.n_in = convolutional.n_out;
+    maxpool.summarized_region_length = 2;
+
+    layer_data flatten;
+    flatten.type = 3;
+    flatten.feature_maps = 1;
+    flatten.n_in = input.n_out;
+    flatten.n_out = {30, 1};
+
+    layer_data fully_connected;
+    fully_connected.type = 4;
+    fully_connected.n_in = flatten.n_out;
+    fully_connected.n_out = {30, 1};
+
+    layer_data outt;
+    outt.type = 4;
+    outt.n_in = fully_connected.n_out;
+    outt.n_out = {10, 1};
+
+    vector<layer_data> layers = {input, flatten, fully_connected, outt};
+    net.init(layers, sigmoid, sigmoidPrime, crossEntropyPrime);
 
     // train network
     auto test_data = load_data("mnist_test_normalized.data");
@@ -38,15 +77,15 @@ int main() {
 
         net.SGD(training_data, test_data, params);
 
-        bool save; cout << "save network? (1/0):"; cin >> save;
+        /*bool save; cout << "save network? (1/0):"; cin >> save;
         if (save) {
             string filename; cout << "filename: "; cin >> filename;
             net.save(filename);
-        }
+        }*/
 
         int correct = 0;
         for (int k = 0; k < training_data.size(); k++) {
-            vector<double> output = net.feedforward(training_data[k].first).first[net.L-1];
+            vector<double> output = net.feedforward(training_data[k].first).first[net.L-1][0][0];
             int max = 0;
             for (int j = 0; j < output.size(); j++) {
                 if (output[j] > output[max]) max = j;
@@ -59,7 +98,7 @@ int main() {
     // test network
     int correct = 0;
     for (int k = 0; k < test_data.size(); k++) {
-        vector<double> output = net.feedforward(test_data[k].first).first[net.L-1];
+        vector<double> output = net.feedforward(test_data[k].first).first[net.L-1][0][0];
         int max = 0;
         for (int j = 0; j < output.size(); j++) {
             if (output[j] > output[max]) max = j;

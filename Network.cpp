@@ -1,38 +1,61 @@
 #include "includes.h"
 
-void Network::init(vector<int> &sizes, const function<double(double)> activationFunct,
+void Network::init(vector<layer_data> & layers, const function<double(double)> activationFunct,
                    const function<double(double)> activationFunctPrime,
                    const function<double(double, double)> costFunctPrime) {
     this->activationFunct = activationFunct;
     this->activationFunctPrime = activationFunctPrime;
     this->costFunctPrime = costFunctPrime;
-    this->sizes = sizes;
-    this->L = sizes.size();
+    this->L = layers.size();
 
     // initialize layers
-    this->layers = vector<fully_connected_layer>(L);
-    for (int i = 1; i < L; i++)
-        layers[i].init(sizes[i - 1], sizes[i], activationFunct, activationFunctPrime, costFunctPrime);
+    for (int l = 0; l < L; l++) {
+        unique_ptr<layer> new_layer = nullptr;
+        switch (layers[l].type) {
+            case 0:
+                new_layer = make_unique<input_layer>();
+                break;
+            case 1:
+                new_layer = make_unique<convolutional_layer>();
+                break;
+            case 2:
+                new_layer = make_unique<max_pooling_layer>();
+                break;
+            case 3:
+                new_layer = make_unique<flatten_layer>();
+                break;
+            case 4:
+                new_layer = make_unique<fully_connected_layer>();
+                break;
+        }
+        new_layer->init(layers[l], activationFunct, activationFunctPrime, costFunctPrime);
+        this->layers.push_back(move(new_layer));
+    }
 }
 
-pair<vector<vector<double>>, vector<vector<double>>> Network::feedforward(vector<double> &a) {
-    vector<vector<double>> activations(L);
-    vector<vector<double>> z(L);
-    activations[0] = a;
-    z[0] = a;
-    for (int i = 0; i < sizes[0]; i++) z[0][i] = 1;
+pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>>>>> Network::feedforward(vector<vector<double>> &a) {
+    vector<vector<vector<vector<double>>>> activations(L, vector<vector<vector<double>>> (1));
+    vector<vector<vector<vector<double>>>> z(L, vector<vector<vector<double>>> (1));
 
-    for (int i = 1; i < L; i++) {
-        z[i] = layers[i].feedforward(activations[i-1]);
-        activations[i] = z[i];
-        for (int j = 0; j < sizes[i]; j++) {
-            activations[i][j] = activationFunct(z[i][j]);
+    activations[0][0] = a;
+    z[0][0] = a;
+
+    for (int y = 0; y < layers[0]->n_out.y; y++) {
+        for (int x = 0; x < layers[0]->n_out.x; x++) {
+            z[0][0][y][x] = 1;
         }
     }
+
+    for (int i = 1; i < L; i++) {
+        activations[i] = activations[i-1];
+        z[i] = z[i-1];
+        layers[i]->feedforward(layers[i-1]->feature_maps, activations[i], z[i]);
+    }
+
     return {activations, z};
 }
 
-void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, vector<pair<vector<double>, vector<double>>> test_data, hyperparams params) {
+void Network::SGD(vector<pair<vector<vector<double>>, vector<double>>> training_data, vector<pair<vector<vector<double>>, vector<double>>> test_data, hyperparams params) {
 
     for (int i = 0; i < params.epochs; i++) {
         // reduce learning rate
@@ -48,7 +71,7 @@ void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, ve
         shuffle(training_data.begin(), training_data.end(), default_random_engine(seed));
 
         // create mini batches and update them
-        vector<pair<vector<double>, vector<double>>> mini_batch(params.mini_batch_size);
+        vector<pair<vector<vector<double>>, vector<double>>> mini_batch(params.mini_batch_size);
         for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
             for (int k = 0; k < params.mini_batch_size && j * params.mini_batch_size + k < params.training_data_size; k++) {
                 mini_batch[k] = training_data[j * params.mini_batch_size + k];
@@ -64,7 +87,7 @@ void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, ve
         start = chrono::high_resolution_clock::now();
         int correct = 0;
         for (int k = 0; k < test_data.size(); k++) {
-            vector<double> output = feedforward(test_data[k].first).first[L - 1];
+            vector<double> output = feedforward(test_data[k].first).first[L - 1][0][0];
             int max = 0;
             for (int j = 0; j < output.size(); j++) {
                 if (output[j] > output[max]) max = j;
@@ -77,48 +100,39 @@ void Network::SGD(vector<pair<vector<double>, vector<double>>> training_data, ve
     }
 }
 
-void Network::update_mini_batch(vector<pair<vector<double>, vector<double>>> &mini_batch, hyperparams params) {
-    vector<vector<double>> updateBV(L);
-    vector<vector<vector<double>>> updateWV(L);
-
-    for (int i = 1; i < L; i++) updateBV[i] = vector<double>(sizes[i], 0);
-    for (int i = 1; i < L; i++) updateWV[i] = vector<vector<double>>(sizes[i], vector<double>(sizes[i - 1], 0));
+void Network::update_mini_batch(vector<pair<vector<vector<double>>, vector<double>>> &mini_batch, hyperparams params) {
 
     for (auto [in, out]: mini_batch) backprop(in, out);
 
     // update velocities
-    for (int i = 1; i < L; i++) layers[i].update(params);
+    for (int i = 1; i < L; i++) layers[i]->update(params);
 }
 
-void Network::backprop(vector<double> &in, vector<double> &out) {
-    vector<vector<double>> updateB(L);
-    vector<vector<vector<double>>> updateW(L);
-    for (int i = 1; i < L; i++) updateB[i] = vector<double>(sizes[i], 0);
-    for (int i = 1; i < L; i++) updateW[i] = vector<vector<double>>(sizes[i], vector<double>(sizes[i - 1], 0));
-
+void Network::backprop(vector<vector<double>> &in, vector<double> &out) {
     // feedfoward
     auto [activations, z] = feedforward(in);
 
     // backpropagate
-    vector<double> delta = vector<double>(sizes[L - 1], 0);
-    for (int i = 0; i < sizes[L - 1]; i++) delta[i] = costFunctPrime(activations[L - 1][i], out[i]);
+    vector<double> delta = vector<double>(z[L-1][0][0].size(), 0);
+    for (int i = 0; i < z[L-1][0][0].size(); i++) delta[i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
-    for (int l = L - 1; l > 0; l--) layers[l].backprop(delta, activations[l-1], z[l-1]);
+    for (int l = L - 1; l > 0; l--)
+        layers[l]->backprop(layers[l-1]->feature_maps, delta, activations[l-1], z[l-1]);
 }
-
+/* uiuiui da isch ganz anders ez
 void Network::save(string filename) {
     ofstream file(filename);
 
     file << L << "\n";
 
     // sizes
-    for (int i = 0; i < L; i++) file << sizes[i] << " ";
+    for (int i = 0; i < L; i++) file << layers[i]->n_out.x*layers[i]->n_out.y << " ";
     file << "\n";
 
     // biases
     for (int i = 1; i < L; i++) {
         for (int j = 0; j < sizes[i]; j++) {
-            file << layers[i].biases[j] << " ";
+            file << layers[i]->biases[j] << " ";
         }
         file << "\n";
     }
@@ -171,4 +185,4 @@ void Network::load(string filename) {
     }
 
     file.close();
-}
+}*/

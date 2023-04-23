@@ -7,6 +7,7 @@
 #include <sstream>
 #include <chrono>
 #include <algorithm>
-#include "misc.cpp"
-#include "hyperparams.cpp"
+#include <memory>
+using namespace std;
+#define double float
 #include "Network.h"
