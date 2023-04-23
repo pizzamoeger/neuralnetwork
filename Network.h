@@ -43,7 +43,7 @@ struct fully_connected_layer {
 
     void init (int n_in, int n_out, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
 
-    vector<double> feedforward(vector<double> & a);
+    pair<vector<double>,vector<double>> feedforward(vector<double> & a);
 
     void backprop(vector<double> & delta, vector<double> & activations, vector<double> & z);
 
