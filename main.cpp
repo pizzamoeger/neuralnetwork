@@ -1,9 +1,6 @@
 #include "includes.h"
 using namespace std;
 
-#include "misc.cpp"
-#include "hyperparams.cpp"
-
 int main() {
     srand(time(NULL));
 

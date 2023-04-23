@@ -7,4 +7,6 @@
 #include <sstream>
 #include <chrono>
 #include <algorithm>
+#include "misc.cpp"
+#include "hyperparams.cpp"
 #include "Network.h"

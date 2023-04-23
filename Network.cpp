@@ -10,7 +10,7 @@ void Network::init(vector<int> &sizes, const function<double(double)> activation
     this->L = sizes.size();
 
     // initialize layers
-    this->layers = vector<fullyConnectedLayer>(L);
+    this->layers = vector<fully_connected_layer>(L);
     for (int i = 1; i < L; i++)
         layers[i].init(sizes[i - 1], sizes[i], activationFunct, activationFunctPrime, costFunctPrime);
 }
@@ -146,7 +146,7 @@ void Network::load(string filename) {
     sizes = vector<int>(L);
     for (int i = 0; i < L; i++) file >> sizes[i];
 
-    layers = vector<fullyConnectedLayer>(L);
+    layers = vector<fully_connected_layer>(L);
     for (int i = 1; i < L; i++) layers[i].init(sizes[i - 1], sizes[i], activationFunct, activationFunctPrime, costFunctPrime);
 
     // biases

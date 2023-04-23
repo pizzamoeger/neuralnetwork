@@ -43,3 +43,8 @@ vector<pair<vector<double>, vector<double>>> load_data(string filename) {
     file.close();
     return data;
 }
+
+// two dimensional to one dimensional
+int get_index(int x, int y, int y_max) {
+    return x+(y*y_max);
+}

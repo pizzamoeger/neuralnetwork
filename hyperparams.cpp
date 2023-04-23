@@ -5,8 +5,8 @@ hyperparams get_params() {
     params.epochs = 30;
 
     params.learning_rate = 0.5;
-    params.L2_regularization_term = 0.5;
-    params.momentum_coefficent = 0.25;
+    params.L2_regularization_term = 0.9;
+    params.momentum_coefficient = 0.25;
 
     return params;
 }
