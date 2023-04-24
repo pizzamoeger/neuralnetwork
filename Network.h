@@ -34,8 +34,7 @@ struct layer_data {
 };
 
 struct layer {
-    network_data n_out;
-    int feature_maps;
+    int feature_maps = 1;
     virtual void init(layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime) = 0;
     virtual void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z) = 0;
     virtual void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) = 0;
@@ -46,8 +45,6 @@ struct fully_connected_layer : public layer {
     // number of neurons
     int n_in;
     int n_out;
-
-    int feature_maps = 1;
 
     // biases[i] is bias of ith neuron.
     vector<double> biases;
@@ -85,7 +82,6 @@ struct convolutional_layer : public layer {
 
     int stride_length;
     int receptive_field_length;
-    int feature_maps;
 
     // biases[i] is bias of ith neuron.
     vector<double> biases;
@@ -122,7 +118,6 @@ struct max_pooling_layer : public layer {
     network_data n_out;
 
     int summarized_region_length;
-    int feature_maps = 1;
 
     // no biases or velocities
 
@@ -141,8 +136,6 @@ struct flatten_layer : public layer {
     network_data n_in;
     network_data n_out;
 
-    int feature_maps = 1;
-
     // no biases or velocities
 
     void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
@@ -156,7 +149,7 @@ struct flatten_layer : public layer {
 };
 
 struct input_layer : public layer {
-
+    network_data n_out;
     // no biases or velocities
 
     void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);

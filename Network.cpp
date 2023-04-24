@@ -40,7 +40,7 @@ pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>
     activations[0][0] = a;
     z[0][0] = a;
 
-    for (int i = 1; i < L; i++) { // -2 instead of -1
+    for (int i = 1; i < L; i++) {
         activations[i] = activations[i-1];
         z[i] = z[i-1];
         layers[i]->feedforward(layers[i-1]->feature_maps, activations[i], z[i]);
@@ -99,7 +99,8 @@ void Network::update_mini_batch(vector<pair<vector<vector<double>>, vector<doubl
     for (auto [in, out]: mini_batch) backprop(in, out);
 
     // update velocities
-    for (int i = 1; i < L; i++) layers[i]->update(params);
+    for (int i = 1; i < L; i++)
+        layers[i]->update(params);
 }
 
 void Network::backprop(vector<vector<double>> &in, vector<double> &out) {
@@ -110,7 +111,7 @@ void Network::backprop(vector<vector<double>> &in, vector<double> &out) {
     vector<double> delta = vector<double>(z[L-1][0][0].size(), 0);
     for (int i = 0; i < z[L-1][0][0].size(); i++) delta[i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
-    for (int l = L - 1; l > 0; l--)
+    for (int l = L - 1; l > 1; l--)
         layers[l]->backprop(layers[l-1]->feature_maps, delta, activations[l-1], z[l-1]);
 }
 /* uiuiui da isch ganz anders ez

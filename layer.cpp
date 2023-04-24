@@ -226,7 +226,7 @@ void max_pooling_layer::init(layer_data data, const function<double(double)>& ac
 }
 
 void max_pooling_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z) {
-  /*  vector<vector<vector<double>>> new_z (previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, numeric_limits<float>::lowest())));
+    vector<vector<vector<double>>> new_z (previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, numeric_limits<float>::lowest())));
     vector<vector<vector<double>>> new_a = new_z;
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
@@ -242,18 +242,18 @@ void max_pooling_layer::feedforward(int previous_feature_maps, vector<vector<vec
     }
 
     z = new_z;
-    a = new_z;*/
+    a = new_z;
 }
 
 void max_pooling_layer::backprop(int previous_feature_maps, vector<float> &delta,
                                  vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) {
-   /* vector<float> newDelta (previous_feature_maps, 0);
+    vector<float> newDelta (previous_feature_maps, 0);
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
         newDelta[previous_map] = n_out.y*n_out.x*summarized_region_length*summarized_region_length*delta[previous_map];
     }
 
-    delta = newDelta;*/
+    delta = newDelta;
 }
 
 void max_pooling_layer::update(hyperparams params) {}
@@ -262,13 +262,14 @@ void flatten_layer::init(layer_data data, const function<float(float)> &activati
                          const function<float(float)> &activationFunctPrime,
                          const function<float(float, float)> &costFunctPrime) {
     this->n_in = data.n_in;
-    this->feature_maps = data.feature_maps;
-    this->n_out.x = data.n_in.x*data.n_in.y*data.feature_maps;
+    this->feature_maps = 1;
+    this->n_out.x = data.n_in.x*data.n_in.y;
+    this->n_out.y = 1;
 }
 
 void flatten_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a,
                                 vector<vector<vector<float>>> &z) {
-    vector<vector<vector<double>>> new_z (1, vector<vector<double>> (1, vector<double> (n_out.x, 0)));
+    vector<vector<vector<double>>> new_z (1, vector<vector<double>> (1, vector<double> (n_out.x*a.size(), 0)));
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
         for (int y = 0; y < n_in.y; y++) {
@@ -303,13 +304,11 @@ void input_layer::init(layer_data data, const function<float(float)> &activation
                          const function<float(float)> &activationFunctPrime,
                          const function<float(float, float)> &costFunctPrime) {
     this->n_out = data.n_out;
-    this->feature_maps = data.feature_maps;
+    this->feature_maps = 1;
 }
 
 void input_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a,
-                              vector<vector<vector<float>>> &z) {
-
-}
+                              vector<vector<vector<float>>> &z) {}
 void input_layer::backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations,
                             vector<vector<vector<float>>> &z) {}
 void input_layer::update(hyperparams params) {}

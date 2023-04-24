@@ -30,7 +30,6 @@ int main() {
     layer_data input;
     input.type = 0;
     input.n_out = {28, 28};
-    input.feature_maps = 1;
 
     layer_data convolutional;
     convolutional.type = 1;
@@ -43,13 +42,13 @@ int main() {
     layer_data maxpool;
     maxpool.type = 2;
     maxpool.n_in = input.n_out;
-    maxpool.summarized_region_length = 1;
+    maxpool.summarized_region_length = 2;
     maxpool.n_out = {maxpool.n_in.x/maxpool.summarized_region_length, maxpool.n_in.y/maxpool.summarized_region_length};
 
     layer_data flatten;
     flatten.type = 3;
     flatten.feature_maps = 1;
-    flatten.n_in = input.n_out;
+    flatten.n_in = maxpool.n_out;
     flatten.n_out = {flatten.n_in.x*flatten.n_in.y, 1};
 
     layer_data fully_connected;
@@ -62,13 +61,13 @@ int main() {
     outt.n_in = fully_connected.n_out;
     outt.n_out = {10, 1};
 
-    vector<layer_data> layers = {input, flatten, fully_connected, outt};
+    vector<layer_data> layers = {input, maxpool, flatten, fully_connected, outt};
     net.init(layers, sigmoid, sigmoidPrime, crossEntropyPrime);
 
     // train network
     auto test_data = load_data("mnist_test_normalized.data");
     cout << "train network? (1/0):";
-    bool train; cin >> train;
+    bool train=1; //cin >> train;
 
     if (train) {
         auto training_data = load_data("mnist_train_normalized.data");
