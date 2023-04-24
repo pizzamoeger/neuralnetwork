@@ -1,15 +1,15 @@
 # transforms the mnist data to a version where the values are normalized to 0-1
 
 # open files
-fileIn = open("mnist_train.data", "r")
-fileOut = open("mnist_train_normalized.data", "w")
+fileIn = open("../data/mnist_test.csv", "r")
+fileOut = open("mnist_test_normalized.data", "w")
 
 for line in fileIn:
     if line == "\n":
         fileOut.write("\n")
         continue
 
-    numbers = line.split(" ")
+    numbers = line.split(",")
 
     fileOut.write(numbers[0] + " ")
     for num in numbers[1:]:

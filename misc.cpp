@@ -57,10 +57,10 @@ vector<pair<vector<vector<double>>, vector<double>>> load_data(string filename) 
 hyperparams get_params() {
     hyperparams params;
 
-    params.mini_batch_size = 10;
-    params.epochs = 30;
+    params.mini_batch_size = 100;
+    params.epochs = 10;
 
-    params.learning_rate = 0.01;
+    params.learning_rate = 0.1;
     params.L2_regularization_term = 0;
     params.momentum_coefficient = 0;
 

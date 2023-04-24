@@ -38,17 +38,19 @@ int main() {
     convolutional.stride_length = 1;
     convolutional.receptive_field_length = 3;
     convolutional.feature_maps = 3;
+    convolutional.n_out = {(convolutional.n_in.x-convolutional.receptive_field_length+1)/convolutional.stride_length, (convolutional.n_in.y-convolutional.receptive_field_length+1)/convolutional.stride_length};
 
     layer_data maxpool;
     maxpool.type = 2;
-    maxpool.n_in = convolutional.n_out;
-    maxpool.summarized_region_length = 2;
+    maxpool.n_in = input.n_out;
+    maxpool.summarized_region_length = 1;
+    maxpool.n_out = {maxpool.n_in.x/maxpool.summarized_region_length, maxpool.n_in.y/maxpool.summarized_region_length};
 
     layer_data flatten;
     flatten.type = 3;
     flatten.feature_maps = 1;
     flatten.n_in = input.n_out;
-    flatten.n_out = {30, 1};
+    flatten.n_out = {flatten.n_in.x*flatten.n_in.y, 1};
 
     layer_data fully_connected;
     fully_connected.type = 4;

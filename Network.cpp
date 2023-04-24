@@ -40,13 +40,7 @@ pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>
     activations[0][0] = a;
     z[0][0] = a;
 
-    for (int y = 0; y < layers[0]->n_out.y; y++) {
-        for (int x = 0; x < layers[0]->n_out.x; x++) {
-            z[0][0][y][x] = 1;
-        }
-    }
-
-    for (int i = 1; i < L; i++) {
+    for (int i = 1; i < L; i++) { // -2 instead of -1
         activations[i] = activations[i-1];
         z[i] = z[i-1];
         layers[i]->feedforward(layers[i-1]->feature_maps, activations[i], z[i]);
