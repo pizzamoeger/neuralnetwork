@@ -60,7 +60,7 @@ hyperparams get_params() {
     params.mini_batch_size = 32;
     params.epochs = 30;
 
-    params.learning_rate = 1;
+    params.learning_rate = 0.2;
     params.L2_regularization_term = 0;
     params.momentum_coefficient = 0;
 

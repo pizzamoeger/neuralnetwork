@@ -28,20 +28,21 @@ void fully_connected_layer::init (layer_data data, const function<double(double)
     updateW = vector<vector<double>> (n_out, vector<double> (n_in, 0));
 }
 
-void fully_connected_layer::feedforward(int _, vector<vector<vector<double>>> & a, vector<vector<vector<double>>> & z) {
-    vector<vector<vector<double>>> new_z (1, vector<vector<double>> (1, vector<double> (n_out, 0)));
-    vector<vector<vector<double>>> new_a = new_z;
+void fully_connected_layer::feedforward(int _, vector<vector<vector<double>>> & a, vector<vector<vector<double>>> & derivative_z) {
+    vector<vector<vector<double>>> z (1, vector<vector<double>> (1, vector<double> (n_out, 0)));
+    vector<vector<vector<double>>> new_a = z;
+    derivative_z = z;
     for (int neuron = 0; neuron < n_out; neuron++) {
         // get new activations
-        for (int previous_neuron = 0; previous_neuron < n_in; previous_neuron++) new_z[0][0][neuron] += weights[neuron][previous_neuron]*a[0][0][previous_neuron];
-        new_z[0][0][neuron] += biases[neuron];
-        new_a[0][0][neuron] = activationFunct(new_z[0][0][neuron]);
+        for (int previous_neuron = 0; previous_neuron < n_in; previous_neuron++) z[0][0][neuron] += weights[neuron][previous_neuron]*a[0][0][previous_neuron];
+        z[0][0][neuron] += biases[neuron];
+        new_a[0][0][neuron] = activationFunct(z[0][0][neuron]);
+        derivative_z[0][0][neuron] = activationFunctPrime(z[0][0][neuron]);
     }
-    z = new_z;
     a = new_a;
 }
 
-void fully_connected_layer::backprop(int _, vector<double> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) {
+void fully_connected_layer::backprop(int _, vector<double> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
     for (int neuron = 0; neuron < n_out; neuron++) updateB[neuron] += delta[neuron];
 
     for (int neuron = 0; neuron < n_out; neuron++) {
@@ -55,7 +56,7 @@ void fully_connected_layer::backprop(int _, vector<double> & delta, vector<vecto
     for (int neuron = 0; neuron < n_out; neuron++) {
         for (int previous_neuron = 0; previous_neuron < n_in; previous_neuron++) {
             newDelta[previous_neuron] += delta[neuron]*weights[neuron][previous_neuron];
-            if (neuron == n_out-1) newDelta[previous_neuron] *= activationFunctPrime(z[0][0][previous_neuron]);
+            if (neuron == n_out-1) newDelta[previous_neuron] *= derivative_z[0][0][previous_neuron];
         }
     }
     delta = newDelta;
@@ -120,10 +121,11 @@ void convolutional_layer::init(layer_data data, const function<double(double)>& 
     updateW = vector<vector<vector<double>>> (feature_maps, vector<vector<double>> (receptive_field_length, vector<double> (receptive_field_length, 0)));
 }
 
-void convolutional_layer::feedforward(int previous_feature_maps, vector<vector<vector<double>>> &a, vector<vector<vector<double>>> &z) {
+void convolutional_layer::feedforward(int previous_feature_maps, vector<vector<vector<double>>> &a, vector<vector<vector<double>>> &derivative_z) {
 
-    vector<vector<vector<double>>> new_z (feature_maps*previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, 0)));
-    vector<vector<vector<double>>> new_a = new_z;
+    vector<vector<vector<double>>> z (feature_maps*previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, 0)));
+    vector<vector<vector<double>>> new_a = z;
+    derivative_z = z;
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
         for (int map = 0; map < feature_maps; map++) {
@@ -131,22 +133,22 @@ void convolutional_layer::feedforward(int previous_feature_maps, vector<vector<v
                 for (int x = 0; x < n_out.x; x++) {
                     for (int kernel_y = 0; kernel_y < receptive_field_length; kernel_y++) {
                         for (int kernel_x = 0; kernel_x < receptive_field_length; kernel_x++) {
-                            new_z[previous_map*feature_maps+map][y][x] += weights[map][kernel_y][kernel_x];
-                            new_z[previous_map*feature_maps+map][y][x] *= a[previous_map][y*stride_length+kernel_y][x*stride_length+kernel_x];
+                            z[previous_map*feature_maps+map][y][x] += weights[map][kernel_y][kernel_x];
+                            z[previous_map*feature_maps+map][y][x] *= a[previous_map][y*stride_length+kernel_y][x*stride_length+kernel_x];
                         }
                     }
-                    new_z[previous_map*feature_maps+map][y][x] += biases[map];
-                    new_a[previous_map*feature_maps+map][y][x] = activationFunct(new_z[previous_map*feature_maps+map][y][x]);
+                    z[previous_map*feature_maps+map][y][x] += biases[map];
+                    new_a[previous_map*feature_maps+map][y][x] = activationFunct(z[previous_map*feature_maps+map][y][x]);
+                    derivative_z[previous_map*feature_maps+map][y][x] = activationFunctPrime(z[previous_map*feature_maps+map][y][x]);
                 }
             }
         }
     }
 
-    z = new_z;
     a = new_a;
 }
 
-void convolutional_layer::backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) {
+void convolutional_layer::backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
 
     for (int map = 0; map < feature_maps; map++) updateB[map] += delta[map];
 
@@ -169,7 +171,7 @@ void convolutional_layer::backprop(int previous_feature_maps, vector<float> &del
             for (int x = 0; x < n_out.x; x++) {
                 for (int kernel_y = 0; kernel_y < receptive_field_length; kernel_y++) {
                     for (int kernel_x = 0; kernel_x < receptive_field_length; kernel_x++) {
-                        newDelta[map/previous_feature_maps] += delta[map]*weights[map][kernel_y][kernel_x]*activationFunctPrime(z[map/previous_feature_maps][y*stride_length+kernel_y][x*stride_length+kernel_x]);
+                        newDelta[map/previous_feature_maps] += delta[map]*weights[map][kernel_y][kernel_x]*derivative_z[map/previous_feature_maps][y*stride_length+kernel_y][x*stride_length+kernel_x];
                     }
                 }
             }
@@ -223,32 +225,42 @@ void max_pooling_layer::init(layer_data data, const function<double(double)>& ac
     this->summarized_region_length = data.summarized_region_length;
 }
 
-void max_pooling_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &z) {
-    vector<vector<vector<double>>> new_z (previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, numeric_limits<float>::lowest())));
-    vector<vector<vector<double>>> new_a = new_z;
+void max_pooling_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z) {
+    vector<vector<vector<double>>> z (previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, numeric_limits<float>::lowest())));
+    derivative_z = z;
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
         for (int y = 0; y < n_out.y; y++) {
             for (int x = 0; x < n_out.x; x++) {
                 for (int kernel_y = 0; kernel_y < summarized_region_length; kernel_y++) {
                     for (int kernel_x = 0; kernel_x < summarized_region_length; kernel_x++) {
-                        new_z[previous_map][y][x] = max(new_z[previous_map][y][x], a[previous_map][y+kernel_y][x+kernel_x]);
+                        z[previous_map][y][x] = max(z[previous_map][y][x], a[previous_map][y+kernel_y][x+kernel_x]);
+                        derivative_z[previous_map][y][x] = 1;
                     }
                 }
             }
         }
     }
 
-    z = new_z;
-    a = new_z;
+    a = z;
 }
 
 void max_pooling_layer::backprop(int previous_feature_maps, vector<float> &delta,
-                                 vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) {
+                                 vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
     vector<float> newDelta (previous_feature_maps, 0);
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
-        newDelta[previous_map] = n_out.y*n_out.x*delta[previous_map]; // correct??
+        for (int y = 0; y < n_out.y; y++) {
+            for (int x = 0; x < n_out.x; x++) {
+                for (int kernel_y = 0; kernel_y < summarized_region_length; kernel_y++) {
+                    for (int kernel_x = 0; kernel_x < summarized_region_length; kernel_x++) {
+                        if (activations[previous_map][y+kernel_y][x+kernel_x] == derivative_z[previous_map][y][x]) {
+                            newDelta[previous_map] += delta[previous_map]*derivative_z[previous_map][y][x];
+                        }
+                    }
+                }
+            }
+        }
     }
 
     delta = newDelta;
@@ -266,23 +278,26 @@ void flatten_layer::init(layer_data data, const function<float(float)> &activati
 }
 
 void flatten_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a,
-                                vector<vector<vector<float>>> &z) {
-    vector<vector<vector<double>>> new_z (1, vector<vector<double>> (1, vector<double> (n_out.x, 0)));
+                                vector<vector<vector<float>>> &derivative_z) {
+    vector<vector<vector<float>>>  new_a (1, vector<vector<float>> (1, vector<float> (n_out.x, 0)));
+    derivative_z = new_a;
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
         for (int y = 0; y < n_in.y; y++) {
             for (int x = 0; x < n_in.x; x++) {
-                new_z[0][0][previous_map*n_in.y*n_in.x+y*n_in.x+x] = a[previous_map][y][x];
+                new_a[0][0][previous_map*n_in.y*n_in.x+y*n_in.x+x] = a[previous_map][y][x];
+                derivative_z[0][0][previous_map*n_in.y*n_in.x+y*n_in.x+x] = 1;
             }
         }
     }
 
-    z = new_z;
-    a = new_z;
+    a = new_a;
+    int n = 0;
+    n++;
 }
 
 void flatten_layer::backprop(int previous_feature_maps, vector<float> &delta,
-                             vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &z) {
+                             vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
     vector<float> newDelta (feature_maps, 0);
 
     for (int map = 0; map < feature_maps; map++) {

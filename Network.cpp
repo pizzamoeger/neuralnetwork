@@ -35,18 +35,18 @@ void Network::init(vector<layer_data> & layers, const function<double(double)> a
 
 pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>>>>> Network::feedforward(vector<vector<double>> &a) {
     vector<vector<vector<vector<double>>>> activations(L, vector<vector<vector<double>>> (1));
-    vector<vector<vector<vector<double>>>> z(L, vector<vector<vector<double>>> (1));
+    vector<vector<vector<vector<double>>>> derivatives_z(L, vector<vector<vector<double>>> (1));
 
     activations[0][0] = a;
-    z[0][0] = a;
+    derivatives_z[0][0] = a;
 
     for (int i = 1; i < L; i++) {
         activations[i] = activations[i-1];
-        z[i] = z[i-1];
-        layers[i]->feedforward(layers[i-1]->feature_maps, activations[i], z[i]);
+        derivatives_z[i] = derivatives_z[i-1];
+        layers[i]->feedforward(layers[i-1]->feature_maps, activations[i], derivatives_z[i]);
     }
 
-    return {activations, z};
+    return {activations, derivatives_z};
 }
 
 void Network::SGD(vector<pair<vector<vector<double>>, vector<double>>> training_data, vector<pair<vector<vector<double>>, vector<double>>> test_data, hyperparams params) {
@@ -105,14 +105,14 @@ void Network::update_mini_batch(vector<pair<vector<vector<double>>, vector<doubl
 
 void Network::backprop(vector<vector<double>> &in, vector<double> &out) {
     // feedfoward
-    auto [activations, z] = feedforward(in);
+    auto [activations, derivatives_z] = feedforward(in);
 
     // backpropagate
-    vector<double> delta = vector<double>(z[L-1][0][0].size(), 0);
-    for (int i = 0; i < z[L-1][0][0].size(); i++) delta[i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
+    vector<double> delta = vector<double>(activations[L-1][0][0].size(), 0);
+    for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
     for (int l = L - 1; l > 1; l--)
-        layers[l]->backprop(layers[l-1]->feature_maps, delta, activations[l-1], z[l-1]);
+        layers[l]->backprop(layers[l-1]->feature_maps, delta, activations[l-1], derivatives_z[l-1]);
 }
 /* uiuiui da isch ganz anders ez
 void Network::save(string filename) {
