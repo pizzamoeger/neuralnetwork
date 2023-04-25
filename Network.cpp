@@ -111,8 +111,8 @@ void Network::backprop(vector<vector<float>> &in, vector<float> &out) {
     auto [activations, derivatives_z] = feedforward(in);
 
     // backpropagate
-    vector<float> delta = vector<float>(activations[L-1][0][0].size(), 0);
-    for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
+    vector<vector<vector<float>>> delta = vector<vector<vector<float>>> (1, vector<vector<float>> (1 ,vector<float>(activations[L-1][0][0].size(), 0)));
+    for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[0][0][i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
     for (int l = L - 1; l > 1; l--)
         layers[l]->backprop(layers[l-1]->feature_maps, delta, activations[l-1], derivatives_z[l-1]);

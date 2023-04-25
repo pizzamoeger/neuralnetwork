@@ -47,8 +47,8 @@ int main() {
 
     layer_data flatten;
     flatten.type = 3;
-    flatten.feature_maps = 1; // all feature maps before multiplied
-    flatten.n_in = maxpool.n_out;
+    flatten.feature_maps = convolutional.feature_maps; // all feature maps before multiplied
+    flatten.n_in = convolutional.n_out;
     flatten.n_out = {flatten.n_in.x*flatten.n_in.y, 1};
 
     layer_data fully_connected1;
@@ -66,7 +66,7 @@ int main() {
     outt.n_in = fully_connected1.n_out;
     outt.n_out = {10, 1};
 
-    vector<layer_data> layers = {input, convolutional, maxpool, flatten, fully_connected1, outt};
+    vector<layer_data> layers = {input, convolutional, flatten, fully_connected1, outt};
     net.init(layers, sigmoid, sigmoidPrime, crossEntropyPrime);
 
     // train network

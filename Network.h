@@ -40,7 +40,7 @@ struct layer {
     int feature_maps = 1;
     virtual void init(layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime) = 0;
     virtual void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z) = 0;
-    virtual void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) = 0;
+    virtual void backprop(int previous_feature_maps, vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) = 0;
     virtual void update(hyperparams params) = 0;
 };
 
@@ -72,7 +72,7 @@ struct fully_connected_layer : public layer {
 
     void feedforward(int _, vector<vector<vector<float>>> & a, vector<vector<vector<float>>> & derivative_z);
 
-    void backprop(int _, vector<float> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(int _, vector<vector<vector<float>>> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
     void update(hyperparams params);
 
@@ -109,7 +109,7 @@ struct convolutional_layer : public layer {
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
-    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(int previous_feature_maps, vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
     void update(hyperparams params);
 
@@ -128,7 +128,7 @@ struct max_pooling_layer : public layer {
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
-    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(int previous_feature_maps, vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
     void update(hyperparams params);
 
@@ -145,7 +145,7 @@ struct flatten_layer : public layer {
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
-    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(int previous_feature_maps, vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
     void update(hyperparams params);
 
@@ -159,7 +159,7 @@ struct input_layer : public layer {
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
-    void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(int previous_feature_maps, vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
     void update(hyperparams params);
 
