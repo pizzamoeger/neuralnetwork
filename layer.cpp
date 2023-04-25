@@ -3,14 +3,14 @@
 
 default_random_engine generator;
 
-void fully_connected_layer::init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime) {
+void fully_connected_layer::init (layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime) {
     this->n_in = data.n_in.x*data.n_in.y;
     this->n_out = data.n_out.x*data.n_in.y;
     this->activationFunct = activationFunct;
     this->activationFunctPrime = activationFunctPrime;
     this->costFunctPrime = costFunctPrime;
 
-    normal_distribution<double> distribution(0.0, 1.0 / sqrt(n_in));
+    normal_distribution<float> distribution(0.0, 1.0 / sqrt(n_in));
 
     biases.resize(n_out);
     for (int neuron = 0; neuron < n_out; neuron++) biases[neuron] = distribution(generator);
@@ -24,13 +24,13 @@ void fully_connected_layer::init (layer_data data, const function<double(double)
         weightsVelocity[neuron].assign(n_in, 0);
     }
 
-    updateB = vector<double> (n_out, 0);
-    updateW = vector<vector<double>> (n_out, vector<double> (n_in, 0));
+    updateB = vector<float> (n_out, 0);
+    updateW = vector<vector<float>> (n_out, vector<float> (n_in, 0));
 }
 
-void fully_connected_layer::feedforward(int _, vector<vector<vector<double>>> & a, vector<vector<vector<double>>> & derivative_z) {
-    vector<vector<vector<double>>> z (1, vector<vector<double>> (1, vector<double> (n_out, 0)));
-    vector<vector<vector<double>>> new_a = z;
+void fully_connected_layer::feedforward(int _, vector<vector<vector<float>>> & a, vector<vector<vector<float>>> & derivative_z) {
+    vector<vector<vector<float>>> z (1, vector<vector<float>> (1, vector<float> (n_out, 0)));
+    vector<vector<vector<float>>> new_a = z;
     derivative_z = z;
     for (int neuron = 0; neuron < n_out; neuron++) {
         // get new activations
@@ -42,7 +42,7 @@ void fully_connected_layer::feedforward(int _, vector<vector<vector<double>>> & 
     a = new_a;
 }
 
-void fully_connected_layer::backprop(int _, vector<double> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
+void fully_connected_layer::backprop(int _, vector<float> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
     for (int neuron = 0; neuron < n_out; neuron++) updateB[neuron] += delta[neuron];
 
     for (int neuron = 0; neuron < n_out; neuron++) {
@@ -51,7 +51,7 @@ void fully_connected_layer::backprop(int _, vector<double> & delta, vector<vecto
         }
     }
 
-    vector<double> newDelta (n_in, 0);
+    vector<float> newDelta (n_in, 0);
 
     for (int neuron = 0; neuron < n_out; neuron++) {
         for (int previous_neuron = 0; previous_neuron < n_in; previous_neuron++) {
@@ -66,13 +66,13 @@ void fully_connected_layer::update(hyperparams params) {
     // update velocities
     for (int neuron = 0; neuron < n_out; neuron++) {
         assert(!isnan(biasesVelocity[neuron]));
-        biasesVelocity[neuron] = params.momentum_coefficient * biasesVelocity[neuron] - (params.learning_rate / params.mini_batch_size) * updateB[neuron];
+        biasesVelocity[neuron] = params.momentum_coefficient * biasesVelocity[neuron] - (params.fully_connected_biases_learning_rate / params.mini_batch_size) * updateB[neuron];
     }
 
     for (int neuron = 0; neuron < n_out; neuron++) {
         for (int previous_neuron = 0; previous_neuron < n_in; previous_neuron++) {
             assert(!isnan(weightsVelocity[neuron][previous_neuron]));
-            weightsVelocity[neuron][previous_neuron] = params.momentum_coefficient * weightsVelocity[neuron][previous_neuron] - (params.learning_rate / params.mini_batch_size) * updateW[neuron][previous_neuron];
+            weightsVelocity[neuron][previous_neuron] = params.momentum_coefficient * weightsVelocity[neuron][previous_neuron] - (params.fully_connected_weights_learning_rate / params.mini_batch_size) * updateW[neuron][previous_neuron];
         }
     }
 
@@ -82,22 +82,22 @@ void fully_connected_layer::update(hyperparams params) {
     }
     for (int neuron = 0; neuron < n_out; neuron++) {
         for (int previous_neuron = 0; previous_neuron < n_in; previous_neuron++) {
-            weights[neuron][previous_neuron] = (1-params.learning_rate*params.L2_regularization_term/params.training_data_size)*weights[neuron][previous_neuron]+weightsVelocity[neuron][previous_neuron];
+            weights[neuron][previous_neuron] = (1-params.fully_connected_weights_learning_rate*params.L2_regularization_term/params.training_data_size)*weights[neuron][previous_neuron]+weightsVelocity[neuron][previous_neuron];
         }
     }
 
-    updateB = vector<double> (n_out, 0);
-    updateW = vector<vector<double>> (n_out, vector<double> (n_in, 0));
+    updateB = vector<float> (n_out, 0);
+    updateW = vector<vector<float>> (n_out, vector<float> (n_in, 0));
 }
 
-void convolutional_layer::init(layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime) {
+void convolutional_layer::init(layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime) {
 
     this->n_in = data.n_in;
 
     this->n_out.x = (data.n_in.x-data.receptive_field_length+1)/data.stride_length;
     this->n_out.y = (data.n_in.y-data.receptive_field_length+1)/data.stride_length;
 
-    normal_distribution<double> distribution(0.0, 1.0 / sqrt(n_in.x*n_in.y));
+    normal_distribution<float> distribution(0.0, 1.0 / sqrt(n_in.x*n_in.y));
 
     this->activationFunct = activationFunct;
     this->activationFunctPrime = activationFunctPrime;
@@ -112,19 +112,19 @@ void convolutional_layer::init(layer_data data, const function<double(double)>& 
     weights.resize(feature_maps);
     weightsVelocity.resize(feature_maps);
     for (int map = 0; map < feature_maps; map++) {
-        weights[map].assign(receptive_field_length, vector<double> (receptive_field_length, distribution(generator)));
-        weightsVelocity[map].assign(receptive_field_length, vector<double> (receptive_field_length, 0));
+        weights[map].assign(receptive_field_length, vector<float> (receptive_field_length, distribution(generator)));
+        weightsVelocity[map].assign(receptive_field_length, vector<float> (receptive_field_length, 0));
 
     }
 
-    updateB = vector<double> (feature_maps, 0);
-    updateW = vector<vector<vector<double>>> (feature_maps, vector<vector<double>> (receptive_field_length, vector<double> (receptive_field_length, 0)));
+    updateB = vector<float> (feature_maps, 0);
+    updateW = vector<vector<vector<float>>> (feature_maps, vector<vector<float>> (receptive_field_length, vector<float> (receptive_field_length, 0)));
 }
 
-void convolutional_layer::feedforward(int previous_feature_maps, vector<vector<vector<double>>> &a, vector<vector<vector<double>>> &derivative_z) {
+void convolutional_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z) {
 
-    vector<vector<vector<double>>> z (feature_maps*previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, 0)));
-    vector<vector<vector<double>>> new_a = z;
+    vector<vector<vector<float>>> z (feature_maps*previous_feature_maps, vector<vector<float>> (n_out.y, vector<float> (n_out.x, 0)));
+    vector<vector<vector<float>>> new_a = z;
     derivative_z = z;
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {
@@ -185,14 +185,14 @@ void convolutional_layer::update (hyperparams params) {
     // update velocities
     for (int map = 0; map < feature_maps; map++) {
         assert(!isnan(biasesVelocity[map]));
-        biasesVelocity[map] = params.momentum_coefficient * biasesVelocity[map] - (params.learning_rate / params.mini_batch_size) * updateB[map];
+        biasesVelocity[map] = params.momentum_coefficient * biasesVelocity[map] - (params.convolutional_biases_learning_rate / params.mini_batch_size) * updateB[map];
     }
 
     for (int map = 0; map < feature_maps; map++) {
         for (int kernel_y = 0; kernel_y < receptive_field_length; kernel_y++) {
             for (int kernel_x = 0; kernel_x < receptive_field_length; kernel_x++) {
                 assert(!isnan(weightsVelocity[map][kernel_y][kernel_x]));
-                weightsVelocity[map][kernel_y][kernel_x] = params.momentum_coefficient * weightsVelocity[map][kernel_y][kernel_x] - (params.learning_rate / params.mini_batch_size) * updateW[map][kernel_y][kernel_x];
+                weightsVelocity[map][kernel_y][kernel_x] = params.momentum_coefficient * weightsVelocity[map][kernel_y][kernel_x] - (params.convolutional_weights_learning_rate / params.mini_batch_size / (n_out.x*n_out.y) * stride_length * stride_length) * updateW[map][kernel_y][kernel_x];
             }
         }
     }
@@ -205,16 +205,16 @@ void convolutional_layer::update (hyperparams params) {
     for (int map = 0; map < feature_maps; map++) {
         for (int kernel_y = 0; kernel_y < receptive_field_length; kernel_y++) {
             for (int kernel_x = 0; kernel_x < receptive_field_length; kernel_x++) {
-                weights[map][kernel_y][kernel_x] = (1-params.learning_rate*params.L2_regularization_term/params.training_data_size)*weights[map][kernel_y][kernel_x]+weightsVelocity[map][kernel_y][kernel_x];
+                weights[map][kernel_y][kernel_x] = (1-params.convolutional_weights_learning_rate*params.L2_regularization_term/params.training_data_size)*weights[map][kernel_y][kernel_x]+weightsVelocity[map][kernel_y][kernel_x];
             }
         }
     }
 
-    updateB = vector<double> (feature_maps, 0);
-    updateW = vector<vector<vector<double>>> (feature_maps, vector<vector<double>> (receptive_field_length, vector<double> (receptive_field_length, 0)));
+    updateB = vector<float> (feature_maps, 0);
+    updateW = vector<vector<vector<float>>> (feature_maps, vector<vector<float>> (receptive_field_length, vector<float> (receptive_field_length, 0)));
 }
 
-void max_pooling_layer::init(layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime) {
+void max_pooling_layer::init(layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime) {
     this->n_in = data.n_in;
 
     this->n_out.x = data.n_in.x/data.summarized_region_length;
@@ -226,7 +226,7 @@ void max_pooling_layer::init(layer_data data, const function<double(double)>& ac
 }
 
 void max_pooling_layer::feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z) {
-    vector<vector<vector<double>>> z (previous_feature_maps, vector<vector<double>> (n_out.y, vector<double> (n_out.x, numeric_limits<float>::lowest())));
+    vector<vector<vector<float>>> z (previous_feature_maps, vector<vector<float>> (n_out.y, vector<float> (n_out.x, numeric_limits<float>::lowest())));
     derivative_z = z;
 
     for (int previous_map = 0; previous_map < previous_feature_maps; previous_map++) {

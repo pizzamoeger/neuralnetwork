@@ -1,5 +1,5 @@
 #include "includes.h"
-#define double float
+#define float float
 using namespace std;
 
 int main() {
@@ -35,8 +35,8 @@ int main() {
     convolutional.type = 1;
     convolutional.n_in = input.n_out;
     convolutional.stride_length = 1;
-    convolutional.receptive_field_length = 3;
-    convolutional.feature_maps = 3;
+    convolutional.receptive_field_length = 5;
+    convolutional.feature_maps = 5;
     convolutional.n_out = {(convolutional.n_in.x-convolutional.receptive_field_length+1)/convolutional.stride_length, (convolutional.n_in.y-convolutional.receptive_field_length+1)/convolutional.stride_length};
 
     layer_data maxpool;
@@ -47,21 +47,26 @@ int main() {
 
     layer_data flatten;
     flatten.type = 3;
-    flatten.feature_maps = convolutional.feature_maps; // all feature maps before multiplied
+    flatten.feature_maps = 1; // all feature maps before multiplied
     flatten.n_in = maxpool.n_out;
     flatten.n_out = {flatten.n_in.x*flatten.n_in.y, 1};
 
-    layer_data fully_connected;
-    fully_connected.type = 4;
-    fully_connected.n_in = flatten.n_out;
-    fully_connected.n_out = {30, 1};
+    layer_data fully_connected1;
+    fully_connected1.type = 4;
+    fully_connected1.n_in = flatten.n_out;
+    fully_connected1.n_out = {30, 1};
+
+    layer_data fully_connected2;
+    fully_connected2.type = 4;
+    fully_connected2.n_in = fully_connected1.n_out;
+    fully_connected2.n_out = {30, 1};
 
     layer_data outt;
     outt.type = 4;
-    outt.n_in = fully_connected.n_out;
+    outt.n_in = fully_connected1.n_out;
     outt.n_out = {10, 1};
 
-    vector<layer_data> layers = {input, convolutional, maxpool, flatten, fully_connected, outt};
+    vector<layer_data> layers = {input, convolutional, maxpool, flatten, fully_connected1, outt};
     net.init(layers, sigmoid, sigmoidPrime, crossEntropyPrime);
 
     // train network
@@ -86,25 +91,25 @@ int main() {
 
         int correct = 0;
         for (int k = 0; k < training_data.size(); k++) {
-            vector<double> output = net.feedforward(training_data[k].first).first[net.L-1][0][0];
+            vector<float> output = net.feedforward(training_data[k].first).first[net.L-1][0][0];
             int max = 0;
             for (int j = 0; j < output.size(); j++) {
                 if (output[j] > output[max]) max = j;
             }
             if (training_data[k].second[max] == 1) correct++;
         }
-        cout << "accuracy in training data: " << (double)correct / training_data.size() << "\n";
+        cout << "accuracy in training data: " << (float)correct / training_data.size() << "\n";
     }
 
     // test network
     int correct = 0;
     for (int k = 0; k < test_data.size(); k++) {
-        vector<double> output = net.feedforward(test_data[k].first).first[net.L-1][0][0];
+        vector<float> output = net.feedforward(test_data[k].first).first[net.L-1][0][0];
         int max = 0;
         for (int j = 0; j < output.size(); j++) {
             if (output[j] > output[max]) max = j;
         }
         if (test_data[k].second[max] == 1) correct++;
     }
-    cout << "general accuracy: " << (double)correct / test_data.size() << "\n";
+    cout << "general accuracy: " << (float)correct / test_data.size() << "\n";
 }

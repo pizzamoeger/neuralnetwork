@@ -1,17 +1,20 @@
 struct hyperparams {
-    double learning_rate;
-    double L2_regularization_term;
-    double momentum_coefficient;
+    float convolutional_weights_learning_rate;
+    float convolutional_biases_learning_rate;
+    float fully_connected_weights_learning_rate;
+    float fully_connected_biases_learning_rate;
+    float L2_regularization_term;
+    float momentum_coefficient;
     int epochs;
     int mini_batch_size;
     int training_data_size;
     int test_data_size;
 };
 
-double sigmoid(double x);
-double sigmoidPrime(double x);
-double crossEntropyPrime(double output_activation, double y);
-vector<pair<vector<vector<double>>, vector<double>>> load_data(string filename);
+float sigmoid(float x);
+float sigmoidPrime(float x);
+float crossEntropyPrime(float output_activation, float y);
+vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename);
 hyperparams get_params();
 
 struct network_data {
@@ -35,7 +38,7 @@ struct layer_data {
 
 struct layer {
     int feature_maps = 1;
-    virtual void init(layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime) = 0;
+    virtual void init(layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime) = 0;
     virtual void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z) = 0;
     virtual void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) = 0;
     virtual void update(hyperparams params) = 0;
@@ -47,29 +50,29 @@ struct fully_connected_layer : public layer {
     int n_out;
 
     // biases[i] is bias of ith neuron.
-    vector<double> biases;
-    vector<double> biasesVelocity;
+    vector<float> biases;
+    vector<float> biasesVelocity;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    vector<vector<double>> weights;
-    vector<vector<double>> weightsVelocity;
+    vector<vector<float>> weights;
+    vector<vector<float>> weightsVelocity;
 
     // what needs to be updated
-    vector<double> updateB;
-    vector<vector<double>> updateW;
+    vector<float> updateB;
+    vector<vector<float>> updateW;
 
     // activation function
-    function<double(double)> activationFunct;
-    function<double(double)> activationFunctPrime;
+    function<float(float)> activationFunct;
+    function<float(float)> activationFunctPrime;
 
     // cost function
-    function<double(double, double)> costFunctPrime;
+    function<float(float, float)> costFunctPrime;
 
-    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime);
 
-    void feedforward(int _, vector<vector<vector<double>>> & a, vector<vector<vector<double>>> & derivative_z);
+    void feedforward(int _, vector<vector<vector<float>>> & a, vector<vector<vector<float>>> & derivative_z);
 
-    void backprop(int _, vector<double> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(int _, vector<float> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
     void update(hyperparams params);
 
@@ -84,27 +87,27 @@ struct convolutional_layer : public layer {
     int receptive_field_length;
 
     // biases[i] is bias of ith neuron.
-    vector<double> biases;
-    vector<double> biasesVelocity;
+    vector<float> biases;
+    vector<float> biasesVelocity;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    vector<vector<vector<double>>> weights;
-    vector<vector<vector<double>>> weightsVelocity;
+    vector<vector<vector<float>>> weights;
+    vector<vector<vector<float>>> weightsVelocity;
 
     // what needs to be updated
-    vector<double> updateB;
-    vector<vector<vector<double>>> updateW;
+    vector<float> updateB;
+    vector<vector<vector<float>>> updateW;
 
     // activation function
-    function<double(double)> activationFunct;
-    function<double(double)> activationFunctPrime;
+    function<float(float)> activationFunct;
+    function<float(float)> activationFunctPrime;
 
     // cost function
-    function<double(double, double)> costFunctPrime;
+    function<float(float, float)> costFunctPrime;
 
-    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime);
 
-    void feedforward(int previous_feature_maps, vector<vector<vector<double>>> &a, vector<vector<vector<double>>> &derivative_z);
+    void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
     void backprop(int previous_feature_maps, vector<float> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
 
@@ -121,7 +124,7 @@ struct max_pooling_layer : public layer {
 
     // no biases or velocities
 
-    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime);
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
@@ -138,7 +141,7 @@ struct flatten_layer : public layer {
 
     // no biases or velocities
 
-    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime);
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
@@ -152,7 +155,7 @@ struct input_layer : public layer {
     network_data n_out;
     // no biases or velocities
 
-    void init (layer_data data, const function<double(double)>& activationFunct, const function<double(double)>& activationFunctPrime, const function<double(double, double)>& costFunctPrime);
+    void init (layer_data data, const function<float(float)>& activationFunct, const function<float(float)>& activationFunctPrime, const function<float(float, float)>& costFunctPrime);
 
     void feedforward(int previous_feature_maps, vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
 
@@ -170,21 +173,21 @@ struct Network {
     vector<unique_ptr<layer>> layers;
 
     // activation function
-    function<double(double)> activationFunct;
-    function<double(double)> activationFunctPrime;
+    function<float(float)> activationFunct;
+    function<float(float)> activationFunctPrime;
 
     // cost function
-    function<double(double, double)> costFunctPrime;
+    function<float(float, float)> costFunctPrime;
 
-    void init (vector<layer_data> & layers, const function<double(double)> activationFunct, const function<double(double)> activationFunctPrime, const function<double(double, double)> costFunctPrime);
+    void init (vector<layer_data> & layers, const function<float(float)> activationFunct, const function<float(float)> activationFunctPrime, const function<float(float, float)> costFunctPrime);
 
-    pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>>>>> feedforward(vector<vector<double>> &a);
+    pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>>> feedforward(vector<vector<float>> &a);
 
-    void SGD(vector<pair<vector<vector<double>>, vector<double>>> training_data, vector<pair<vector<vector<double>>, vector<double>>> test_data, hyperparams params);
+    void SGD(vector<pair<vector<vector<float>>, vector<float>>> training_data, vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params);
 
-    void update_mini_batch(vector<pair<vector<vector<double>>, vector<double>>> &mini_batch, hyperparams params);
+    void update_mini_batch(vector<pair<vector<vector<float>>, vector<float>>> &mini_batch, hyperparams params);
 
-    void backprop(vector<vector<double>> &in, vector<double> &out);
+    void backprop(vector<vector<float>> &in, vector<float> &out);
 
     void save(string filename);
 

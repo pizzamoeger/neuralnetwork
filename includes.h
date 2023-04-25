@@ -9,5 +9,4 @@
 #include <algorithm>
 #include <memory>
 using namespace std;
-#define double float
 #include "Network.h"

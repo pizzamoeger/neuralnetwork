@@ -1,31 +1,31 @@
 #include "includes.h"
 
 // sigmoid function and its derivative
-double sigmoid(double x) {
+float sigmoid(float x) {
     return 1.0 / (1.0 + exp(-x));
 }
-double sigmoidPrime(double x) {
+float sigmoidPrime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
 // cross entropy cost function
-double crossEntropyPrime(double output_activation, double y) {
+float crossEntropyPrime(float output_activation, float y) {
     return (output_activation-y);
 }
 
 // load data
-vector<pair<vector<vector<double>>, vector<double>>> load_data(string filename) {
+vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
     ifstream file;
     string line;
 
     file.open(filename);
-    vector<pair<vector<vector<double>>, vector<double>>> data;
+    vector<pair<vector<vector<float>>, vector<float>>> data;
 
     while (getline(file, line)) {
         stringstream ss(line);
-        vector<vector<double>> input;
-        vector<double> output (10, 0);
+        vector<vector<float>> input;
+        vector<float> output (10, 0);
 
         int label = -1;
         int i = 0;
@@ -57,10 +57,14 @@ vector<pair<vector<vector<double>>, vector<double>>> load_data(string filename) 
 hyperparams get_params() {
     hyperparams params;
 
-    params.mini_batch_size = 32;
-    params.epochs = 30;
+    params.mini_batch_size = 64;
+    params.epochs = 50;
 
-    params.learning_rate = 0.2;
+    params.fully_connected_weights_learning_rate = 0.1;
+    params.fully_connected_biases_learning_rate = 0.8;
+    params.convolutional_weights_learning_rate = 0.8;
+    params.convolutional_biases_learning_rate = 0.8;
+
     params.L2_regularization_term = 0;
     params.momentum_coefficient = 0;
 

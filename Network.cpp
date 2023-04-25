@@ -1,8 +1,8 @@
 #include "includes.h"
 
-void Network::init(vector<layer_data> & layers, const function<double(double)> activationFunct,
-                   const function<double(double)> activationFunctPrime,
-                   const function<double(double, double)> costFunctPrime) {
+void Network::init(vector<layer_data> & layers, const function<float(float)> activationFunct,
+                   const function<float(float)> activationFunctPrime,
+                   const function<float(float, float)> costFunctPrime) {
     this->activationFunct = activationFunct;
     this->activationFunctPrime = activationFunctPrime;
     this->costFunctPrime = costFunctPrime;
@@ -33,9 +33,9 @@ void Network::init(vector<layer_data> & layers, const function<double(double)> a
     }
 }
 
-pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>>>>> Network::feedforward(vector<vector<double>> &a) {
-    vector<vector<vector<vector<double>>>> activations(L, vector<vector<vector<double>>> (1));
-    vector<vector<vector<vector<double>>>> derivatives_z(L, vector<vector<vector<double>>> (1));
+pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>>> Network::feedforward(vector<vector<float>> &a) {
+    vector<vector<vector<vector<float>>>> activations(L, vector<vector<vector<float>>> (1));
+    vector<vector<vector<vector<float>>>> derivatives_z(L, vector<vector<vector<float>>> (1));
 
     activations[0][0] = a;
     derivatives_z[0][0] = a;
@@ -49,12 +49,9 @@ pair<vector<vector<vector<vector<double>>>>, vector<vector<vector<vector<double>
     return {activations, derivatives_z};
 }
 
-void Network::SGD(vector<pair<vector<vector<double>>, vector<double>>> training_data, vector<pair<vector<vector<double>>, vector<double>>> test_data, hyperparams params) {
+void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_data, vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params) {
 
     for (int i = 0; i < params.epochs; i++) {
-        // reduce learning rate
-        params.learning_rate *= 0.98;
-
         // time the epoch
         auto start = chrono::high_resolution_clock::now();
 
@@ -65,7 +62,7 @@ void Network::SGD(vector<pair<vector<vector<double>>, vector<double>>> training_
         shuffle(training_data.begin(), training_data.end(), default_random_engine(seed));
 
         // create mini batches and update them
-        vector<pair<vector<vector<double>>, vector<double>>> mini_batch(params.mini_batch_size);
+        vector<pair<vector<vector<float>>, vector<float>>> mini_batch(params.mini_batch_size);
         for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
             for (int k = 0; k < params.mini_batch_size && j * params.mini_batch_size + k < params.training_data_size; k++) {
                 mini_batch[k] = training_data[j * params.mini_batch_size + k];
@@ -81,7 +78,7 @@ void Network::SGD(vector<pair<vector<vector<double>>, vector<double>>> training_
         start = chrono::high_resolution_clock::now();
         int correct = 0;
         for (int k = 0; k < test_data.size(); k++) {
-            vector<double> output = feedforward(test_data[k].first).first[L - 1][0][0];
+            vector<float> output = feedforward(test_data[k].first).first[L - 1][0][0];
             int max = 0;
             for (int j = 0; j < output.size(); j++) {
                 if (output[j] > output[max]) max = j;
@@ -89,12 +86,18 @@ void Network::SGD(vector<pair<vector<vector<double>>, vector<double>>> training_
             if (test_data[k].second[max] == 1) correct++;
         }
         end = chrono::high_resolution_clock::now();
-        cerr << "Accuracy: " << (double) correct / test_data.size() << ", trained in " << duration.count()
+        cerr << "Accuracy: " << (float) correct / test_data.size() << ", trained in " << duration.count()
              << "ms, evaluated in " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
+
+        // reduce learning rate
+        params.fully_connected_biases_learning_rate *= 0.98;
+        params.fully_connected_weights_learning_rate *= 0.98;
+        params.convolutional_weights_learning_rate *= 0.98;
+        params.convolutional_biases_learning_rate *= 0.98;
     }
 }
 
-void Network::update_mini_batch(vector<pair<vector<vector<double>>, vector<double>>> &mini_batch, hyperparams params) {
+void Network::update_mini_batch(vector<pair<vector<vector<float>>, vector<float>>> &mini_batch, hyperparams params) {
 
     for (auto [in, out]: mini_batch) backprop(in, out);
 
@@ -103,12 +106,12 @@ void Network::update_mini_batch(vector<pair<vector<vector<double>>, vector<doubl
         layers[i]->update(params);
 }
 
-void Network::backprop(vector<vector<double>> &in, vector<double> &out) {
+void Network::backprop(vector<vector<float>> &in, vector<float> &out) {
     // feedfoward
     auto [activations, derivatives_z] = feedforward(in);
 
     // backpropagate
-    vector<double> delta = vector<double>(activations[L-1][0][0].size(), 0);
+    vector<float> delta = vector<float>(activations[L-1][0][0].size(), 0);
     for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
     for (int l = L - 1; l > 1; l--)
@@ -160,7 +163,7 @@ void Network::load(string filename) {
 
     // biases
     for (int i = 1; i < L; i++) {
-        layers[i].biases = vector<double>(sizes[i]);
+        layers[i].biases = vector<float>(sizes[i]);
         for (int j = 0; j < sizes[i]; j++) {
             file >> layers[i].biases[j];
         }
@@ -168,9 +171,9 @@ void Network::load(string filename) {
 
     // weights
     for (int i = 1; i < L; i++) {
-        layers[i].weights = vector<vector<double>>(sizes[i]);
+        layers[i].weights = vector<vector<float>>(sizes[i]);
         for (int j = 0; j < sizes[i]; j++) {
-            layers[i].weights[j] = vector<double>(sizes[i - 1]);
+            layers[i].weights[j] = vector<float>(sizes[i - 1]);
             for (int k = 0; k < sizes[i - 1]; k++) {
                 file >> layers[i].weights[j][k];
             }
