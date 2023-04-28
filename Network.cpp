@@ -1,12 +1,9 @@
 #include "includes.h"
 
-void Network::init(vector<layer_data> & layers, const function<float(float)> activationFunct,
-                   const function<float(float)> activationFunctPrime,
-                   const function<float(float, float)> costFunctPrime) {
-    this->activationFunct = activationFunct;
-    this->activationFunctPrime = activationFunctPrime;
-    this->costFunctPrime = costFunctPrime;
+void Network::init(vector<layer_data> & layers, function<float(float, float)> costFunctPrime) {
+
     this->L = layers.size();
+    this->costFunctPrime = costFunctPrime;
 
     // initialize layers
     for (int l = 0; l < L; l++) {
@@ -28,7 +25,7 @@ void Network::init(vector<layer_data> & layers, const function<float(float)> act
                 new_layer = make_unique<fully_connected_layer>();
                 break;
         }
-        new_layer->init(layers[l], activationFunct, activationFunctPrime, costFunctPrime);
+        new_layer->init(layers[l]);
         this->layers.push_back(move(new_layer));
     }
 }
@@ -43,7 +40,7 @@ pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>
     for (int i = 1; i < L; i++) {
         activations[i] = activations[i-1];
         derivatives_z[i] = derivatives_z[i-1];
-        layers[i]->feedforward(layers[i-1]->feature_maps, activations[i], derivatives_z[i]);
+        layers[i]->feedforward(activations[i], derivatives_z[i]);
     }
 
     return {activations, derivatives_z};
@@ -115,7 +112,7 @@ void Network::backprop(vector<vector<float>> &in, vector<float> &out) {
     for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[0][0][i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
     for (int l = L - 1; l > 1; l--)
-        layers[l]->backprop(layers[l-1]->feature_maps, delta, activations[l-1], derivatives_z[l-1]);
+        layers[l]->backprop(delta, activations[l-1], derivatives_z[l-1]);
 }
 /* uiuiui da isch ganz anders ez
 void Network::save(string filename) {
