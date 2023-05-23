@@ -13,6 +13,9 @@ struct hyperparams {
 
 float sigmoid(float x);
 float sigmoidPrime(float x);
+float relu(float x);
+float reluPrime(float x);
+
 float crossEntropyPrime(float output_activation, float y);
 vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename);
 hyperparams get_params();
@@ -20,6 +23,7 @@ hyperparams get_params();
 struct network_data {
     int x;
     int y;
+    int feature_maps;
 };
 
 struct layer_data {
@@ -28,11 +32,10 @@ struct layer_data {
     network_data n_in;
     network_data n_out;
 
+    bool last_layer = false;
+
     int stride_length;
     int receptive_field_length;
-
-    int feature_maps;
-    int previous_feature_maps;
 
     int summarized_region_length;
 

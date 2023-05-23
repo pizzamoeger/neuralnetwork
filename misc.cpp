@@ -8,6 +8,18 @@ float sigmoidPrime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
+const float al = 0;
+
+float relu(float x){
+    if (x > 0) return x;
+    return al * x;
+}
+
+float reluPrime(float x){
+    if (x > 0) return 1.0f;
+    return al;
+}
+
 // cross entropy cost function
 float crossEntropyPrime(float output_activation, float y) {
     return (output_activation-y);
@@ -57,13 +69,13 @@ vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename) {
 hyperparams get_params() {
     hyperparams params;
 
-    params.mini_batch_size = 32;
-    params.epochs = 10;
+    params.mini_batch_size = 16;
+    params.epochs = 20;
 
-    params.fully_connected_weights_learning_rate = 0.1;
-    params.fully_connected_biases_learning_rate = 1;
-    params.convolutional_weights_learning_rate = 1;
-    params.convolutional_biases_learning_rate = 1;
+    params.fully_connected_weights_learning_rate = 0.005;
+    params.fully_connected_biases_learning_rate = 0.05;
+    params.convolutional_weights_learning_rate = 0.05;
+    params.convolutional_biases_learning_rate = 0.05;
 
     params.L2_regularization_term = 0;
     params.momentum_coefficient = 0;

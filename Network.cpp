@@ -87,10 +87,10 @@ void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_da
              << "ms, evaluated in " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
 
         // reduce learning rate
-        params.fully_connected_biases_learning_rate *= 0.98;
+        /*params.fully_connected_biases_learning_rate *= 0.98;
         params.fully_connected_weights_learning_rate *= 0.98;
         params.convolutional_weights_learning_rate *= 0.98;
-        params.convolutional_biases_learning_rate *= 0.98;
+        params.convolutional_biases_learning_rate *= 0.98;*/
     }
 }
 
@@ -111,9 +111,9 @@ void Network::backprop(vector<vector<float>> &in, vector<float> &out) {
     vector<vector<vector<float>>> delta = vector<vector<vector<float>>> (1, vector<vector<float>> (1 ,vector<float>(activations[L-1][0][0].size(), 0)));
     for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[0][0][i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
-    for (int l = L - 1; l > 1; l--)
-        layers[l]->backprop(delta, activations[l-1], derivatives_z[l-1]);
+    for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
 }
+
 /* uiuiui da isch ganz anders ez
 void Network::save(string filename) {
     ofstream file(filename);
