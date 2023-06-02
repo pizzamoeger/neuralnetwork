@@ -7,6 +7,7 @@
 #include <chrono>
 #include <algorithm>
 #include <memory>
+#include <functional>
 using namespace std;
 #include "Network.h"
 // käse
