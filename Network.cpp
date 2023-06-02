@@ -87,10 +87,10 @@ void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_da
              << "ms, evaluated in " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
 
         // reduce learning rate
-        /*params.fully_connected_biases_learning_rate *= 0.98;
-        params.fully_connected_weights_learning_rate *= 0.98;
-        params.convolutional_weights_learning_rate *= 0.98;
-        params.convolutional_biases_learning_rate *= 0.98;*/
+        params.fully_connected_biases_learning_rate *= 0.97;
+        params.fully_connected_weights_learning_rate *= 0.97;
+        params.convolutional_weights_learning_rate *= 0.97;
+        params.convolutional_biases_learning_rate *= 0.97;
     }
 }
 

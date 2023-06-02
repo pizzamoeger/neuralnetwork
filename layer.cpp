@@ -3,38 +3,6 @@
 
 default_random_engine generator;
 
-float max(vector<float> &inp) {
-    float nowmax = inp[0];
-    for (auto it: inp) {
-        nowmax = max(nowmax, it);
-    }
-    return nowmax;
-}
-
-float max(vector<vector<float>> &inp) {
-    float nowmax = inp[0][0];
-    for (auto it: inp) {
-        nowmax = max(nowmax, max(it));
-    }
-    return nowmax;
-}
-
-float max(vector<vector<vector<float>>> &inp) {
-    float nowmax = inp[0][0][0];
-    for (auto it: inp) {
-        nowmax = max(nowmax, max(it));
-    }
-    return nowmax;
-}
-
-float max(vector<vector<vector<vector<float>>>> &inp) {
-    float nowmax = inp[0][0][0][0];
-    for (auto it: inp) {
-        nowmax = max(nowmax, max(it));
-    }
-    return nowmax;
-}
-
 void fully_connected_layer::init(layer_data data) {
 
     this->data = data;
@@ -216,15 +184,11 @@ void convolutional_layer::backprop(vector<vector<vector<float>>> &delta,
                                    vector<vector<vector<float>>> &activations,
                                    vector<vector<vector<float>>> &derivative_z) {
 
-    float maxibaxi = max(delta);
-
      for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
             for (int x = 0; x < data.n_out.x; x++) delta[map][y][x] *= derivative_z[map][y][x];
         }
     }
-
-    float maxibuxi = max(delta);
 
     vector<vector<vector<float>>> newDelta(data.n_in.feature_maps,
                                            vector<vector<float>>(data.n_in.y, vector<float>(data.n_in.y, 0)));
@@ -254,14 +218,11 @@ void convolutional_layer::backprop(vector<vector<vector<float>>> &delta,
 
 void convolutional_layer::update(hyperparams params) {
 
-    float maxb = 0, maxw = 0;
-
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         assert(!isnan(biasesVelocity[map]));
         biasesVelocity[map] = params.momentum_coefficient * biasesVelocity[map] -
                               (params.convolutional_biases_learning_rate / params.mini_batch_size) * updateB[map];
         biases[map] += biasesVelocity[map];
-        maxb = max(maxb, abs(biases[map]));
     }
 
     for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
@@ -282,7 +243,6 @@ void convolutional_layer::update(hyperparams params) {
                                                                       params.training_data_size) *
                                                                      weights[previous_map][map][kernel_y][kernel_x] +
                                                                      weightsVelocity[previous_map][map][kernel_y][kernel_x];
-                    maxw = max(maxw, weights[previous_map][map][kernel_y][kernel_x]);
                 }
             }
         }

@@ -17,11 +17,11 @@ int main() {
         cout << "sizes of hidden layers: ";
         for (int i = 1; i < L-1; i++) cin >> sizes[i];
 
-        net.init(sizes, sigmoid, sigmoidPrime, crossEntropyPrime);
+        net.init(sizes, relu, reluPrime, crossEntropyPrime);
     } else {
         string filename; cout << "filename: "; cin >> filename;
         vector<int> tmp = {};
-        net.init(tmp, sigmoid, sigmoidPrime, crossEntropyPrime);
+        net.init(tmp, relu, reluPrime, crossEntropyPrime);
         net.load(filename);
     }*/
 
@@ -76,8 +76,8 @@ int main() {
 
     layer_data outt;
     outt.type = 4;
-    outt.activationFunctPrime = sigmoidPrime;
-    outt.activationFunct = sigmoid;
+    outt.activationFunctPrime = reluPrime;
+    outt.activationFunct = relu;
     outt.n_in = fully_connected2.n_out;
     outt.last_layer = true;
 
