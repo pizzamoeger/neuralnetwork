@@ -171,4 +171,6 @@ struct Network {
     void save(string filename);
 
     void load(string filename);
+
+    pair<int,int> evaluate(vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params);
 };

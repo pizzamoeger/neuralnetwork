@@ -50,12 +50,6 @@ fully_connected_layer::backprop(vector<vector<vector<float>>> &delta, vector<vec
         for (int neuron = 0; neuron < data.n_out.x; neuron++) delta[0][0][neuron] *= derivative_z[0][0][neuron];
     }
 
-    /*
-     * Die Geschichte des Käse
-     * I ha kei lust meh
-     *
-     */
-
     for (int neuron = 0; neuron < data.n_out.x; neuron++) updateB[neuron] += delta[0][0][neuron];
 
     vector<vector<vector<float>>> newDelta(1, vector<vector<float>>(1, vector<float>(data.n_in.x, 0)));
@@ -66,14 +60,12 @@ fully_connected_layer::backprop(vector<vector<vector<float>>> &delta, vector<vec
             newDelta[0][0][previous_neuron] += delta[0][0][neuron] * weights[neuron][previous_neuron];
         }
     }
-
     delta = newDelta;
 }
 
 void fully_connected_layer::update(hyperparams params) {
     // update velocities
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
-        assert(!isnan(biasesVelocity[neuron]));
         biasesVelocity[neuron] = params.momentum_coefficient * biasesVelocity[neuron] -
                                  (params.fully_connected_biases_learning_rate / params.mini_batch_size) *
                                  updateB[neuron];
@@ -81,7 +73,6 @@ void fully_connected_layer::update(hyperparams params) {
 
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            assert(!isnan(weightsVelocity[neuron][previous_neuron]));
             weightsVelocity[neuron][previous_neuron] =
                     params.momentum_coefficient * weightsVelocity[neuron][previous_neuron] -
                     (params.fully_connected_weights_learning_rate / params.mini_batch_size) *

@@ -46,13 +46,30 @@ pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>
     return {activations, derivatives_z};
 }
 
+pair<int,int> Network::evaluate(vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params) {
+    auto start = chrono::high_resolution_clock::now();
+    int correct = 0;
+    for (int k = 0; k < params.test_data_size; k++) {
+        vector<float> output = feedforward(test_data[k].first).first[L - 1][0][0];
+        int max = 0;
+        for (int j = 0; j < output.size(); j++) {
+            if (output[j] > output[max]) max = j;
+        }
+        if (test_data[k].second[max] == 1) correct++;
+    }
+    auto end = chrono::high_resolution_clock::now();
+    return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
+}
+
 void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_data, vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params) {
+    auto [correct, durationEvaluate] = evaluate(test_data);
+    cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
     for (int i = 0; i < params.epochs; i++) {
         // time the epoch
         auto start = chrono::high_resolution_clock::now();
 
-        cerr << i << " ";
+        cerr << i+1 << " ";
 
         // obtain a time-based seed
         unsigned seed = chrono::system_clock::now().time_since_epoch().count();
@@ -69,22 +86,12 @@ void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_da
 
         // end the timer
         auto end = chrono::high_resolution_clock::now();
-        auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+        auto durationTrain = chrono::duration_cast<chrono::milliseconds>(end - start).count();
 
         // evaluate the network
-        start = chrono::high_resolution_clock::now();
-        int correct = 0;
-        for (int k = 0; k < test_data.size(); k++) {
-            vector<float> output = feedforward(test_data[k].first).first[L - 1][0][0];
-            int max = 0;
-            for (int j = 0; j < output.size(); j++) {
-                if (output[j] > output[max]) max = j;
-            }
-            if (test_data[k].second[max] == 1) correct++;
-        }
-        end = chrono::high_resolution_clock::now();
-        cerr << "Accuracy: " << (float) correct / test_data.size() << ", trained in " << duration.count()
-             << "ms, evaluated in " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
+        auto [correct, durationEvaluate] = evaluate(test_data, params);
+
+        cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
 
         // reduce learning rate
         params.fully_connected_biases_learning_rate *= 0.97;

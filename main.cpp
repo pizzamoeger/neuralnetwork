@@ -83,7 +83,7 @@ int main() {
 
     outt.n_out = {10, 1, 1};
 
-    vector<layer_data> layers = {input, convolutional, maxpool, flatten, fully_connected1, fully_connected2, outt};
+    vector layers = {input, convolutional, maxpool, flatten, fully_connected1, fully_connected2, outt};
     net.init(layers, crossEntropyPrime);
 
     // train network
@@ -108,7 +108,7 @@ int main() {
 
         int correct = 0;
         for (int k = 0; k < training_data.size(); k++) {
-            vector<float> output = net.feedforward(training_data[k].first).first[net.L-1][0][0];
+            vector output = net.feedforward(training_data[k].first).first[net.L-1][0][0];
             int max = 0;
             for (int j = 0; j < output.size(); j++) {
                 if (output[j] > output[max]) max = j;
@@ -121,7 +121,7 @@ int main() {
     // test network
     int correct = 0;
     for (int k = 0; k < test_data.size(); k++) {
-        vector<float> output = net.feedforward(test_data[k].first).first[net.L-1][0][0];
+        vector output = net.feedforward(test_data[k].first).first[net.L-1][0][0];
         int max = 0;
         for (int j = 0; j < output.size(); j++) {
             if (output[j] > output[max]) max = j;
