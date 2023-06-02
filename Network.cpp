@@ -52,7 +52,7 @@ pair<int,int> Network::evaluate(vector<pair<vector<vector<float>>, vector<float>
     for (int k = 0; k < params.test_data_size; k++) {
         vector<float> output = feedforward(test_data[k].first).first[L - 1][0][0];
         int max = 0;
-        for (int j = 0; j < output.size(); j++) {
+        for (int j = 0; j < (int)output.size(); j++) {
             if (output[j] > output[max]) max = j;
         }
         if (test_data[k].second[max] == 1) correct++;
@@ -62,7 +62,7 @@ pair<int,int> Network::evaluate(vector<pair<vector<vector<float>>, vector<float>
 }
 
 void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_data, vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params) {
-    auto [correct, durationEvaluate] = evaluate(test_data);
+    auto [correct, durationEvaluate] = evaluate(test_data, params);
     cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
     for (int i = 0; i < params.epochs; i++) {
@@ -116,7 +116,7 @@ void Network::backprop(vector<vector<float>> &in, vector<float> &out) {
 
     // backpropagate
     vector<vector<vector<float>>> delta = vector<vector<vector<float>>> (1, vector<vector<float>> (1 ,vector<float>(activations[L-1][0][0].size(), 0)));
-    for (int i = 0; i < activations[L-1][0][0].size(); i++) delta[0][0][i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
+    for (int i = 0; i < (int)activations[L-1][0][0].size(); i++) delta[0][0][i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
 
     for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
 }

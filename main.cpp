@@ -88,45 +88,23 @@ int main() {
 
     // train network
     auto test_data = load_data("mnist_test_normalized.data");
-    //cout << "train network? (1/0):";
-    bool train=1; //cin >> train;
+    auto training_data = load_data("mnist_train_normalized.data");
 
-    if (train) {
-        auto training_data = load_data("mnist_train_normalized.data");
+    auto params = get_params();
+    params.test_data_size  = test_data.size();
+    params.training_data_size = training_data.size();
 
-        auto params = get_params();
-        params.test_data_size  = test_data.size();
-        params.training_data_size = training_data.size();
+    net.SGD(training_data, test_data, params);
 
-        net.SGD(training_data, test_data, params);
+    /*bool save; cout << "save network? (1/0):"; cin >> save;
+    if (save) {
+        string filename; cout << "filename: "; cin >> filename;
+        net.save(filename);
+    }*/
 
-        /*bool save; cout << "save network? (1/0):"; cin >> save;
-        if (save) {
-            string filename; cout << "filename: "; cin >> filename;
-            net.save(filename);
-        }*/
+    auto [correctTrain, durationTrain] = net.evaluate(training_data, params);
+    auto [correctTest, durationTest] = net.evaluate(test_data, params);
 
-        int correct = 0;
-        for (int k = 0; k < training_data.size(); k++) {
-            vector output = net.feedforward(training_data[k].first).first[net.L-1][0][0];
-            int max = 0;
-            for (int j = 0; j < output.size(); j++) {
-                if (output[j] > output[max]) max = j;
-            }
-            if (training_data[k].second[max] == 1) correct++;
-        }
-        cout << "accuracy in training data: " << (float)correct / training_data.size() << "\n";
-    }
-
-    // test network
-    int correct = 0;
-    for (int k = 0; k < test_data.size(); k++) {
-        vector output = net.feedforward(test_data[k].first).first[net.L-1][0][0];
-        int max = 0;
-        for (int j = 0; j < output.size(); j++) {
-            if (output[j] > output[max]) max = j;
-        }
-        if (test_data[k].second[max] == 1) correct++;
-    }
-    cout << "general accuracy: " << (float)correct / test_data.size() << "\n";
+    cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
 }

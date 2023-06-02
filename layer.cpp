@@ -303,7 +303,9 @@ void max_pooling_layer::backprop(vector<vector<vector<float>>> &delta,
     delta = newDelta;
 }
 
-void max_pooling_layer::update(hyperparams params) {}
+void max_pooling_layer::update(hyperparams params) {
+    (void) params;
+}
 
 void flatten_layer::init(layer_data data) {
     this->data = data;
@@ -331,7 +333,8 @@ void flatten_layer::feedforward(vector<vector<vector<float>>> &a,
 
 void flatten_layer::backprop(vector<vector<vector<float>>> &delta,
                              vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) {
-
+    (void)derivative_z;
+    (void)activations;
     vector<vector<vector<float>>> newDelta(data.n_in.feature_maps,
                                            vector<vector<float>>(data.n_in.y, vector<float>(data.n_in.x, 0)));
 
@@ -346,17 +349,28 @@ void flatten_layer::backprop(vector<vector<vector<float>>> &delta,
     delta = newDelta;
 }
 
-void flatten_layer::update(hyperparams params) {}
+void flatten_layer::update(hyperparams params) {
+    (void)params;
+}
 
 void input_layer::init(layer_data data) {
     this->data = data;
 }
 
 void input_layer::feedforward(vector<vector<vector<float>>> &a,
-                              vector<vector<vector<float>>> &z) {}
+                              vector<vector<vector<float>>> &z) {
+    (void)a;
+    (void)z;
+}
 
 void input_layer::backprop(vector<vector<vector<float>>> &delta,
                            vector<vector<vector<float>>> &activations,
-                           vector<vector<vector<float>>> &z) {}
+                           vector<vector<vector<float>>> &z) {
+    (void)delta;
+    (void)activations;
+    (void)z;
+}
 
-void input_layer::update(hyperparams params) {}
+void input_layer::update(hyperparams params) {
+    (void)params;
+}
