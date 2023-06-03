@@ -17,7 +17,7 @@ float relu(float x);
 float reluPrime(float x);
 
 float crossEntropyPrime(float output_activation, float y);
-vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename);
+vector<pair<vector<float>, vector<float>>> load_data(string filename);
 hyperparams get_params();
 
 struct network_data {
@@ -27,7 +27,7 @@ struct network_data {
 };
 
 struct layer_data {
-    int type; // 0: input, 1: convolutional, 2: max pooling, 3: flatten, 4: fully connected
+    int type;
 
     network_data n_in;
     network_data n_out;
@@ -45,14 +45,23 @@ struct layer_data {
 };
 
 struct layer {
-    virtual void init(layer_data data) = 0;
-    virtual void feedforward(vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z) = 0;
-    virtual void backprop(vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z) = 0;
+    layer_data data;
+    virtual void init(layer_data data, layer_data data_previous) = 0;
+    virtual void feedforward(vector<float> &a, vector<float> &derivative_z) = 0;
+    virtual void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z) = 0;
     virtual void update(hyperparams params) = 0;
 };
 
+enum {
+    LAYER_NUM_FULLY_CONNECTED,
+    LAYER_NUM_CONVOLUTIONAL,
+    LAYER_NUM_MAX_POOLING,
+    LAYER_NUM_INPUT
+};
+
 struct fully_connected_layer : public layer {
-    layer_data data;
+    //layer_data data;
+    layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
     vector<float> biases;
@@ -66,11 +75,11 @@ struct fully_connected_layer : public layer {
     vector<float> updateB;
     vector<vector<float>> updateW;
 
-    void init (layer_data data);
+    void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<vector<vector<float>>> & a, vector<vector<vector<float>>> & derivative_z);
+    void feedforward(vector<float> & a, vector<float> & derivative_z);
 
-    void backprop(vector<vector<vector<float>>> & delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(vector<float> & delta, vector<float> &activations, vector<float> &derivative_z);
 
     void update(hyperparams params);
 
@@ -78,25 +87,28 @@ struct fully_connected_layer : public layer {
 
 struct convolutional_layer : public layer {
 
-    layer_data data;
+    //layer_data data;
+    layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
     vector<float> biases;
     vector<float> biasesVelocity;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    vector<vector<vector<vector<float>>>> weights;
-    vector<vector<vector<vector<float>>>> weightsVelocity;
+    vector<float> weights;
+    vector<float> weightsVelocity;
 
     // what needs to be updated
     vector<float> updateB;
-    vector<vector<vector<vector<float>>>> updateW;
+    vector<float> updateW;
 
-    void init (layer_data data);
+    int weights_size;
 
-    void feedforward(vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
+    void init (layer_data data, layer_data data_previous);
 
-    void backprop(vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void feedforward(vector<float> &a, vector<float> &derivative_z);
+
+    void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z);
 
     void update(hyperparams params);
 
@@ -104,31 +116,16 @@ struct convolutional_layer : public layer {
 
 struct max_pooling_layer : public layer {
 
-    layer_data data;
+    //layer_data data;
+    layer_data data_previous;
 
     // no biases or velocities
 
-    void init (layer_data data);
+    void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
+    void feedforward(vector<float> &a, vector<float> &derivative_z);
 
-    void backprop(vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
-
-    void update(hyperparams params);
-
-};
-
-struct flatten_layer : public layer {
-
-    layer_data data;
-
-    // no biases or velocities
-
-    void init (layer_data data);
-
-    void feedforward(vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
-
-    void backprop(vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z);
 
     void update(hyperparams params);
 
@@ -136,14 +133,14 @@ struct flatten_layer : public layer {
 
 struct input_layer : public layer {
 
-    layer_data data;
+    //layer_data data;
     // no biases or velocities
 
-    void init (layer_data data);
+    void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<vector<vector<float>>> &a, vector<vector<vector<float>>> &derivative_z);
+    void feedforward(vector<float> &a, vector<float> &derivative_z);
 
-    void backprop(vector<vector<vector<float>>> &delta, vector<vector<vector<float>>> &activations, vector<vector<vector<float>>> &derivative_z);
+    void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z);
 
     void update(hyperparams params);
 
@@ -160,17 +157,17 @@ struct Network {
 
     void init (vector<layer_data> & layers, function<float(float, float)> costFunctPrime);
 
-    pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>>> feedforward(vector<vector<float>> &a);
+    pair<vector<vector<float>>, vector<vector<float>>> feedforward(vector<float> &a);
 
-    void SGD(vector<pair<vector<vector<float>>, vector<float>>> training_data, vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params);
+    void SGD(vector<pair<vector<float>, vector<float>>> training_data, vector<pair<vector<float>, vector<float>>> test_data, hyperparams params);
 
-    void update_mini_batch(vector<pair<vector<vector<float>>, vector<float>>> &mini_batch, hyperparams params);
+    void update_mini_batch(vector<pair<vector<float>, vector<float>>> &mini_batch, hyperparams params);
 
-    void backprop(vector<vector<float>> &in, vector<float> &out);
+    void backprop(vector<float> &in, vector<float> &out);
 
     void save(string filename);
 
     void load(string filename);
 
-    pair<int,int> evaluate(vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params);
+    pair<int,int> evaluate(vector<pair<vector<float>, vector<float>>> test_data, hyperparams params);
 };

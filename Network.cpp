@@ -9,33 +9,32 @@ void Network::init(vector<layer_data> & layers, function<float(float, float)> co
     for (int l = 0; l < L; l++) {
         unique_ptr<layer> new_layer = nullptr;
         switch (layers[l].type) {
-            case 0:
+            case LAYER_NUM_INPUT:
                 new_layer = make_unique<input_layer>();
                 break;
-            case 1:
+            case LAYER_NUM_CONVOLUTIONAL:
                 new_layer = make_unique<convolutional_layer>();
                 break;
-            case 2:
+            case LAYER_NUM_MAX_POOLING:
                 new_layer = make_unique<max_pooling_layer>();
                 break;
-            case 3:
-                new_layer = make_unique<flatten_layer>();
-                break;
-            case 4:
+            case LAYER_NUM_FULLY_CONNECTED:
                 new_layer = make_unique<fully_connected_layer>();
                 break;
         }
-        new_layer->init(layers[l]);
+        layer_data previous_data;
+        if (l > 0) previous_data = this->layers[l - 1]->data;
+        new_layer->init(layers[l], previous_data);
         this->layers.push_back(move(new_layer));
     }
 }
 
-pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>>> Network::feedforward(vector<vector<float>> &a) {
-    vector<vector<vector<vector<float>>>> activations(L, vector<vector<vector<float>>> (1));
-    vector<vector<vector<vector<float>>>> derivatives_z(L, vector<vector<vector<float>>> (1));
+pair<vector<vector<float>>, vector<vector<float>>> Network::feedforward(vector<float> &a) {
+    vector<vector<float>> activations(L, vector<float> (1));
+    vector<vector<float>> derivatives_z(L, vector<float> (1));
 
-    activations[0][0] = a;
-    derivatives_z[0][0] = a;
+    activations[0] = a;
+    derivatives_z[0] = a;
 
     for (int i = 1; i < L; i++) {
         activations[i] = activations[i-1];
@@ -46,11 +45,11 @@ pair<vector<vector<vector<vector<float>>>>, vector<vector<vector<vector<float>>>
     return {activations, derivatives_z};
 }
 
-pair<int,int> Network::evaluate(vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params) {
+pair<int,int> Network::evaluate(vector<pair<vector<float>, vector<float>>> test_data, hyperparams params) {
     auto start = chrono::high_resolution_clock::now();
     int correct = 0;
-    for (int k = 0; k < params.test_data_size; k++) {
-        vector<float> output = feedforward(test_data[k].first).first[L - 1][0][0];
+    for (int k = 0; k < (int) test_data.size(); k++) {
+        vector<float> output = feedforward(test_data[k].first).first[L - 1];
         int max = 0;
         for (int j = 0; j < (int)output.size(); j++) {
             if (output[j] > output[max]) max = j;
@@ -61,7 +60,7 @@ pair<int,int> Network::evaluate(vector<pair<vector<vector<float>>, vector<float>
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
 }
 
-void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_data, vector<pair<vector<vector<float>>, vector<float>>> test_data, hyperparams params) {
+void Network::SGD(vector<pair<vector<float>, vector<float>>> training_data, vector<pair<vector<float>, vector<float>>> test_data, hyperparams params) {
     auto [correct, durationEvaluate] = evaluate(test_data, params);
     cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
@@ -76,7 +75,7 @@ void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_da
         shuffle(training_data.begin(), training_data.end(), default_random_engine(seed));
 
         // create mini batches and update them
-        vector<pair<vector<vector<float>>, vector<float>>> mini_batch(params.mini_batch_size);
+        vector<pair<vector<float>, vector<float>>> mini_batch(params.mini_batch_size);
         for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
             for (int k = 0; k < params.mini_batch_size && j * params.mini_batch_size + k < params.training_data_size; k++) {
                 mini_batch[k] = training_data[j * params.mini_batch_size + k];
@@ -101,22 +100,24 @@ void Network::SGD(vector<pair<vector<vector<float>>, vector<float>>> training_da
     }
 }
 
-void Network::update_mini_batch(vector<pair<vector<vector<float>>, vector<float>>> &mini_batch, hyperparams params) {
+void Network::update_mini_batch(vector<pair<vector<float>, vector<float>>> &mini_batch, hyperparams params) {
 
-    for (auto [in, out]: mini_batch) backprop(in, out);
+    for (auto [in, out]: mini_batch) {
+        backprop(in, out);
+    }
 
     // update velocities
     for (int i = 1; i < L; i++)
         layers[i]->update(params);
 }
 
-void Network::backprop(vector<vector<float>> &in, vector<float> &out) {
+void Network::backprop(vector<float> &in, vector<float> &out) {
     // feedfoward
     auto [activations, derivatives_z] = feedforward(in);
 
     // backpropagate
-    vector<vector<vector<float>>> delta = vector<vector<vector<float>>> (1, vector<vector<float>> (1 ,vector<float>(activations[L-1][0][0].size(), 0)));
-    for (int i = 0; i < (int)activations[L-1][0][0].size(); i++) delta[0][0][i] = costFunctPrime(activations[L - 1][0][0][i], out[i]);
+    vector<float> delta = vector<float> (activations[L-1].size(), 0);
+    for (int i = 0; i < (int)activations[L-1].size(); i++) delta[i] = costFunctPrime(activations[L - 1][i], out[i]);
 
     for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
 }

@@ -26,17 +26,17 @@ float crossEntropyPrime(float output_activation, float y) {
 }
 
 // load data
-vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename) {
+vector<pair<vector<float>, vector<float>>> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
     ifstream file;
     string line;
 
     file.open(filename);
-    vector<pair<vector<vector<float>>, vector<float>>> data;
+    vector<pair<vector<float>, vector<float>>> data;
 
     while (getline(file, line)) {
         stringstream ss(line);
-        vector<vector<float>> input;
+        vector<float> input;
         vector<float> output (10, 0);
 
         int label = -1;
@@ -54,7 +54,7 @@ vector<pair<vector<vector<float>>, vector<float>>> load_data(string filename) {
                     input.push_back({});
                 }
                 i++;
-                input[j].push_back(atof(substr.c_str()));
+                input.push_back(atof(substr.c_str()));
             }
         }
         output[label] = 1;
@@ -70,11 +70,11 @@ hyperparams get_params() {
     hyperparams params;
 
     params.mini_batch_size = 16;
-    params.epochs = 20;
+    params.epochs = 10;
 
     params.fully_connected_weights_learning_rate = 0.007;
     params.fully_connected_biases_learning_rate = 0.07;
-    params.convolutional_weights_learning_rate = 0.07;
+    params.convolutional_weights_learning_rate = 0.7;
     params.convolutional_biases_learning_rate = 0.07;
 
     params.L2_regularization_term = 0;
