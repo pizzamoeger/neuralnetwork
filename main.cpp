@@ -32,27 +32,15 @@ int main() {
 
     layer_data convolutional;
     convolutional.type = LAYER_NUM_CONVOLUTIONAL;
-    convolutional.n_in = input.n_out;
     convolutional.stride_length = 1;
     convolutional.receptive_field_length = 5;
     convolutional.activationFunctPrime = reluPrime;
     convolutional.activationFunct = relu;
-    convolutional.n_out = {(convolutional.n_in.x-convolutional.receptive_field_length+1)/convolutional.stride_length, (convolutional.n_in.y-convolutional.receptive_field_length+1)/convolutional.stride_length, 3};
-
-    layer_data c;
-    c.type = LAYER_NUM_CONVOLUTIONAL;
-    c.n_in = convolutional.n_out;
-    c.stride_length = 1;
-    c.receptive_field_length = 5;
-    c.activationFunctPrime = reluPrime;
-    c.activationFunct = relu;
-    c.n_out = {(c.n_in.x-c.receptive_field_length+1)/c.stride_length, (c.n_in.y-c.receptive_field_length+1)/c.stride_length, 3};
+    convolutional.n_out = {-1,-1, 3};
 
     layer_data maxpool;
     maxpool.type = 2;
-    maxpool.n_in = c.n_out;
     maxpool.summarized_region_length = 2;
-    maxpool.n_out = {maxpool.n_in.x/maxpool.summarized_region_length, maxpool.n_in.y/maxpool.summarized_region_length, maxpool.n_in.feature_maps};
 
     layer_data fully_connected1;
     fully_connected1.type = LAYER_NUM_FULLY_CONNECTED;
@@ -73,7 +61,7 @@ int main() {
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
-    vector layers = {input, fully_connected1, fully_connected2, outt};
+    vector layers = {input, convolutional, maxpool, fully_connected2, outt};
     net.init(layers, crossEntropyPrime);
 
     // train network

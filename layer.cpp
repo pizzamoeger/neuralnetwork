@@ -114,11 +114,12 @@ void fully_connected_layer::update(hyperparams params) {
 
 void convolutional_layer::init(layer_data data, layer_data data_previous) {
 
+    data.n_in = data_previous.n_out;
+    data.n_out.x = (data.n_in.x - data.receptive_field_length + 1) / data.stride_length;
+    data.n_out.y = (data.n_in.y - data.receptive_field_length + 1) / data.stride_length;
+
     this->data = data;
     this->data_previous = data_previous;
-
-    this->data.n_out.x = (data.n_in.x - data.receptive_field_length + 1) / data.stride_length;
-    this->data.n_out.y = (data.n_in.y - data.receptive_field_length + 1) / data.stride_length;
 
     weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.n_out.x * data.n_out.y;
 
@@ -245,10 +246,12 @@ void convolutional_layer::update(hyperparams params) {
 }
 
 void max_pooling_layer::init(layer_data data, layer_data data_previous) {
+    data.n_in = data_previous.n_out;
     this->data = data;
     this->data_previous = data_previous;
     this->data.n_out.x = data.n_in.x / data.summarized_region_length;
     this->data.n_out.y = data.n_in.y / data.summarized_region_length;
+    this->data.n_out.feature_maps = data_previous.n_out.feature_maps;
 }
 
 void max_pooling_layer::feedforward(vector<float> &a,
