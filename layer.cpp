@@ -8,6 +8,10 @@ int get_convolutional_weights_index(int previous_map, int map, int y, int x, lay
             + x;
 }
 
+int get_fully_connected_weights_index(int neuron, int previous_neuron) {
+    return neuron*previous_neuron+previous_neuron;
+}
+
 int get_data_index(int map, int y, int x, layer_data &data) {
     return
             map * (data.n_out.x * data.n_out.y)
@@ -28,17 +32,17 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     for (int neuron = 0; neuron < data.n_out.x; neuron++) biases[neuron] = distribution(generator);
     biasesVelocity.assign(data.n_out.x, 0);
 
-    weights.resize(data.n_out.x);
-    weightsVelocity.resize(data.n_out.x);
+    weights.resize(data.n_out.x*data.n_in.x);
+    weightsVelocity.resize(data.n_out.x*data.n_in.x);
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
-        weights[neuron].resize(data.n_in.x);
-        for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++)
-            weights[neuron][previous_neuron] = distribution(generator);
-        weightsVelocity[neuron].assign(data.n_in.x, 0);
+        for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
+            weights[get_fully_connected_weights_index(neuron, previous_neuron)] = distribution(generator);
+            weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] = 0;
+        }
     }
 
     updateB = vector<float>(data.n_out.x, 0);
-    updateW = vector<vector<float>>(data.n_out.x, vector<float>(data.n_in.x, 0));
+    updateW = vector<float>(data.n_out.x*data.n_in.x, 0);
 }
 
 void fully_connected_layer::feedforward(vector<float> &a,
@@ -49,7 +53,7 @@ void fully_connected_layer::feedforward(vector<float> &a,
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         // get new activations
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++)
-            z[get_data_index(0, 0, neuron, data)] += weights[neuron][previous_neuron] * a[get_data_index(0, 0, previous_neuron, data_previous)];
+            z[get_data_index(0, 0, neuron, data)] += weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[get_data_index(0, 0, previous_neuron, data_previous)];
         z[get_data_index(0, 0, neuron, data)] += biases[neuron];
         new_a[get_data_index(0, 0, neuron, data)] = data.activationFunct(z[get_data_index(0, 0, neuron, data)]);
         derivative_z[get_data_index(0, 0, neuron, data)] = data.activationFunctPrime(z[get_data_index(0, 0, neuron, data)]);
@@ -71,8 +75,8 @@ fully_connected_layer::backprop(vector<float> &delta, vector<float> &activations
 
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            updateW[neuron][previous_neuron] += delta[get_data_index(0, 0, neuron, data)] * activations[get_data_index(0, 0, previous_neuron, data)];
-            newDelta[get_data_index(0, 0, previous_neuron, data_previous)] += delta[get_data_index(0, 0, neuron, data)] * weights[neuron][previous_neuron];
+            updateW[get_fully_connected_weights_index(neuron, previous_neuron)] += delta[get_data_index(0, 0, neuron, data)] * activations[get_data_index(0, 0, previous_neuron, data)];
+            newDelta[get_data_index(0, 0, previous_neuron, data_previous)] += delta[get_data_index(0, 0, neuron, data)] * weights[get_fully_connected_weights_index(neuron, previous_neuron)];
         }
     }
     delta = newDelta;
@@ -88,10 +92,10 @@ void fully_connected_layer::update(hyperparams params) {
 
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            weightsVelocity[neuron][previous_neuron] =
-                    params.momentum_coefficient * weightsVelocity[neuron][previous_neuron] -
+            weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] =
+                    params.momentum_coefficient * weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] -
                     (params.fully_connected_weights_learning_rate / params.mini_batch_size) *
-                    updateW[neuron][previous_neuron];
+                    updateW[get_fully_connected_weights_index(neuron, previous_neuron)];
         }
     }
 
@@ -101,15 +105,33 @@ void fully_connected_layer::update(hyperparams params) {
     }
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            weights[neuron][previous_neuron] = (1 - params.fully_connected_weights_learning_rate *
+            weights[get_fully_connected_weights_index(neuron, previous_neuron)] = (1 - params.fully_connected_weights_learning_rate *
                                                     params.L2_regularization_term / params.training_data_size) *
-                                               weights[neuron][previous_neuron] +
-                                               weightsVelocity[neuron][previous_neuron];
+                                               weights[get_fully_connected_weights_index(neuron, previous_neuron)] +
+                                               weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)];
         }
     }
 
     updateB = vector<float>(data.n_out.x, 0);
-    updateW = vector<vector<float>>(data.n_out.x, vector<float>(data.n_in.x, 0));
+    updateW = vector<float>(data.n_out.x*data.n_in.x, 0);
+}
+
+void fully_connected_layer::save(string filename) {
+    ofstream file(filename, std::ios_base::app);
+
+    file << LAYER_NUM_FULLY_CONNECTED << "//";
+    file << data.n_out.x << "//";
+
+    for (auto bias : biases) file << bias << " ";
+    file << "//";
+    for (auto biasVel : biasesVelocity) file << biasVel << " ";
+    file << "//";
+    for (auto weight : weights) file << weight << " ";
+    file << "//";
+    for (auto weightVec : weightsVelocity) file << weightVec << " ";
+    file << "\n";
+
+    file.close();
 }
 
 void convolutional_layer::init(layer_data data, layer_data data_previous) {
@@ -245,6 +267,24 @@ void convolutional_layer::update(hyperparams params) {
     updateW = vector<float>(weights_size, 0);
 }
 
+void convolutional_layer::save(string filename) {
+    ofstream file(filename, std::ios_base::app);
+
+    file << LAYER_NUM_CONVOLUTIONAL << "//";
+    file << data.stride_length << " " << data.receptive_field_length << " " << data.n_out.feature_maps << "//";
+
+    for (auto bias : biases) file << bias << " ";
+    file << "//";
+    for (auto biasVel : biasesVelocity) file << biasVel << " ";
+    file << "//";
+    for (auto weight : weights) file << weight << " ";
+    file << "//";
+    for (auto weightVel : weightsVelocity) file << weightVel << " ";
+    file << "\n";
+
+    file.close();
+}
+
 void max_pooling_layer::init(layer_data data, layer_data data_previous) {
     data.n_in = data_previous.n_out;
     this->data = data;
@@ -304,6 +344,15 @@ void max_pooling_layer::update(hyperparams params) {
     (void) params;
 }
 
+void max_pooling_layer::save(string filename) {
+    ofstream file(filename, std::ios_base::app);
+
+    file << LAYER_NUM_MAX_POOLING << "//";
+    file << data.summarized_region_length << "\n";
+
+    file.close();
+}
+
 void input_layer::init(layer_data data, layer_data data_previous) {
     this->data = data;
     (void) data_previous;
@@ -325,4 +374,13 @@ void input_layer::backprop(vector<float> &delta,
 
 void input_layer::update(hyperparams params) {
     (void) params;
+}
+
+void input_layer::save(string filename) {
+    ofstream file(filename, std::ios_base::app);
+
+    file << LAYER_NUM_INPUT << "//";
+    file << data.n_out.x << " " << data.n_out.y << "\n";
+
+    file.close();
 }

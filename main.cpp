@@ -85,4 +85,5 @@ int main() {
 
     cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
     cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    net.save("net.txt");
 }

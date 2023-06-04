@@ -122,38 +122,14 @@ void Network::backprop(vector<float> &in, vector<float> &out) {
     for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
 }
 
-/* uiuiui da isch ganz anders ez
 void Network::save(string filename) {
     ofstream file(filename);
-
     file << L << "\n";
-
-    // sizes
-    for (int i = 0; i < L; i++) file << layers[i]->n_out.x*layers[i]->n_out.y << " ";
-    file << "\n";
-
-    // biases
-    for (int i = 1; i < L; i++) {
-        for (int j = 0; j < sizes[i]; j++) {
-            file << layers[i]->biases[j] << " ";
-        }
-        file << "\n";
-    }
-
-    // weights
-    for (int i = 1; i < L; i++) {
-        for (int j = 0; j < sizes[i]; j++) {
-            for (int k = 0; k < sizes[i - 1]; k++) {
-                file << layers[i].weights[j][k] << " ";
-            }
-            file << "^";
-        }
-        file << "\n";
-    }
-
     file.close();
-}
 
+    for (int l = 0; l < L; l++) layers[l]->save(filename);
+}
+/*
 void Network::load(string filename) {
     ifstream file(filename);
 

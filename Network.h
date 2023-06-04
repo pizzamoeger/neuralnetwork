@@ -50,6 +50,7 @@ struct layer {
     virtual void feedforward(vector<float> &a, vector<float> &derivative_z) = 0;
     virtual void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z) = 0;
     virtual void update(hyperparams params) = 0;
+    virtual void save(string file) = 0;
 };
 
 enum {
@@ -59,8 +60,9 @@ enum {
     LAYER_NUM_INPUT
 };
 
+// TODO activation functions: a number which act func, make a function which you can call where it automatically calls the correct act func -> act func can be stored
+
 struct fully_connected_layer : public layer {
-    //layer_data data;
     layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
@@ -68,12 +70,12 @@ struct fully_connected_layer : public layer {
     vector<float> biasesVelocity;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    vector<vector<float>> weights;
-    vector<vector<float>> weightsVelocity;
+    vector<float> weights;
+    vector<float> weightsVelocity;
 
     // what needs to be updated
     vector<float> updateB;
-    vector<vector<float>> updateW;
+    vector<float> updateW;
 
     void init (layer_data data, layer_data data_previous);
 
@@ -83,11 +85,12 @@ struct fully_connected_layer : public layer {
 
     void update(hyperparams params);
 
+    void save(string filename);
+
 };
 
 struct convolutional_layer : public layer {
 
-    //layer_data data;
     layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
@@ -112,6 +115,7 @@ struct convolutional_layer : public layer {
 
     void update(hyperparams params);
 
+    void save(string filename);
 };
 
 struct max_pooling_layer : public layer {
@@ -129,6 +133,7 @@ struct max_pooling_layer : public layer {
 
     void update(hyperparams params);
 
+    void save(string filename);
 };
 
 struct input_layer : public layer {
@@ -144,6 +149,7 @@ struct input_layer : public layer {
 
     void update(hyperparams params);
 
+    void save(string filename);
 };
 
 struct Network {
