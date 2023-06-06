@@ -141,7 +141,7 @@ def ff(l, activations):
         return ffMaxPool(l+1, activations)
 
 def getPred():
-    filename = "cmake-build-release/net.txt"
+    filename = "net.txt"
     network = open(filename, 'r').readlines()
 
     L = int(network[0][0])
@@ -181,17 +181,5 @@ def getPred():
         if (inputN[i] > inputN[val]):
             val = i
 
-    print(val)
-    stp = input("add to training data? (0/1)")
-    if (stp == '1'):
-        label = input("correct label: ")
-
-
-        f = open('cmake-build-release/mnist_train_normalized.data', 'a')
-        f.write(label + ' ')
-        for i in range(len(inputO)):
-            f.write(str(inputO[i]) + ' ')
-        f.write('\n')
-        f.close()
-
     inputF.close()
+    return [val, inputO]

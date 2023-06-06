@@ -70,7 +70,7 @@ hyperparams get_params() {
     hyperparams params;
 
     params.mini_batch_size = 16;
-    params.epochs = 10;
+    params.epochs = 2;
 
     params.fully_connected_weights_learning_rate = 0.007;
     params.fully_connected_biases_learning_rate = 0.07;
