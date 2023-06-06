@@ -15,7 +15,7 @@ def loadFullyConn(data):
     newinn = 1
     for i in inn:
         newinn *= i
-    inn = newinn
+    inn = [newinn, 1, 1]
 
     data[1] = data[1].split(" ")
     biases = []
@@ -79,14 +79,19 @@ def loadInput(data):
     layer_data.append([[int(data[0][0]), int(data[0][1]), 1]])
 
 def ffFullConn(l, a):
-    weights = layer_data[l][1]
     biases = layer_data[l][0]
-    z = [0] * layer_data[l][3][0]
+    weights = layer_data[l][1]
+    inn = layer_data[l][2]
+    out = layer_data[l][3]
+
+    z = [0] * out[0]
     newA = z
-    for neuron in range(layer_data[l][3][0]):
-        for previous_neuron in range(layer_data[l][2]):
+
+    for neuron in range(out[0]):
+        for previous_neuron in range(inn[0]):
             z[neuron] += weights[neuron*previous_neuron+previous_neuron]*a[previous_neuron]
-        newA[neuron] = relu(z[neuron]+biases[neuron])
+        z[neuron] += biases[neuron]
+        newA[neuron] = relu(z[neuron])
     return newA
 
 def dataIndex(map, y, x, noutx, nouty):
@@ -140,8 +145,8 @@ def ff(l, activations):
     elif layer_data[l] == 2:
         return ffMaxPool(l+1, activations)
 
-def getPred():
-    filename = "net.txt"
+def load():
+    filename = "nettibetti.txt"
     network = open(filename, 'r').readlines()
 
     L = int(network[0][0])
@@ -162,17 +167,11 @@ def getPred():
         else:
             loadFullyConn(data[1:])
 
-    inputF = open('number.data', 'r')
-    inputN = inputF.readline().split(' ')
-    for i in range(len(inputN)):
-        if (inputN[i] == '\n'):
-            inputN.pop(i)
-            continue
-        inputN[i] = float(inputN[i])
+def getPred(inputN):
     inputO = inputN
 
     # feedforward
-    for i in range(1, L):
+    for i in range(1, int(len(layer_data)/2)):
         inputN = ff(2*i, inputN)
 
     # print the index with the highest value
@@ -181,5 +180,4 @@ def getPred():
         if (inputN[i] > inputN[val]):
             val = i
 
-    inputF.close()
     return [val, inputO]

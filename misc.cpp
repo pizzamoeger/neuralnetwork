@@ -11,8 +11,7 @@ float sigmoidPrime(float x) {
 const float al = 0;
 
 float relu(float x){
-    if (x > 0) return x;
-    return al * x;
+    return max(x, 0.0f);
 }
 
 float reluPrime(float x){
@@ -41,18 +40,12 @@ vector<pair<vector<float>, vector<float>>> load_data(string filename) {
 
         int label = -1;
         int i = 0;
-        int j = -1;
         while (ss.good()) {
             string substr;
             getline(ss, substr, ' ');
             if (label == -1) {
                 label = stoi(substr);
             } else {
-                if (i%28 == 0) {
-                    i = 0;
-                    j++;
-                    input.push_back({});
-                }
                 i++;
                 input.push_back(atof(substr.c_str()));
             }
@@ -70,15 +63,15 @@ hyperparams get_params() {
     hyperparams params;
 
     params.mini_batch_size = 16;
-    params.epochs = 2;
+    params.epochs = 10;
 
     params.fully_connected_weights_learning_rate = 0.007;
     params.fully_connected_biases_learning_rate = 0.07;
     params.convolutional_weights_learning_rate = 0.7;
     params.convolutional_biases_learning_rate = 0.07;
 
-    params.L2_regularization_term = 0;
-    params.momentum_coefficient = 0;
+    params.L2_regularization_term = 0.4;
+    params.momentum_coefficient = 0.45;
 
     return params;
 }

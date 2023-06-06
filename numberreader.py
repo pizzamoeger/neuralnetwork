@@ -89,7 +89,18 @@ while True:
                     pygame.image.save(screen.subsurface(0, 50, 350, 350), "number.jpg")
 
                     boundingbox.boundingbox()
-                    num = neuralnetwork.getPred()
+
+                    inputF = open('number.data', 'r')
+                    inputN = inputF.readline().split(' ')
+                    for i in range(len(inputN)):
+                        if (inputN[i] == '\n'):
+                            inputN.pop(i)
+                            continue
+                        inputN[i] = float(inputN[i])
+                    inputF.close()
+
+                    neuralnetwork.load()
+                    num = neuralnetwork.getPred(inputN)
                     pred = num[0]
 
                     # print the pred next to the text "Prediction:"
