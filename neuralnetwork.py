@@ -97,8 +97,8 @@ def ffFullConn(l, a):
 def dataIndex(map, y, x, noutx, nouty):
     return map*noutx*nouty+y*noutx+x
 
-def convweightIndex(prevmap, map, y, x, noutx, nouty, noutfm):
-    return prevmap* (noutfm*noutx*nouty) + map * (noutx*nouty) + y*noutx+ x
+def convweightIndex(prevmap, map, y, x, recf, noutfm):
+    return prevmap* (noutfm*recf*recf) + map * (recf*recf) + y*recf + x
 
 def ffConv(l, a):
     biases = layer_data[l][0]
@@ -118,7 +118,7 @@ def ffConv(l, a):
                 for prevmap in range(layer_data[l-2][-1][2]):
                     for kerny in range(receptiveFieldLength):
                         for kernx in range(receptiveFieldLength):
-                            z[dataIndex(map,y,x,noutx,nouty)] += weights[convweightIndex(prevmap, map, y, x, noutx, nouty, featureMaps)]*a[dataIndex(prevmap, y*strideLength+kerny, x*strideLength+kernx, noutx, nouty)]
+                            z[dataIndex(map,y,x,noutx,nouty)] += weights[convweightIndex(prevmap, map, kerny, kernx, receptiveFieldLength, featureMaps)]*a[dataIndex(prevmap, y*strideLength+kerny, x*strideLength+kernx, noutx, nouty)]
                 z[dataIndex(map,y,x,noutx,nouty)] += biases[map]
                 newA[dataIndex(map,y,x,noutx,nouty)] = relu(z[dataIndex(map,y,x,noutx,nouty)])
 
@@ -146,7 +146,7 @@ def ff(l, activations):
         return ffMaxPool(l+1, activations)
 
 def load():
-    filename = "nettibetti.txt"
+    filename = "net.txt"
     network = open(filename, 'r').readlines()
 
     L = int(network[0][0])

@@ -4,6 +4,8 @@ import numpy as np
 import boundingbox
 import neuralnetwork
 
+neuralnetwork.load()
+
 pygame.init()
 screen = pygame.display.set_mode((700, 700))
 pygame.display.set_caption("Number")
@@ -99,7 +101,6 @@ while True:
                         inputN[i] = float(inputN[i])
                     inputF.close()
 
-                    neuralnetwork.load()
                     num = neuralnetwork.getPred(inputN)
                     pred = num[0]
 

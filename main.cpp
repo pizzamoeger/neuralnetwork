@@ -26,7 +26,7 @@ int main() {
 
     Network net;
 
-    /*layer_data input;
+    layer_data input;
     input.type = LAYER_NUM_INPUT;
     input.n_out = {28, 28, 1};
 
@@ -59,8 +59,9 @@ int main() {
     outt.activationFunctPrime = reluPrime;
     outt.activationFunct = relu;
     outt.last_layer = true;
-    outt.n_out = {10, 1, 1};*/
+    outt.n_out = {10, 1, 1};
 
+    /*
     layer_data input;
     input.type = LAYER_NUM_INPUT;
     input.n_out = {2, 2, 1};
@@ -71,20 +72,20 @@ int main() {
     convolutional.receptive_field_length = 2;
     convolutional.activationFunctPrime = reluPrime;
     convolutional.activationFunct = relu;
-    convolutional.n_out = {1,1, 3};
+    convolutional.n_out = {1,1, 1};
 
     layer_data fully_connected;
     fully_connected.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected.activationFunctPrime = reluPrime;
     fully_connected.activationFunct = relu;
-    fully_connected.n_out = {1, 1, 1};
+    fully_connected.n_out = {1, 1, 1};*/
 
-    vector layers = {input, convolutional, fully_connected};
+    vector layers = {input, convolutional, maxpool, fully_connected1, fully_connected2, outt};
     net.init(layers, crossEntropyPrime);
 
-    net.save("nettibetti.txt");
+    //net.save("nettibetti.txt");
 
-    /*
+
     // train network
     auto test_data = load_data("mnist_test_normalized.data");
     auto training_data = load_data("mnist_train_normalized.data");
@@ -99,15 +100,15 @@ int main() {
     if (save) {
         string filename; cout << "filename: "; cin >> filename;
         net.save(filename);
-    }
+    }*/
 
     auto [correctTrain, durationTrain] = net.evaluate(training_data, params);
     auto [correctTest, durationTest] = net.evaluate(test_data, params);
 
     cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";*/
-    vector<float> inputt = {0.5, 0.5, 0.5, 0.5};
+    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    /*vector<float> inputt = {0, 0.25, 0.5, 0.75};
     auto pred = net.feedforward(inputt);
-    cout << "\n";
+    cout << "\n";*/
     net.save("net.txt");
 }

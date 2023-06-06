@@ -10,6 +10,8 @@ correct = 0
 neuralnetwork.load()
 count = 0
 
+#neuralnetwork.getPred([0, 0.25, 0.5, 0.75])
+
 for line in fileIn:
     count += 1
     if (count % 100 == 0):

@@ -2,9 +2,9 @@
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
     return
-            previous_map * (data.n_out.feature_maps * data.n_out.x * data.n_out.y)
-            + map * (data.n_out.x * data.n_out.y)
-            + y * (data.n_out.x)
+            previous_map * (data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length)
+            + map * (data.receptive_field_length * data.receptive_field_length)
+            + y * (data.receptive_field_length)
             + x;
 }
 
@@ -143,7 +143,7 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
     this->data = data;
     this->data_previous = data_previous;
 
-    weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.n_out.x * data.n_out.y;
+    weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length;
 
     normal_distribution<float> distribution(0.0, 1.0 / sqrt(data.receptive_field_length * data.receptive_field_length));
 
@@ -151,15 +151,13 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
     for (int map = 0; map < data.n_out.feature_maps; map++) biases[map] = distribution(generator);
     biasesVelocity.assign(data.n_out.feature_maps, 0);
 
-    weights.resize(data.n_in.feature_maps);
-    weightsVelocity.resize(data.n_in.feature_maps);
+    weights.assign(weights_size, 0);
+    weightsVelocity.assign(weights_size, 0);
     for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
-        weightsVelocity.assign(weights_size, 0);
-        weights.assign(weights_size, 0);
         for (int map = 0; map < data.n_out.feature_maps; map++) {
             for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
                 for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
-                    weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_y, data)] = distribution(generator);
+                    weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] = distribution(generator);
                 }
             }
         }
