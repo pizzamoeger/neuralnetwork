@@ -16,9 +16,14 @@ float sigmoidPrime(float x);
 float relu(float x);
 float reluPrime(float x);
 
+typedef float input_type[28*28];
+typedef float output_type[10];
+typedef pair<input_type, output_type> data_point;
+
 float crossEntropyPrime(float output_activation, float y);
-vector<pair<vector<float>, vector<float>>> load_data(string filename);
+pair<data_point*, int> load_data(string filename);
 hyperparams get_params();
+void clear_data(data_point *data);
 
 struct network_data {
     int x;
@@ -47,8 +52,8 @@ struct layer_data {
 struct layer {
     layer_data data;
     virtual void init(layer_data data, layer_data data_previous) = 0;
-    virtual void feedforward(vector<float> &a, vector<float> &derivative_z) = 0;
-    virtual void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z) = 0;
+    virtual void feedforward(float* a, float* dz, float* &new_a, float* &new_dz) = 0;
+    virtual void backprop(vector<float> &delta, float* &activations, float* &derivative_z) = 0;
     virtual void update(hyperparams params) = 0;
     virtual void save(string file) = 0;
 };
@@ -79,9 +84,9 @@ struct fully_connected_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<float> & a, vector<float> & derivative_z);
+    void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> & delta, vector<float> &activations, vector<float> &derivative_z);
+    void backprop(vector<float> & delta, float* &activations, float* &derivative_z);
 
     void update(hyperparams params);
 
@@ -109,9 +114,9 @@ struct convolutional_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<float> &a, vector<float> &derivative_z);
+    void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z);
+    void backprop(vector<float> &delta, float* &activations, float* &derivative_z);
 
     void update(hyperparams params);
 
@@ -127,9 +132,9 @@ struct max_pooling_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<float> &a, vector<float> &derivative_z);
+    void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z);
+    void backprop(vector<float> &delta, float* &activations, float* &derivative_z);
 
     void update(hyperparams params);
 
@@ -143,9 +148,9 @@ struct input_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(vector<float> &a, vector<float> &derivative_z);
+    void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> &delta, vector<float> &activations, vector<float> &derivative_z);
+    void backprop(vector<float> &delta, float* &activations, float* &derivative_z);
 
     void update(hyperparams params);
 
@@ -157,23 +162,25 @@ struct Network {
     int L;
 
     // layers
-    vector<unique_ptr<layer>> layers;
+    unique_ptr<layer> *layers;
 
     function<float(float, float)> costFunctPrime;
 
-    void init (vector<layer_data> & layers, function<float(float, float)> costFunctPrime);
+    void init (layer_data* layers, int L, function<float(float, float)> costFunctPrime);
 
-    pair<vector<vector<float>>, vector<vector<float>>> feedforward(vector<float> &a);
+    pair<float**, float**> feedforward(input_type &a);
 
-    void SGD(vector<pair<vector<float>, vector<float>>> training_data, vector<pair<vector<float>, vector<float>>> test_data, hyperparams params);
+    void SGD(data_point* training_data, data_point* test_data, hyperparams params);
 
-    void update_mini_batch(vector<pair<vector<float>, vector<float>>> &mini_batch, hyperparams params);
+    void update_mini_batch(data_point* mini_batch, hyperparams params);
 
-    void backprop(vector<float> &in, vector<float> &out);
+    void backprop(input_type &in, output_type &out);
 
     void save(string filename);
 
     void load(string filename);
 
-    pair<int,int> evaluate(vector<pair<vector<float>, vector<float>>> test_data, hyperparams params);
+    void clear();
+
+    pair<int,int> evaluate(data_point* test_data, int test_data_size);
 };

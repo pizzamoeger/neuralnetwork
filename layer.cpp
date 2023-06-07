@@ -45,25 +45,24 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     updateW = vector<float>(data.n_out.x*data.n_in.x, 0);
 }
 
-void fully_connected_layer::feedforward(vector<float> &a,
-                                        vector<float> &derivative_z) {
-    vector<float> z (data.n_out.x, 0);
-    vector<float> new_a = z;
-    derivative_z = z;
+void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
+    float* z = new float [data.n_out.x];
+    for (int i = 0; i < data.n_out.x; i++) z[i] = 0;
+
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         // get new activations
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++)
-            z[get_data_index(0, 0, neuron, data)] += weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[get_data_index(0, 0, previous_neuron, data_previous)];
-        z[get_data_index(0, 0, neuron, data)] += biases[neuron];
-        new_a[get_data_index(0, 0, neuron, data)] = data.activationFunct(z[get_data_index(0, 0, neuron, data)]);
-        derivative_z[get_data_index(0, 0, neuron, data)] = data.activationFunctPrime(z[get_data_index(0, 0, neuron, data)]);
+            z[neuron] += weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
+        z[neuron] += biases[neuron];
+        new_a[neuron] = data.activationFunct(z[neuron]);
+        new_dz[neuron] = data.activationFunctPrime(z[neuron]);
     }
-    a = new_a;
+
+    delete[] z;
 }
 
 void
-fully_connected_layer::backprop(vector<float> &delta, vector<float> &activations,
-                                vector<float> &derivative_z) {
+fully_connected_layer::backprop(vector<float> &delta, float* &activations, float* &derivative_z) {
 
     if (!data.last_layer) {
         for (int neuron = 0; neuron < data.n_out.x; neuron++) delta[get_data_index(0, 0, neuron, data)] *= derivative_z[get_data_index(0, 0, neuron, data)];
@@ -167,12 +166,10 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
     updateW = vector<float> (weights_size, 0);
 }
 
-void convolutional_layer::feedforward(vector<float> &a,
-                                      vector<float> &derivative_z) {
+void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
 
-    vector<float> z (data.n_out.feature_maps * data.n_out.y * data.n_out.x, 0);
-    vector<float> new_a = z;
-    derivative_z = z;
+    float* z = new float [data.n_out.feature_maps * data.n_out.y * data.n_out.x];
+    for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) z[i] = 0;
 
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
@@ -188,17 +185,17 @@ void convolutional_layer::feedforward(vector<float> &a,
                 }
                 z[get_data_index(map, y, x, data)] += biases[map];
                 new_a[get_data_index(map, y, x, data)] = data.activationFunct(z[get_data_index(map, y, x, data)]);
-                derivative_z[get_data_index(map, y, x, data)] = data.activationFunctPrime(z[get_data_index(map, y, x, data)]);
+                new_dz[get_data_index(map, y, x, data)] = data.activationFunctPrime(z[get_data_index(map, y, x, data)]);
             }
         }
     }
 
-    a = new_a;
+    delete[] z;
 }
 
 void convolutional_layer::backprop(vector<float> &delta,
-                                   vector<float> &activations,
-                                   vector<float> &derivative_z) {
+                                   float* &activations,
+                                   float* &derivative_z) {
 
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
@@ -292,30 +289,26 @@ void max_pooling_layer::init(layer_data data, layer_data data_previous) {
     this->data.n_out.feature_maps = data_previous.n_out.feature_maps;
 }
 
-void max_pooling_layer::feedforward(vector<float> &a,
-                                    vector<float> &derivative_z) {
-    vector<float> z(data.n_out.feature_maps * data.n_out.y * data.n_out.x,numeric_limits<float>::lowest());
-    derivative_z = z;
+void max_pooling_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
+
+    for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) new_a[i] = numeric_limits<float>::lowest();
 
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
             for (int x = 0; x < data.n_out.x; x++) {
                 for (int kernel_y = 0; kernel_y < data.summarized_region_length; kernel_y++) {
                     for (int kernel_x = 0; kernel_x < data.summarized_region_length; kernel_x++) {
-                        z[get_data_index(map, y, x, data)] = max(z[get_data_index(map, y, x, data)], a[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data)]);
+                        new_a[get_data_index(map, y, x, data)] = max(new_a[get_data_index(map, y, x, data)], a[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data)]);
                     }
                 }
-                derivative_z[get_data_index(map, y, x, data)] = z[get_data_index(map, y, x, data)];
+                new_dz[get_data_index(map, y, x, data)] = new_a[get_data_index(map, y, x, data)];
             }
         }
     }
-
-    a = z;
 }
 
 void max_pooling_layer::backprop(vector<float> &delta,
-                                 vector<float> &activations,
-                                 vector<float> &derivative_z) {
+                                 float* &activations, float* &derivative_z) {
     vector<float> newDelta(data.n_in.feature_maps * data.n_in.y * data.n_in.y, 0);
 
     for (int map = 0; map < data.n_out.feature_maps; map++) {
@@ -356,18 +349,18 @@ void input_layer::init(layer_data data, layer_data data_previous) {
     (void) data_previous;
 }
 
-void input_layer::feedforward(vector<float> &a,
-                              vector<float> &z) {
+void input_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
     (void) a;
-    (void) z;
+    (void) dz;
+    (void) new_a;
+    (void) new_dz;
 }
 
 void input_layer::backprop(vector<float> &delta,
-                           vector<float> &activations,
-                           vector<float> &z) {
+                           float* &activations, float* &derivative_z) {
     (void) delta;
     (void) activations;
-    (void) z;
+    (void) derivative_z;
 }
 
 void input_layer::update(hyperparams params) {

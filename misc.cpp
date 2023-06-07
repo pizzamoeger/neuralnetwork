@@ -25,18 +25,29 @@ float crossEntropyPrime(float output_activation, float y) {
 }
 
 // load data
-vector<pair<vector<float>, vector<float>>> load_data(string filename) {
+pair<data_point*, int> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
     ifstream file;
     string line;
 
     file.open(filename);
-    vector<pair<vector<float>, vector<float>>> data;
+
+    // how many lines there are in the file
+    int dataPoints = 0;
+    while (getline(file, line)) {
+        dataPoints++;
+    }
+    file.close();
+
+    file.open(filename);
+
+    data_point *data = new data_point[dataPoints];
+    int lineIndex = 0;
 
     while (getline(file, line)) {
         stringstream ss(line);
-        vector<float> input;
-        vector<float> output (10, 0);
+
+        for (int i = 0; i < 10; i++) data[lineIndex].second[i] = 0;
 
         int label = -1;
         int i = 0;
@@ -46,17 +57,16 @@ vector<pair<vector<float>, vector<float>>> load_data(string filename) {
             if (label == -1) {
                 label = stoi(substr);
             } else {
+                data[lineIndex].first[i] = atof(substr.c_str());
                 i++;
-                input.push_back(atof(substr.c_str()));
             }
         }
-        output[label] = 1;
-        data.push_back({input, output});
+        data[lineIndex].second[label] = 1;
+        lineIndex++;
     }
-
-    cerr << data.size() << " data loaded from " + filename + "\n";
+    cerr << dataPoints << " data loaded from " + filename + "\n";
     file.close();
-    return data;
+    return {data, dataPoints};
 }
 
 hyperparams get_params() {
@@ -74,4 +84,8 @@ hyperparams get_params() {
     params.momentum_coefficient = 0.45;
 
     return params;
+}
+
+void clear_data(data_point *data) {
+    delete[] data;
 }
