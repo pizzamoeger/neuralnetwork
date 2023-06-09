@@ -56,6 +56,7 @@ struct layer {
     virtual void backprop(vector<float> &delta, float* &activations, float* &derivative_z) = 0;
     virtual void update(hyperparams params) = 0;
     virtual void save(string file) = 0;
+    virtual void clear() = 0;
 };
 
 enum {
@@ -71,16 +72,16 @@ struct fully_connected_layer : public layer {
     layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
-    vector<float> biases;
-    vector<float> biasesVelocity;
+    float* biases;
+    float* biasesVelocity;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    vector<float> weights;
-    vector<float> weightsVelocity;
+    float* weights;
+    float* weightsVelocity;
 
     // what needs to be updated
-    vector<float> updateB;
-    vector<float> updateW;
+    float* updateB;
+    float* updateW;
 
     void init (layer_data data, layer_data data_previous);
 
@@ -92,6 +93,7 @@ struct fully_connected_layer : public layer {
 
     void save(string filename);
 
+    void clear();
 };
 
 struct convolutional_layer : public layer {
@@ -99,16 +101,16 @@ struct convolutional_layer : public layer {
     layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
-    vector<float> biases;
-    vector<float> biasesVelocity;
+    float* biases;
+    float* biasesVelocity;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    vector<float> weights;
-    vector<float> weightsVelocity;
+    float* weights;
+    float* weightsVelocity;
 
     // what needs to be updated
-    vector<float> updateB;
-    vector<float> updateW;
+    float* updateB;
+    float* updateW;
 
     int weights_size;
 
@@ -121,6 +123,8 @@ struct convolutional_layer : public layer {
     void update(hyperparams params);
 
     void save(string filename);
+
+    void clear();
 };
 
 struct max_pooling_layer : public layer {
@@ -139,6 +143,8 @@ struct max_pooling_layer : public layer {
     void update(hyperparams params);
 
     void save(string filename);
+
+    void clear();
 };
 
 struct input_layer : public layer {
@@ -155,6 +161,8 @@ struct input_layer : public layer {
     void update(hyperparams params);
 
     void save(string filename);
+
+    void clear();
 };
 
 struct Network {

@@ -150,7 +150,7 @@ void Network::save(string filename) {
 }
 
 void Network::clear() {
-    // for layer in layers: layer->clean();
+    for (int l = 0; l < L; l++) layers[l]->clear();
 
     delete[] layers;
 }

@@ -72,7 +72,7 @@ while True:
         if (draw):
             # only if the mouse is in the black square
             if (m[0] < 350 and m[1] < 450 and m[0] > 0 and m[1] > 100):
-                pygame.draw.circle(screen, (255, 255, 255), m, 15)
+                pygame.draw.circle(screen, (255, 255, 255), m, 20)
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()

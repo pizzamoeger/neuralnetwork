@@ -28,12 +28,15 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     this->data_previous = data_previous;
     normal_distribution<float> distribution(0.0, 1.0 / sqrt(data.n_in.x));
 
-    biases.resize(data.n_out.x);
-    for (int neuron = 0; neuron < data.n_out.x; neuron++) biases[neuron] = distribution(generator);
-    biasesVelocity.assign(data.n_out.x, 0);
+    biases = new float [data.n_out.x];
+    biasesVelocity = new float [data.n_out.x];
+    for (int neuron = 0; neuron < data.n_out.x; neuron++) {
+        biases[neuron] = distribution(generator);
+        biasesVelocity[neuron] = 0;
+    }
 
-    weights.resize(data.n_out.x*data.n_in.x);
-    weightsVelocity.resize(data.n_out.x*data.n_in.x);
+    weights = new float[data.n_out.x*data.n_in.x];
+    weightsVelocity = new float[data.n_out.x*data.n_in.x];
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
             weights[get_fully_connected_weights_index(neuron, previous_neuron)] = distribution(generator);
@@ -41,8 +44,10 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
         }
     }
 
-    updateB = vector<float>(data.n_out.x, 0);
-    updateW = vector<float>(data.n_out.x*data.n_in.x, 0);
+    updateB = new float [data.n_out.x];
+    updateW = new float [data.n_out.x*data.n_in.x];
+    for (int bias = 0; bias < data.n_out.x; bias++) updateB[bias] = 0;
+    for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) updateW[weight] = 0;
 }
 
 void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
@@ -111,8 +116,8 @@ void fully_connected_layer::update(hyperparams params) {
         }
     }
 
-    updateB = vector<float>(data.n_out.x, 0);
-    updateW = vector<float>(data.n_out.x*data.n_in.x, 0);
+    for (int bias = 0; bias < data.n_out.x; bias++) updateB[bias] = 0;
+    for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) updateW[weight] = 0;
 }
 
 void fully_connected_layer::save(string filename) {
@@ -121,16 +126,25 @@ void fully_connected_layer::save(string filename) {
     file << LAYER_NUM_FULLY_CONNECTED << "//";
     file << data.n_out.x << "//";
 
-    for (auto bias : biases) file << bias << " ";
+    for (int bias = 0; bias < data.n_out.x; bias++) file << biases[bias] << " ";
     file << "//";
-    for (auto biasVel : biasesVelocity) file << biasVel << " ";
+    for (int biasVel = 0; biasVel < data.n_out.x; biasVel++) file << biasesVelocity[biasVel] << " ";
     file << "//";
-    for (auto weight : weights) file << weight << " ";
+    for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) file << weights[weight] << " ";
     file << "//";
-    for (auto weightVec : weightsVelocity) file << weightVec << " ";
+    for (int weightVel = 0; weightVel < data.n_out.x*data.n_in.x; weightVel++) file << weightsVelocity[weightVel] << " ";
     file << "\n";
 
     file.close();
+}
+
+void fully_connected_layer::clear() {
+    delete[] weights;
+    delete[] weightsVelocity;
+    delete[] biases;
+    delete[] biasesVelocity;
+    delete[] updateW;
+    delete[] updateB;
 }
 
 void convolutional_layer::init(layer_data data, layer_data data_previous) {
@@ -146,12 +160,15 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
 
     normal_distribution<float> distribution(0.0, 1.0 / sqrt(data.receptive_field_length * data.receptive_field_length));
 
-    biases.assign(data.n_out.feature_maps, 0);
-    for (int map = 0; map < data.n_out.feature_maps; map++) biases[map] = distribution(generator);
-    biasesVelocity.assign(data.n_out.feature_maps, 0);
+    biases = new float[data.n_out.feature_maps];
+    biasesVelocity = new float[data.n_out.feature_maps];
+    for (int map = 0; map < data.n_out.feature_maps; map++) {
+        biases[map] = distribution(generator);
+        biasesVelocity[map] = 0;
+    }
 
-    weights.assign(weights_size, 0);
-    weightsVelocity.assign(weights_size, 0);
+    weights = new float[weights_size];
+    weightsVelocity = new float[weights_size];
     for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
         for (int map = 0; map < data.n_out.feature_maps; map++) {
             for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
@@ -162,8 +179,10 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
         }
     }
 
-    updateB = vector<float>(data.n_out.feature_maps, 0);
-    updateW = vector<float> (weights_size, 0);
+    updateB = new float[data.n_out.feature_maps];
+    updateW = new float[weights_size];
+    for (int bias = 0; bias < data.n_out.feature_maps; bias++) updateB[bias] = 0;
+    for (int weight = 0; weight < weights_size; weight++) updateW[weight] = 0;
 }
 
 void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
@@ -258,8 +277,8 @@ void convolutional_layer::update(hyperparams params) {
         }
     }
 
-    updateB = vector<float>(data.n_out.feature_maps, 0);
-    updateW = vector<float>(weights_size, 0);
+    for (int i = 0; i < data.n_out.feature_maps; i++) updateB[i] = 0;
+    for (int i = 0; i < data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length; i++) updateW[i] = 0;
 }
 
 void convolutional_layer::save(string filename) {
@@ -268,16 +287,25 @@ void convolutional_layer::save(string filename) {
     file << LAYER_NUM_CONVOLUTIONAL << "//";
     file << data.stride_length << " " << data.receptive_field_length << " " << data.n_out.feature_maps << "//";
 
-    for (auto bias : biases) file << bias << " ";
+    for (int bias = 0; bias < data.n_out.feature_maps; bias++) file << biases[bias] << " ";
     file << "//";
-    for (auto biasVel : biasesVelocity) file << biasVel << " ";
+    for (int biasVel = 0; biasVel < data.n_out.feature_maps; biasVel++) file << biasesVelocity[biasVel] << " ";
     file << "//";
-    for (auto weight : weights) file << weight << " ";
+    for (int weight = 0; weight < weights_size; weight++) file << weights[weight] << " ";
     file << "//";
-    for (auto weightVel : weightsVelocity) file << weightVel << " ";
+    for (int weightVel = 0; weightVel < weights_size; weightVel++) file << weightsVelocity[weightVel] << " ";
     file << "\n";
 
     file.close();
+}
+
+void convolutional_layer::clear() {
+    delete[] weights;
+    delete[] weightsVelocity;
+    delete[] biases;
+    delete[] biasesVelocity;
+    delete[] updateW;
+    delete[] updateB;
 }
 
 void max_pooling_layer::init(layer_data data, layer_data data_previous) {
@@ -344,6 +372,8 @@ void max_pooling_layer::save(string filename) {
     file.close();
 }
 
+void max_pooling_layer::clear() {}
+
 void input_layer::init(layer_data data, layer_data data_previous) {
     this->data = data;
     (void) data_previous;
@@ -375,3 +405,5 @@ void input_layer::save(string filename) {
 
     file.close();
 }
+
+void input_layer::clear() {}
