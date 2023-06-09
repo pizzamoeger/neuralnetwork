@@ -1,28 +1,7 @@
 #include "includes.h"
 using namespace std;
 
-int main() {
-    srand(time(NULL));
-/*
-    cout << "create new network? (1/0):";
-    bool newNN; cin >> newNN;
-    Network net;
-
-    if (newNN) {
-        int L; cout << "num of hidden layers: "; cin >> L;
-        L += 2;
-        vector<int> sizes (L); sizes[0] = 784; sizes[L-1] = 10;
-
-        cout << "sizes of hidden layers: ";
-        for (int i = 1; i < L-1; i++) cin >> sizes[i];
-
-        net.init(sizes, relu, reluPrime, crossEntropyPrime);
-    } else {
-        string filename; cout << "filename: "; cin >> filename;
-        vector<int> tmp = {};
-        net.init(tmp, relu, reluPrime, crossEntropyPrime);
-        net.load(filename);
-    }*/
+int main(int argc, char* argv[]) {
 
     Network net;
 
@@ -80,7 +59,7 @@ int main() {
     fully_connected.activationFunct = relu;
     fully_connected.n_out = {1, 1, 1};*/
 
-    vector layers = {input, convolutional, maxpool, fully_connected1, fully_connected2, outt};
+    vector layers = {input, fully_connected1, outt};
     net.init(layers, crossEntropyPrime);
 
     //net.save("nettibetti.txt");
@@ -91,6 +70,15 @@ int main() {
     auto training_data = load_data("mnist_train_normalized.data");
 
     auto params = get_params();
+    assert(argc == 7);
+
+    params.fully_connected_weights_learning_rate = stof(argv[1]);
+    params.fully_connected_biases_learning_rate = stof(argv[2]);
+    params.convolutional_weights_learning_rate = stof(argv[3]);
+    params.convolutional_biases_learning_rate = stof(argv[4]);
+    params.L2_regularization_term = stof(argv[5]);
+    params.momentum_coefficient = stof(argv[6]);
+
     params.test_data_size  = test_data.size();
     params.training_data_size = training_data.size();
 
@@ -105,8 +93,9 @@ int main() {
     auto [correctTrain, durationTrain] = net.evaluate(training_data, params);
     auto [correctTest, durationTest] = net.evaluate(test_data, params);
 
-    cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    cout << (float) correctTest / params.test_data_size;
     /*vector<float> inputt = {0, 0.25, 0.5, 0.75};
     auto pred = net.feedforward(inputt);
     cout << "\n";*/

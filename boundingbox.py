@@ -71,6 +71,11 @@ def boundingbox():
     file = open("number.data", "w")
 
     for i in newPixels:
-        file.write(str(i/255) + " ")
+        if int(i)/255 < 0.005:
+            file.write("0 ")
+        elif int(i)/255 > 0.995:
+            file.write("1 ")
+        else:
+            file.write("{:4.2f} ".format(int(i)/255))
     file.write("\n")
     file.close()

@@ -46,6 +46,7 @@ pair<vector<vector<float>>, vector<vector<float>>> Network::feedforward(vector<f
 }
 
 pair<int,int> Network::evaluate(vector<pair<vector<float>, vector<float>>> test_data, hyperparams params) {
+    (void)params;
     auto start = chrono::high_resolution_clock::now();
     int correct = 0;
     for (int k = 0; k < (int) test_data.size(); k++) {
@@ -93,10 +94,10 @@ void Network::SGD(vector<pair<vector<float>, vector<float>>> training_data, vect
         cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
 
         // reduce learning rate
-        params.fully_connected_biases_learning_rate *= 0.97;
+        /*params.fully_connected_biases_learning_rate *= 0.97;
         params.fully_connected_weights_learning_rate *= 0.97;
         params.convolutional_weights_learning_rate *= 0.97;
-        params.convolutional_biases_learning_rate *= 0.97;
+        params.convolutional_biases_learning_rate *= 0.97;*/
     }
 }
 
@@ -127,7 +128,10 @@ void Network::save(string filename) {
     file << L << "\n";
     file.close();
 
+    auto start = chrono::high_resolution_clock::now();
     for (int l = 0; l < L; l++) layers[l]->save(filename);
+    auto end = chrono::high_resolution_clock::now();
+    cerr << "Duration for storing " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
 }
 /*
 void Network::load(string filename) {
