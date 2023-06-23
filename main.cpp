@@ -1,7 +1,8 @@
 #include "includes.h"
 using namespace std;
 
-int main(int argc, char* argv[]) {
+int main() {
+    srand(time(NULL));
 
     Network net;
 
@@ -40,64 +41,36 @@ int main(int argc, char* argv[]) {
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
-    /*
-    layer_data input;
-    input.type = LAYER_NUM_INPUT;
-    input.n_out = {2, 2, 1};
-
-    layer_data convolutional;
-    convolutional.type = LAYER_NUM_CONVOLUTIONAL;
-    convolutional.stride_length = 1;
-    convolutional.receptive_field_length = 2;
-    convolutional.activationFunctPrime = reluPrime;
-    convolutional.activationFunct = relu;
-    convolutional.n_out = {1,1, 1};
-
-    layer_data fully_connected;
-    fully_connected.type = LAYER_NUM_FULLY_CONNECTED;
-    fully_connected.activationFunctPrime = reluPrime;
-    fully_connected.activationFunct = relu;
-    fully_connected.n_out = {1, 1, 1};*/
-
-    vector layers = {input, fully_connected1, outt};
-    net.init(layers, crossEntropyPrime);
-
-    //net.save("nettibetti.txt");
-
+    int L = 6;
+    layer_data* layers = new layer_data[L];
+    layers[0] = input;
+    layers[1] = convolutional;
+    layers[2] = maxpool;
+    layers[3] = fully_connected1;
+    layers[4] = fully_connected2;
+    layers[5] = outt;
+    net.init(layers, L, crossEntropyPrime);
 
     // train network
-    auto test_data = load_data("mnist_test_normalized.data");
-    auto training_data = load_data("mnist_train_normalized.data");
+    auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
+    auto [training_data, training_data_size] = load_data("mnist_train_normalized.data");
 
     auto params = get_params();
-    assert(argc == 7);
-
-    params.fully_connected_weights_learning_rate = stof(argv[1]);
-    params.fully_connected_biases_learning_rate = stof(argv[2]);
-    params.convolutional_weights_learning_rate = stof(argv[3]);
-    params.convolutional_biases_learning_rate = stof(argv[4]);
-    params.L2_regularization_term = stof(argv[5]);
-    params.momentum_coefficient = stof(argv[6]);
-
-    params.test_data_size  = test_data.size();
-    params.training_data_size = training_data.size();
+    params.test_data_size  = test_data_size;
+    params.training_data_size = training_data_size;
 
     net.SGD(training_data, test_data, params);
 
-    /*bool save; cout << "save network? (1/0):"; cin >> save;
-    if (save) {
-        string filename; cout << "filename: "; cin >> filename;
-        net.save(filename);
-    }*/
+    auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
+    auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
-    auto [correctTrain, durationTrain] = net.evaluate(training_data, params);
-    auto [correctTest, durationTest] = net.evaluate(test_data, params);
+    cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
 
-    cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
-    cout << (float) correctTest / params.test_data_size;
-    /*vector<float> inputt = {0, 0.25, 0.5, 0.75};
-    auto pred = net.feedforward(inputt);
-    cout << "\n";*/
     net.save("net.txt");
+
+    clear_data(test_data);
+    clear_data(training_data);
+    net.clear();
+    delete[] layers;
 }

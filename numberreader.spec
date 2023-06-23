@@ -8,7 +8,7 @@ a = Analysis(
     ['numberreader.py'],
     pathex=[],
     binaries=[],
-    datas=[('boundingbox.py', '.')],
+    datas=[('neuralnetwork.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
