@@ -51,6 +51,7 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 }
 
 void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
+    (void) dz;
     float* z = new float [data.n_out.x];
     for (int i = 0; i < data.n_out.x; i++) z[i] = 0;
 
@@ -186,6 +187,7 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
 }
 
 void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
+    (void) dz;
 
     float* z = new float [data.n_out.feature_maps * data.n_out.y * data.n_out.x];
     for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) z[i] = 0;
@@ -318,6 +320,7 @@ void max_pooling_layer::init(layer_data data, layer_data data_previous) {
 }
 
 void max_pooling_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
+    (void) dz;
 
     for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) new_a[i] = numeric_limits<float>::lowest();
 
