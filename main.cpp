@@ -1,8 +1,7 @@
 #include "includes.h"
 using namespace std;
 
-int main() {
-    //
+int main(int argc, char** argv) {
     srand(time(NULL));
 
     Network net;
@@ -57,16 +56,26 @@ int main() {
     auto [training_data, training_data_size] = load_data("mnist_train_normalized.data");
 
     auto params = get_params();
+    if (argc == 7) {
+        params.fully_connected_weights_learning_rate = atof(argv[1]);
+        params.fully_connected_biases_learning_rate = atof(argv[2]);
+        params.convolutional_weights_learning_rate = atof(argv[3]);
+        params.convolutional_biases_learning_rate = atof(argv[4]);
+        params.L2_regularization_term = atof(argv[5]);
+        params.momentum_coefficient = atof(argv[6]);
+    }
     params.test_data_size  = test_data_size;
     params.training_data_size = training_data_size;
+    //cerr << "epochs: "; cin >> params.epochs;
 
     net.SGD(training_data, test_data, params);
 
     auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
     auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
-    cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    //cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    //cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    cout << (float)correctTest / params.test_data_size << "\n";
 
     net.save("net.txt");
 
