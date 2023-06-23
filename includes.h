@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include <cassert>
 #include <fstream>
 #include <sstream>
 #include <chrono>

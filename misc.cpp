@@ -73,12 +73,12 @@ hyperparams get_params() {
     hyperparams params;
 
     params.mini_batch_size = 16;
-    params.epochs = 1;
+    params.epochs = 5;
 
-    params.fully_connected_weights_learning_rate = 0.007;
-    params.fully_connected_biases_learning_rate = 0.07;
-    params.convolutional_weights_learning_rate = 0.08;
-    params.convolutional_biases_learning_rate = 0.08;
+    params.fully_connected_weights_learning_rate = 0.008;
+    params.fully_connected_biases_learning_rate = 0.1;
+    params.convolutional_weights_learning_rate = 0.1;
+    params.convolutional_biases_learning_rate = 0.1;
 
     params.L2_regularization_term = 0.4;
     params.momentum_coefficient = 0.45;
