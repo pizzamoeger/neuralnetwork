@@ -4,8 +4,8 @@ import math
 base = 1.5
 
 #fcw, fcb, cnw, cnb, l2, mom
-params = [math.log(0.008) / math.log(base), math.log(0.1) / math.log(base), math.log(0.1) / math.log(base), math.log(0.1) / math.log(base), -1000000, -100000]
-names = ["fcw", "fcb", "cnw", "cnb", "l2", "mom"]
+params = [-5.68586466553, -2, 0.543348634955, -2, -10000, -10000]
+names = ["fully connected weight learning rate", "fully connected bias learning rate", "convolutional weight learning rate", "convolutional bias learning rate", "l2", "mom"]
 
 fac = 10
 q = 1.5
@@ -62,11 +62,14 @@ def searchopt(i):
         l = ttest[start]
         r = ttest[start+1]
     params[i] = (l + r) / 2
+    print("Done looking for best {}, found {} to be best".format(names[i], base**params[i]))
 
-searchopt(1)
 searchopt(0)
-
 testfile = "./cnn"
-
-searchopt(3)
 searchopt(2)
+
+print("============================================")
+print("I am done: the best parameters are: {}".format([base**el for el in params]))
+
+with open("bparams.txt", "w") as file:
+    file.write(str([base**el for el in params]))
