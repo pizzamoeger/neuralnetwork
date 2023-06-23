@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
+    // FIND-TAG-231
     int L = 6;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
@@ -50,6 +51,8 @@ int main(int argc, char** argv) {
     layers[4] = fully_connected2;
     layers[5] = outt;
     net.init(layers, L, crossEntropyPrime);
+
+    cerr << "ihr hurensöhne ich bin ein gotterbarmlicher hurensohn\n";
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
