@@ -19,7 +19,8 @@ int get_data_index(int map, int y, int x, layer_data &data) {
             + x;
 }
 
-default_random_engine generator;
+random_device rd;
+default_random_engine generator(rd());
 
 void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 
