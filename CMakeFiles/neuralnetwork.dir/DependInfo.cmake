@@ -1,21 +1,22 @@
-
-# Consider dependencies only in project.
-set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
-
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
+  )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/hannah/neuralnetwork/Network.cpp" "/home/hannah/neuralnetwork/CMakeFiles/neuralnetwork.dir/Network.cpp.o"
+  "/home/hannah/neuralnetwork/layer.cpp" "/home/hannah/neuralnetwork/CMakeFiles/neuralnetwork.dir/layer.cpp.o"
+  "/home/hannah/neuralnetwork/main.cpp" "/home/hannah/neuralnetwork/CMakeFiles/neuralnetwork.dir/main.cpp.o"
+  "/home/hannah/neuralnetwork/misc.cpp" "/home/hannah/neuralnetwork/CMakeFiles/neuralnetwork.dir/misc.cpp.o"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
+
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
   )
 
-# The set of dependency files which are needed:
-set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/hannah/neuralnetwork/Network.cpp" "CMakeFiles/neuralnetwork.dir/Network.cpp.o" "gcc" "CMakeFiles/neuralnetwork.dir/Network.cpp.o.d"
-  "/home/hannah/neuralnetwork/layer.cpp" "CMakeFiles/neuralnetwork.dir/layer.cpp.o" "gcc" "CMakeFiles/neuralnetwork.dir/layer.cpp.o.d"
-  "/home/hannah/neuralnetwork/main.cpp" "CMakeFiles/neuralnetwork.dir/main.cpp.o" "gcc" "CMakeFiles/neuralnetwork.dir/main.cpp.o.d"
-  "/home/hannah/neuralnetwork/misc.cpp" "CMakeFiles/neuralnetwork.dir/misc.cpp.o" "gcc" "CMakeFiles/neuralnetwork.dir/misc.cpp.o.d"
-  )
-
-# Targets to which this target links which contain Fortran sources.
-set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
   )
 
 # Fortran module output directory.

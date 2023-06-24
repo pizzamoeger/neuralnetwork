@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     layers[5] = outt;
     net.init(layers, L, crossEntropyPrime);
 
-    cerr << "ihr hurensöhne ich bin ein gotterbarmlicher hurensohn\n";
+    //cerr << "ihr hurensöhne ich bin ein gotterbarmlicher hurensohn\n";
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
@@ -70,17 +70,17 @@ int main(int argc, char** argv) {
     params.test_data_size  = test_data_size;
     params.training_data_size = training_data_size;
     //cerr << "epochs: "; cin >> params.epochs;
-
+    params.epochs = 100;
     net.SGD(training_data, test_data, params);
 
     auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
     auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
-    //cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    //cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
-    cout << (float)correctTest / params.test_data_size << "\n";
+    cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    //cout << (float)correctTest / params.test_data_size << "\n";
 
-    net.save("net.txt");
+    net.save(argv[1]);
 
     clear_data(test_data);
     clear_data(training_data);
