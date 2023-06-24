@@ -3,6 +3,10 @@ struct hyperparams {
     float convolutional_biases_learning_rate;
     float fully_connected_weights_learning_rate;
     float fully_connected_biases_learning_rate;
+    float convWRed;
+    float convBRed;
+    float fcWRed;
+    float fcBRed;
     float L2_regularization_term;
     float momentum_coefficient;
     int epochs;
@@ -174,7 +178,7 @@ struct Network {
 
     function<float(float, float)> costFunctPrime;
 
-    void init (layer_data* layers, int L, function<float(float, float)> costFunctPrime);
+    void init (layer_data* layers, int L, function<float(float, float)> costFunctPrime, hyperparams params);
 
     pair<float**, float**> feedforward(input_type &a);
 

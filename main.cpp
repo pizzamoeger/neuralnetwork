@@ -50,7 +50,6 @@ int main(int argc, char** argv) {
     layers[3] = fully_connected1;
     layers[4] = fully_connected2;
     layers[5] = outt;
-    net.init(layers, L, crossEntropyPrime);
 
     //cerr << "ihr hurensöhne ich bin ein gotterbarmlicher hurensohn\n";
 
@@ -71,6 +70,7 @@ int main(int argc, char** argv) {
     params.training_data_size = training_data_size;
     //cerr << "epochs: "; cin >> params.epochs;
     params.epochs = 100;
+    net.init(layers, L, crossEntropyPrime, params);
     net.SGD(training_data, test_data, params);
 
     // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster

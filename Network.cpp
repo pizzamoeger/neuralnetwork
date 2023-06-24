@@ -1,10 +1,16 @@
 #include "includes.h"
 
-void Network::init(layer_data* layers, int L, function<float(float, float)> costFunctPrime) {
+void Network::init(layer_data* layers, int L, function<float(float, float)> costFunctPrime, hyperparams params) {
 
     this->L = L;
     this->costFunctPrime = costFunctPrime;
     this->layers = new unique_ptr<layer>[L];
+
+    // initialize params learningrate reduction
+    params.fcBRed = params.fully_connected_biases_learning_rate*99/10000;
+    params.fcWRed = params.fully_connected_weights_learning_rate*99/10000;
+    params.convBRed = params.convolutional_biases_learning_rate*99/10000;
+    params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // initialize layers
     for (int l = 0; l < L; l++) {
@@ -78,8 +84,8 @@ pair<int,int> Network::evaluate(data_point* test_data, int test_data_size) {
 
 void Network::SGD(data_point* training_data, data_point* test_data, hyperparams params) {
 
-    //auto [correct, durationEvaluate] = evaluate(test_data, params.test_data_size);
-    //cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
+    auto [correct, durationEvaluate] = evaluate(test_data, params.test_data_size);
+    cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
     for (int i = 0; i < params.epochs; i++) {
         // time the epoch
@@ -116,7 +122,12 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
         cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
 
         // reduce learning rate
-	//params.fully_conne
+	    if (i < 100) {
+            params.fully_connected_biases_learning_rate -= params.fcBRed;
+            params.fully_connected_weights_learning_rate -= params.fcWRed;
+            params.convolutional_biases_learning_rate -= params.convBRed;
+            params.convolutional_weights_learning_rate -= params.convWRed;
+        }
     }
 }
 
