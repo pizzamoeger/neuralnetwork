@@ -116,10 +116,7 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
         cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
 
         // reduce learning rate
-        params.fully_connected_biases_learning_rate *= 0.97;
-        params.fully_connected_weights_learning_rate *= 0.97;
-        params.convolutional_weights_learning_rate *= 0.97;
-        params.convolutional_biases_learning_rate *= 0.97;
+	//params.fully_conne
     }
 }
 

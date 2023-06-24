@@ -1,0 +1,40 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hannah/neuralnetwork/Network.h
+
+/home/hannah/neuralnetwork/includes.h
+iostream
+-
+string
+-
+vector
+-
+random
+-
+cassert
+-
+fstream
+-
+sstream
+-
+chrono
+-
+algorithm
+-
+memory
+-
+functional
+-
+Network.h
+/home/hannah/neuralnetwork/Network.h
+
+/home/hannah/neuralnetwork/main.cpp
+includes.h
+/home/hannah/neuralnetwork/includes.h
+
