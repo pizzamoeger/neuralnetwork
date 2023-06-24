@@ -176,6 +176,7 @@ void convolutional_layer::init(layer_data data, layer_data data_previous) {
             for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
                 for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
                     weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] = distribution(generator);
+                    weightsVelocity[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] = 0;
                 }
             }
         }
@@ -193,24 +194,32 @@ void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float*
     float* z = new float [data.n_out.feature_maps * data.n_out.y * data.n_out.x];
     for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) z[i] = 0;
 
+    //int rn = 0;
+
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
             for (int x = 0; x < data.n_out.x; x++) {
                 for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
                     for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
                         for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
+                            /*assert(get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data) < weights_size);
+                            assert(get_data_index(previous_map, y * data.stride_length + kernel_y, x * data.stride_length + kernel_x, data_previous) < data_previous.n_out.feature_maps * data_previous.n_out.x * data_previous.n_out.y);
+                            if (weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] > 0) rn++;*/
                             z[get_data_index(map, y, x, data)] +=
                                     weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] *
-                                    a[get_data_index(previous_map, y * data.stride_length + kernel_y, x * data.stride_length + kernel_x, data)];
+                                    a[get_data_index(previous_map, y * data.stride_length + kernel_y, x * data.stride_length + kernel_x, data_previous)];
                         }
                     }
                 }
+                //if (biases[map] > 0.5) rn++;
                 z[get_data_index(map, y, x, data)] += biases[map];
                 new_a[get_data_index(map, y, x, data)] = data.activationFunct(z[get_data_index(map, y, x, data)]);
                 new_dz[get_data_index(map, y, x, data)] = data.activationFunctPrime(z[get_data_index(map, y, x, data)]);
             }
         }
     }
+
+    //cout << new_a[get_data_index(data.n_out.feature_maps-1, data.n_out.y-1, data.n_out.x-1, data)] << " ";
 
     delete[] z;
 }
@@ -330,7 +339,7 @@ void max_pooling_layer::feedforward(float* a, float* dz, float* &new_a, float* &
             for (int x = 0; x < data.n_out.x; x++) {
                 for (int kernel_y = 0; kernel_y < data.summarized_region_length; kernel_y++) {
                     for (int kernel_x = 0; kernel_x < data.summarized_region_length; kernel_x++) {
-                        new_a[get_data_index(map, y, x, data)] = max(new_a[get_data_index(map, y, x, data)], a[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data)]);
+                        new_a[get_data_index(map, y, x, data)] = max(new_a[get_data_index(map, y, x, data)], a[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data_previous)]);
                     }
                 }
                 new_dz[get_data_index(map, y, x, data)] = new_a[get_data_index(map, y, x, data)];
@@ -342,15 +351,18 @@ void max_pooling_layer::feedforward(float* a, float* dz, float* &new_a, float* &
 void max_pooling_layer::backprop(vector<float> &delta,
                                  float* &activations, float* &derivative_z) {
     vector<float> newDelta(data.n_in.feature_maps * data.n_in.y * data.n_in.y, 0);
+    const float epsilon = 1e-8;
 
+    //cout << activations[get_data_index(data.n_out.feature_maps-1, (data.n_out.y-1)*data.summarized_region_length+data.summarized_region_length-1, (data.n_out.x-1)*data.summarized_region_length+data.summarized_region_length-1, data_previous)] << "sdfkjdslksfjlsf\n";
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
             for (int x = 0; x < data.n_out.x; x++) {
                 for (int kernel_y = 0; kernel_y < data.summarized_region_length; kernel_y++) {
                     for (int kernel_x = 0; kernel_x < data.summarized_region_length; kernel_x++) {
-                        if (abs(activations[get_data_index(map, y * data.summarized_region_length + kernel_y,
-                                        x * data.summarized_region_length + kernel_x, data_previous)] - derivative_z[get_data_index(map, y, x, data)]) <
-                            pow(10, -8)) {
+                        int act = activations[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data_previous)];
+                        int dev = derivative_z[get_data_index(map, y, x, data)];
+                        if (act < dev) swap(act, dev);
+                        if (act - dev < epsilon) {
                             newDelta[get_data_index(map, y * data.summarized_region_length + kernel_y,
                                     x * data.summarized_region_length + kernel_x, data_previous)] = delta[get_data_index(map, y, x, data)];
                         }

@@ -35,9 +35,13 @@ pair<float**, float**> Network::feedforward(input_type &a) {
     float** activations = new float* [L];
     float** derivatives_z = new float* [L];
 
-    for (int l = 0; l < L; l++) {
+    for (int l = 1; l < L; l++) {
         activations[l] = new float [layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps];
         derivatives_z[l] = new float [layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps];
+        for (int i = 0; i < layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps; ++i) {
+            activations[l][i] = 0;
+            derivatives_z[l][i] = 0;
+        }
     }
 
     activations[0] = a;
@@ -54,20 +58,28 @@ pair<int,int> Network::evaluate(data_point* test_data, int test_data_size) {
     auto start = chrono::high_resolution_clock::now();
     int correct = 0;
     for (int k = 0; k < (int) test_data_size; k++) {
-        float* output = feedforward(test_data[k].first).first[L - 1];
+        auto [activations, derivatives_z] = feedforward(test_data[k].first);
+        float* output = activations[L-1];
         int max = 0;
         for (int j = 0; j < 10; j++) {
             if (output[j] > output[max]) max = j;
         }
         if (test_data[k].second[max] == 1.0) correct++;
+        for (int l = L - 1; l > 0; l--) {
+            delete[] activations[l];
+            delete[] derivatives_z[l];
+        }
+        delete[] activations;
+        delete[] derivatives_z;
     }
     auto end = chrono::high_resolution_clock::now();
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
 }
 
 void Network::SGD(data_point* training_data, data_point* test_data, hyperparams params) {
-    auto [correct, durationEvaluate] = evaluate(test_data, params.test_data_size);
-    cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
+
+    //auto [correct, durationEvaluate] = evaluate(test_data, params.test_data_size);
+    //cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
     for (int i = 0; i < params.epochs; i++) {
         // time the epoch
@@ -80,9 +92,9 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
         shuffle(training_data, training_data+params.training_data_size, default_random_engine(seed));
 
         // create mini batches and update them
-        data_point* mini_batch = new data_point [params.mini_batch_size];
+        auto* mini_batch = new data_point [params.mini_batch_size];
         for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
-            for (int k = 0; k < params.mini_batch_size && j * params.mini_batch_size + k < params.training_data_size; k++) {
+            for (int k = 0; k < params.mini_batch_size; k++) {
                 for (int p = 0; p < 784; p++) {
                     mini_batch[k].first[p] =  training_data[j * params.mini_batch_size + k].first[p];
                 }
@@ -126,14 +138,13 @@ void Network::backprop(input_type &in, output_type &out) {
     auto [activations, derivatives_z] = feedforward(in);
 
     // backpropagate
-    // TODO activations and delta and everything from here to cstyle arrays
     vector<float> delta = vector<float> (layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps, 0);
     for (int i = 0; i < layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps; i++) delta[i] = costFunctPrime(activations[L - 1][i], out[i]);
 
     for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
 
     // clean
-    for (int l = L; l < 0; l--) {
+    for (int l = L - 1; l > 0; l--) {
         delete[] activations[l];
         delete[] derivatives_z[l];
     }

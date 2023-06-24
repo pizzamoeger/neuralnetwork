@@ -15,8 +15,7 @@ float relu(float x){
 }
 
 float reluPrime(float x){
-    if (x > 0) return 1.0f;
-    return al;
+    return max((float)0, x);
 }
 
 // cross entropy cost function
@@ -48,6 +47,7 @@ pair<data_point*, int> load_data(string filename) {
         stringstream ss(line);
 
         for (int i = 0; i < 10; i++) data[lineIndex].second[i] = 0;
+        for (int i = 0; i < 28 * 28; i++) data[lineIndex].first[i] = 0;
 
         int label = -1;
         int i = 0;
@@ -57,6 +57,7 @@ pair<data_point*, int> load_data(string filename) {
             if (label == -1) {
                 label = stoi(substr);
             } else {
+                if (i == 28 * 28) break;
                 data[lineIndex].first[i] = atof(substr.c_str());
                 i++;
             }
@@ -73,12 +74,12 @@ hyperparams get_params() {
     hyperparams params;
 
     params.mini_batch_size = 16;
-    params.epochs = 5;
+    params.epochs = 30;
 
-    params.fully_connected_weights_learning_rate = 0.3520532880647171;
-    params.fully_connected_biases_learning_rate = 0.4444444444444444;
-    params.convolutional_weights_learning_rate = 8.268717492598576;
-    params.convolutional_biases_learning_rate = 0.4444444444444444;
+    params.fully_connected_weights_learning_rate = 0.04;
+    params.fully_connected_biases_learning_rate = 0.02;
+    params.convolutional_weights_learning_rate = 0.09;
+    params.convolutional_biases_learning_rate = 0.02;
 
     params.L2_regularization_term = 0.0;
     params.momentum_coefficient = 0.0;
