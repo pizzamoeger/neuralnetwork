@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
 
     // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
     auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
+
     auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
     cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";

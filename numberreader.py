@@ -63,6 +63,7 @@ while True:
     screen.blit(text, (400, 150))
 
     inpt = []
+    curPred = 0
 
     while True:
         # let the user draw on the screen
@@ -101,21 +102,37 @@ while True:
                     pred = num[0]
                     inpt = num[1]
 
-                    # print the pred next to the text "Prediction:"
+                    # clear the black square and the prediction
+                    pygame.draw.rect(screen, (255, 255, 255), (350, 50, 350, 450))
+                    #pygame.draw.rect(screen, (0, 0, 0), (0, 100, 350, 350))
+
+                    # on the middle right add the text "Prediction:"
                     font = pygame.font.SysFont("Arial", 30)
-                    text = font.render(str(pred), True, (0, 0, 0))
-                    screen.blit(text, (520, 100))
-                    pygame.display.flip()
+                    text = font.render("Prediction: "+str(pred), True, (0, 0, 0))
+                    screen.blit(text, (400, 100))
+
+                    font = pygame.font.SysFont("Arial", 30)
+                    text = font.render("Correct number:", True, (0, 0, 0))
+                    screen.blit(text, (400, 150))
+
+                    curPred = pred
 
                 elif event.key == K_ESCAPE:
                     pygame.quit()
                     exit()
                 elif event.key == K_c:
                     # clear the black square and the prediction
+                    pygame.draw.rect(screen, (255, 255, 255), (350, 50, 350, 450))
                     pygame.draw.rect(screen, (0, 0, 0), (0, 100, 350, 350))
-                    pygame.draw.rect(screen, (255, 255, 255), (520, 100, 100, 50))
-                    pygame.draw.rect(screen, (255, 255, 255), (585, 150, 100, 50))
-                    pygame.draw.rect(screen, (255, 255, 255), (400, 200, 300, 50))
+
+                    # on the middle right add the text "Prediction:"
+                    font = pygame.font.SysFont("Arial", 30)
+                    text = font.render("Prediction:", True, (0, 0, 0))
+                    screen.blit(text, (400, 100))
+
+                    font = pygame.font.SysFont("Arial", 30)
+                    text = font.render("Correct number:", True, (0, 0, 0))
+                    screen.blit(text, (400, 150))
 
                     pygame.display.flip()
                 elif event.key == K_s:
@@ -128,10 +145,17 @@ while True:
                             if (num >= '0' and num <= '9'):
                                 break
 
+                    # clear the black square and the prediction
+                    pygame.draw.rect(screen, (255, 255, 255), (350, 50, 350, 450))
+
+                    # on the middle right add the text "Prediction:"
                     font = pygame.font.SysFont("Arial", 30)
-                    text = font.render(num, True, (0, 0, 0))
-                    screen.blit(text, (585, 150))
-                    pygame.display.flip()
+                    text = font.render("Prediction: "+str(curPred), True, (0, 0, 0))
+                    screen.blit(text, (400, 100))
+
+                    font = pygame.font.SysFont("Arial", 30)
+                    text = font.render("Correct number: "+str(num), True, (0, 0, 0))
+                    screen.blit(text, (400, 150))
 
                     f = open('mnist_train_normalized.data', 'a')
                     f.write(num + ' ')
@@ -141,7 +165,7 @@ while True:
                     f.close()
 
                     font = pygame.font.SysFont("Arial", 30)
-                    text = font.render("Added num successfully", True, (0, 200, 0))
+                    text = font.render("Added num", True, (0, 200, 0))
                     screen.blit(text, (400, 200))
 
         pygame.display.flip()
