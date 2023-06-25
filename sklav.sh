@@ -9,7 +9,7 @@ sed -i -e '/\/\/ FIND-TAG-231/{n; r /dev/stdin' -e 'N;N;N;N;N;N;N;d;}' main.cpp 
     layers[3] = outt;
 EOF
 
-g++ -Wall -Wextra -O3 main.cpp Network.cpp layer.cpp misc.cpp -o fully_connected
+g++ -std=c++17 -Wall -Wextra -O3 main.cpp Network.cpp layer.cpp misc.cpp -o fully_connected
 
 sed -i -e '/\/\/ FIND-TAG-231/{n; r /dev/stdin' -e 'N;N;N;N;N;N;N;d;}' main.cpp <<EOF
     int L = 6;
@@ -22,4 +22,4 @@ sed -i -e '/\/\/ FIND-TAG-231/{n; r /dev/stdin' -e 'N;N;N;N;N;N;N;d;}' main.cpp 
     layers[5] = outt;
 EOF
 
-g++ -Wall -Wextra -O3 main.cpp Network.cpp layer.cpp misc.cpp -o cnn
+g++ -std=c++17 -Wall -Wextra -O3 main.cpp Network.cpp layer.cpp misc.cpp -o cnn

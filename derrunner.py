@@ -7,7 +7,7 @@ print(os.getcwd())
 base = 1.5
 
 #fcw, fcb, cnw, cnb, l2, mom
-params = [-5.68586466553, -2, -5.43348634955, -2, -10000, -10000]
+params = [-5.68586466553, -5, -5.43348634955, -5, -10000, -10000]
 names = ["fully connected weight learning rate", "fully connected bias learning rate", "convolutional weight learning rate", "convolutional bias learning rate", "l2", "mom"]
 
 s = 7
@@ -76,5 +76,5 @@ searchopt(2)
 print("============================================")
 print("I am done: the best parameters are: {}".format([base**el for el in params]))
 
-with open("bparams.txt", "w") as file:
+with open(input(), "w") as file:
     file.write(str([base**el for el in params]))

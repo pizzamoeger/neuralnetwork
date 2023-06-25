@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     params.test_data_size  = test_data_size;
     params.training_data_size = training_data_size;
     //cerr << "epochs: "; cin >> params.epochs;
-    params.epochs = 100;
+    params.epochs = 150;
     net.init(layers, L, crossEntropyPrime, params);
     net.SGD(training_data, test_data, params);
 
@@ -77,9 +77,9 @@ int main(int argc, char** argv) {
     auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
     auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
-    cout << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cout << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
-    //cout << (float)correctTest / params.test_data_size << "\n";
+    cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    cout << (float)correctTest / params.test_data_size << "\n";
 
     net.save(argv[1]);
 
