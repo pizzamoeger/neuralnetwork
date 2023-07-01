@@ -76,13 +76,13 @@ hyperparams get_params() {
     params.mini_batch_size = 16;
     params.epochs = 5;
 
-    params.fully_connected_weights_learning_rate = 1.2*0.08;
-    params.fully_connected_biases_learning_rate = 1.2*0.13168724279835392;
-    params.convolutional_weights_learning_rate = 1.2*0.01;
-    params.convolutional_biases_learning_rate = 1.2*0.13168724279835392;
+    params.fully_connected_weights_learning_rate = 1.2*0.0084;
+    params.fully_connected_biases_learning_rate = 1.2*0.0084;
+    params.convolutional_weights_learning_rate = 1.2*0.04;
+    params.convolutional_biases_learning_rate = 1.2*0.04;
 
-    params.L2_regularization_term = 0.0;
-    params.momentum_coefficient = 0.0;
+    params.L2_regularization_term = 0.035;
+    params.momentum_coefficient = 0.05;
 
     return params;
 }

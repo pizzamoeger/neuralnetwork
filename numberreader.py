@@ -3,6 +3,7 @@ from pygame.locals import *
 import numpy as np
 import boundingbox
 import neuralnetwork
+import os
 
 neuralnetwork.load()
 
@@ -77,6 +78,8 @@ while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+                os.remove("number.jpg")
+                os.remove("number.data")
                 exit()
             elif event.type == MOUSEBUTTONDOWN:
                 draw = True
@@ -135,6 +138,9 @@ while True:
                     screen.blit(text, (400, 150))
 
                     pygame.display.flip()
+
+                    os.remove("number.jpg")
+                    os.remove("number.data")
                 elif event.key == K_s:
                     # wait until the user presses a number
                     num = 0
