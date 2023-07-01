@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="neuralnetwork" targetName="neuralnetwork" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" CONFIG_NAME="Release" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="python compiled">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeCache.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CMakeCCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CMakeCXXCompiler.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CMakeDetermineCompilerABI_C.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CMakeSystem.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CompilerIdC/CMakeCCompilerId.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CompilerIdC/a.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CompilerIdCXX/CMakeCXXCompilerId.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/3.16.3/CompilerIdCXX/a.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/CMakeDirectoryInformation.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/CMakeOutput.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/Makefile.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/Makefile2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/TargetDirectories.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/cmake.check_cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/CXX.includecache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/DependInfo.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/Network.cpp.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/build.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/cmake_clean.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/depend.internal" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/depend.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/flags.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/layer.cpp.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/link.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/main.cpp.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/misc.cpp.o" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/neuralnetwork.dir/progress.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeFiles/progress.marks" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boundingbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/boundingbox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/Analysis-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/COLLECT-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/EXE-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/PKG-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/PYZ-00.pyz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/PYZ-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/base_library.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/numberreader.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/numberreader.exe.manifest" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/numberreader.pkg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/warn-numberreader.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/numberreader/xref-numberreader.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake_install.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake_install.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cnn" beforeDir="false" afterPath="$PROJECT_DIR$/train/cnn" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cnn.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/derrunner.py" beforeDir="false" afterPath="$PROJECT_DIR$/train/findBestParams.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fully_connected" beforeDir="false" afterPath="$PROJECT_DIR$/train/fully_connected" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fully_connected.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/includes.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/includes.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/misc.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/neuralnetwork.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/neuralnetwork.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/normalizer.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/normalizer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/numberreader.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/numberreader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/numberreader.spec" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sklav.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/compileParams.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sklav2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/runNetworks.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2023" />
+    <option name="minorVersion" value="1.3" />
+  </component>
+  <component name="ProjectId" id="2Qq6KhVH1LUShPGU9H8S1JgpfJj" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ossha/CLionProjects/neuralnetwork/bf&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
+    &quot;structure.view.defaults.are.configured&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/bf" />
+      <recent name="$PROJECT_DIR$/bf/linux" />
+      <recent name="$PROJECT_DIR$/dist" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/train" />
+      <recent name="$PROJECT_DIR$/test" />
+      <recent name="$PROJECT_DIR$/bf" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake Application.neuralnetwork">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="bestHyperparams" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="neuralnetwork" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.10" />
+      <option name="SDK_NAME" value="Python 3.10" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bestHyperparams.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.neuralnetwork" />
+      <item itemvalue="Python.bestHyperparams" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="" />
+      <created>1686068702692</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1686068702692</updated>
+      <workItem from="1686068704959" duration="761000" />
+      <workItem from="1686071922907" duration="3364000" />
+      <workItem from="1686308593402" duration="56000" />
+      <workItem from="1686322134380" duration="4215000" />
+      <workItem from="1686388645871" duration="216000" />
+      <workItem from="1686422300559" duration="957000" />
+      <workItem from="1686551820989" duration="49000" />
+      <workItem from="1687534125970" duration="8761000" />
+      <workItem from="1687558158169" duration="5192000" />
+      <workItem from="1687625749135" duration="5792000" />
+      <workItem from="1687632747927" duration="12551000" />
+      <workItem from="1687774483521" duration="11000" />
+      <workItem from="1688115349223" duration="113000" />
+      <workItem from="1688210259092" duration="1202000" />
+    </task>
+    <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
+      <created>1686325716311</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1686325716311</updated>
+    </task>
+    <task id="LOCAL-00002" summary="bug fix">
+      <created>1687539294336</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1687539294336</updated>
+    </task>
+    <task id="LOCAL-00003" summary="sklav">
+      <created>1687539358129</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1687539358129</updated>
+    </task>
+    <task id="LOCAL-00004" summary="true random">
+      <created>1687552587995</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1687552587995</updated>
+    </task>
+    <task id="LOCAL-00005" summary="memory leaks fixxed">
+      <option name="closed" value="true" />
+      <created>1687632295300</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1687632295300</updated>
+    </task>
+    <task id="LOCAL-00006" summary="learning rate reduction">
+      <option name="closed" value="true" />
+      <created>1687633349362</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1687633349362</updated>
+    </task>
+    <task id="LOCAL-00007" summary="improved numberreader for linux">
+      <option name="closed" value="true" />
+      <created>1687686158036</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1687686158036</updated>
+    </task>
+    <task id="LOCAL-00008" summary="python compiled">
+      <option name="closed" value="true" />
+      <created>1688210678363</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1688210678363</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticEditVcpkgJson value="false" />
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticFoundErrors value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added automatic search for best hyperparameters" />
+    <MESSAGE value="bug fix" />
+    <MESSAGE value="sklav" />
+    <MESSAGE value="true random" />
+    <MESSAGE value="memory leaks fixxed" />
+    <MESSAGE value="learning rate reduction" />
+    <MESSAGE value="improved numberreader for linux" />
+    <MESSAGE value="python compiled" />
+    <option name="LAST_COMMIT_MESSAGE" value="python compiled" />
+  </component>
+</project>

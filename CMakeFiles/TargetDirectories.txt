@@ -1,3 +1,0 @@
-/home/hannah/neuralnetwork/CMakeFiles/rebuild_cache.dir
-/home/hannah/neuralnetwork/CMakeFiles/edit_cache.dir
-/home/hannah/neuralnetwork/CMakeFiles/neuralnetwork.dir
