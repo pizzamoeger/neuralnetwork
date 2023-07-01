@@ -4,4 +4,9 @@ cmake-build-release
 networks
 Testing
 venv
+.cmake
+cmake_install.cmake
+Makefile
+CMakeFiles
+CMakeCache.txt
 build.ninja

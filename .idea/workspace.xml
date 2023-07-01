@@ -22,7 +22,42 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="organization">
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/cache-v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/cmakeFiles-v1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/codemodel-v2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/toolchains-v1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/cache-v2-ff4104f737db25fae74c.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/cmakeFiles-v1-7c9fa70e10f110ee94df.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/codemodel-v2-ae710fe1b496beec2110.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/index-2023-07-01T11-35-57-0157.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/target-neuralnetwork-Debug-1228f04a30e64198129a.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/toolchains-v1-ffb6434f9d66dd28afdb.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.ninja" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake_install.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net1.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net1.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net10.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net10.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net2.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net3.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net3.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net4.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net4.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net5.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net5.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net6.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net6.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net7.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net7.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net8.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net8.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net9.out" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/networks/net9.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +182,7 @@
       <workItem from="1687632747927" duration="12551000" />
       <workItem from="1687774483521" duration="11000" />
       <workItem from="1688115349223" duration="113000" />
-      <workItem from="1688210259092" duration="1422000" />
+      <workItem from="1688210259092" duration="2070000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -217,7 +252,15 @@
       <option name="project" value="LOCAL" />
       <updated>1688211495140</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="organization">
+      <option name="closed" value="true" />
+      <created>1688211699342</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1688211699342</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
