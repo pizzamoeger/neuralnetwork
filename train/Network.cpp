@@ -40,6 +40,11 @@ pair<float**, float**> Network::feedforward(input_type &a) {
 
     float** activations = new float* [L];
     float** derivatives_z = new float* [L];
+    float** device_activations = new float* [L];
+    float** device_derivatives_z = new float* [L];
+
+    cudaMalloc(&device_activations, sizeof(float*)*L);
+    cudaMalloc(&device_derivatives_z, sizeof(float*)*L);
 
     for (int l = 1; l < L; l++) {
         activations[l] = new float [layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps];
@@ -53,9 +58,25 @@ pair<float**, float**> Network::feedforward(input_type &a) {
     activations[0] = a;
     derivatives_z[0] = a;
 
-    for (int i = 1; i < L; i++) {
-        layers[i]->feedforward(activations[i-1], derivatives_z[i-1], activations[i], derivatives_z[i]);
+    for (int l = 0; l < L; l++) {
+        cudaMemcpy(device_activations[l], activations[l], sizeof(float)*layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps, cudaMemcpyHostToDevice);
+        cudaMemcpy(device_derivatives_z[l], derivatives_z[l], sizeof(float)*layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps, cudaMemcpyHostToDevice);
     }
+
+    for (int i = 1; i < L; i++) {
+        layers[i]->feedforward(device_activations[i-1], device_derivatives_z[i-1], device_activations[i], device_derivatives_z[i]);
+    }
+
+    for (int l = 0; l < L; l++) {
+        cudaMemcpy(activations[l], device_activations[l], sizeof(float)*layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps, cudaMemcpyDeviceToHost);
+        cudaMemcpy(derivatives_z[l], device_derivatives_z[l], sizeof(float)*layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps, cudaMemcpyDeviceToHost);
+
+        cudaFree(device_activations[l]);
+        cudaFree(device_derivatives_z[l]);
+    }
+
+    cudaFree(device_activations);
+    cudaFree(device_derivatives_z);
 
     return {activations, derivatives_z};
 }

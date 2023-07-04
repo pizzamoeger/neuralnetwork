@@ -59,7 +59,8 @@ __global__ void fully_connected_layer::forward(float* a, float* &new_a, float* &
     int neuron = blockIdx.x;
 
     z[neuron] = 0;
-    <<<data.n_in.x, 1>>> calcZ(a, z, neuron);
+    calcZ<<<data.n_in.x, 1>>>(a, z, neuron);
+    cudaDeviceSynchronize();
     z[neuron] += device_biases[neuron];
     new_a[neuron] = data.activationFunct(z[neuron]);
     new_dz[neuron] = data.activationFunctPrime(z[neuron]);
@@ -75,7 +76,7 @@ void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, floa
     float* z;
     cudaMalloc((void**)&z, data.n_out.x*sizeof(float));
 
-    <<<data.n_out.x, 1>>> forward(a, new_a, new_dz, z);
+    forward<<<data.n_out.x, 1>>>(a, new_a, new_dz, z);
 
     cudaFree(z);
 }

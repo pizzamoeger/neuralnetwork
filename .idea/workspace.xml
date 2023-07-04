@@ -21,11 +21,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="organization">
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="fully connected feedforward">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -223,7 +222,15 @@
       <option name="project" value="LOCAL" />
       <updated>1688211699342</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="fully connected feedforward">
+      <option name="closed" value="true" />
+      <created>1688494295430</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1688494295430</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -268,6 +275,7 @@
     <MESSAGE value="improved numberreader for linux" />
     <MESSAGE value="python compiled" />
     <MESSAGE value="organization" />
-    <option name="LAST_COMMIT_MESSAGE" value="organization" />
+    <MESSAGE value="fully connected feedforward" />
+    <option name="LAST_COMMIT_MESSAGE" value="fully connected feedforward" />
   </component>
 </project>
