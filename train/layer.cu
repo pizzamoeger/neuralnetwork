@@ -8,7 +8,7 @@ __device__ int get_convolutional_weights_index(int previous_map, int map, int y,
             + x;
 }
 
-int get_fully_connected_weights_index(int neuron, int previous_neuron) {
+__device__ int get_fully_connected_weights_index(int neuron, int previous_neuron) {
     return neuron*previous_neuron+previous_neuron;
 }
 

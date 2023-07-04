@@ -17,8 +17,8 @@ struct hyperparams {
 
 float sigmoid(float x);
 float sigmoidPrime(float x);
-float relu(float x);
-float reluPrime(float x);
+__device__ float relu(float x);
+__device__ float reluPrime(float x);
 
 typedef float input_type[28*28];
 typedef float output_type[10];
