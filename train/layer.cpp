@@ -35,6 +35,8 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
         biases[neuron] = distribution(generator);
         biasesVelocity[neuron] = 0;
     }
+    cudaMalloc(&device_biases, data.n_out.x * sizeof(float));
+    cudaMemcpy(device_biases, biases, data.n_out.x * sizeof(float), cudaMemcpyHostToDevice);
 
     weights = new float[data.n_out.x*data.n_in.x];
     weightsVelocity = new float[data.n_out.x*data.n_in.x];
@@ -44,6 +46,8 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
             weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] = 0;
         }
     }
+    cudaMalloc(&device_weights, data.n_out.x * data.n_in.x * sizeof(float));
+    cudaMemcpy(device_weights, weights, data.n_out.x * data.n_in.x * sizeof(float), cudaMemcpyHostToDevice);
 
     updateB = new float [data.n_out.x];
     updateW = new float [data.n_out.x*data.n_in.x];
@@ -51,21 +55,29 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) updateW[weight] = 0;
 }
 
+__global__ void fully_connected_layer::forward(float* a, float* &new_a, float* &new_dz, float* z) {
+    int neuron = blockIdx.x;
+
+    z[neuron] = 0;
+    <<<data.n_in.x, 1>>> calcZ(a, z, neuron);
+    z[neuron] += device_biases[neuron];
+    new_a[neuron] = data.activationFunct(z[neuron]);
+    new_dz[neuron] = data.activationFunctPrime(z[neuron]);
+}
+__global__ void fully_connected_layer::calcZ(float* a, float* z, int neuron) {
+    int previous_neuron =  blockIdx.x;
+    z[neuron] += device_weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
+}
+
 void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
     (void) dz;
-    float* z = new float [data.n_out.x];
-    for (int i = 0; i < data.n_out.x; i++) z[i] = 0;
 
-    for (int neuron = 0; neuron < data.n_out.x; neuron++) {
-        // get new activations
-        for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++)
-            z[neuron] += weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
-        z[neuron] += biases[neuron];
-        new_a[neuron] = data.activationFunct(z[neuron]);
-        new_dz[neuron] = data.activationFunctPrime(z[neuron]);
-    }
+    float* z;
+    cudaMalloc((void**)&z, data.n_out.x*sizeof(float));
 
-    delete[] z;
+    <<<data.n_out.x, 1>>> forward(a, new_a, new_dz, z);
+
+    cudaFree(z);
 }
 
 void
@@ -120,6 +132,9 @@ void fully_connected_layer::update(hyperparams params) {
 
     for (int bias = 0; bias < data.n_out.x; bias++) updateB[bias] = 0;
     for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) updateW[weight] = 0;
+
+    cudaMemcpy(device_weights, weights, data.n_out.x*data.n_in.x*sizeof(float), cudaMemcpyHostToDevice);
+    cudamemcpy(device_biases, biases, data.n_out.x*sizeof(float), cudaMemcpyHostToDevice);
 }
 
 void fully_connected_layer::save(string filename) {
@@ -147,6 +162,8 @@ void fully_connected_layer::clear() {
     delete[] biasesVelocity;
     delete[] updateW;
     delete[] updateB;
+    cudaFree(device_weights);
+    cudaFree(device_biases);
 }
 
 void convolutional_layer::init(layer_data data, layer_data data_previous) {

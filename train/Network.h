@@ -78,10 +78,12 @@ struct fully_connected_layer : public layer {
     // biases[i] is bias of ith neuron.
     float* biases;
     float* biasesVelocity;
+    float* device_biases;
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
     float* weights;
     float* weightsVelocity;
+    float* device_weights;
 
     // what needs to be updated
     float* updateB;
@@ -90,6 +92,8 @@ struct fully_connected_layer : public layer {
     void init (layer_data data, layer_data data_previous);
 
     void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
+    __global__ void forward(float* a, float* &new_a, float* &new_dz, float* z);
+    __global__ void calcZ(float* a, float* z, int neuron);
 
     void backprop(vector<float> & delta, float* &activations, float* &derivative_z);
 

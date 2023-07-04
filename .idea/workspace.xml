@@ -22,42 +22,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="organization">
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/cache-v2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/cmakeFiles-v1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/codemodel-v2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/query/toolchains-v1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/cache-v2-ff4104f737db25fae74c.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/cmakeFiles-v1-7c9fa70e10f110ee94df.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/codemodel-v2-ae710fe1b496beec2110.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/index-2023-07-01T11-35-57-0157.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/target-neuralnetwork-Debug-1228f04a30e64198129a.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.cmake/api/v1/reply/toolchains-v1-ffb6434f9d66dd28afdb.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.ninja" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake_install.cmake" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net1.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net10.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net10.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net2.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net3.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net3.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net4.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net4.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net5.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net5.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net6.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net6.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net7.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net7.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net8.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net8.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net9.out" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/networks/net9.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,11 +92,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.neuralnetwork">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -277,7 +240,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="cuda" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
