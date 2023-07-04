@@ -8,11 +8,11 @@ float sigmoidPrime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
-_device__ float relu(float x){
+float relu(float x){
     return max(x, 0.0f);
 }
 
-__device__ float reluPrime(float x){
+float reluPrime(float x){
     if (x > 0) return 1.0f;
     return 0.0f;
 }
