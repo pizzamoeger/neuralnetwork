@@ -60,7 +60,7 @@ __global__ void fully_connected_layer::forward(float* a, float* &new_a, float* &
 
     z[neuron] = 0;
     calcZ<<<data.n_in.x, 1>>>(a, z, neuron);
-    cudaDeviceSynchronize();
+    __syncthreads();
     z[neuron] += device_biases[neuron];
     new_a[neuron] = data.activationFunct(z[neuron]);
     new_dz[neuron] = data.activationFunctPrime(z[neuron]);
@@ -70,7 +70,7 @@ __device__ void fully_connected_layer::calcZ(float* a, float* z, int neuron) {
     z[neuron] += device_weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
 }
 
-void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
+void fully_connected_layer::feedforward(float* a, float* dz, float* new_a, float* new_dz) {
     (void) dz;
 
     float* z;
