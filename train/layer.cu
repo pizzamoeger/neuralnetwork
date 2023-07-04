@@ -79,6 +79,7 @@ void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, floa
     cudaMalloc((void**)&z, data.n_out.x*sizeof(float));
 
     calcZ<<<{data.n_in.x, data.n_out.x},1>>>(a, z, device_weights);
+    cudaDeviceSynchronize();
     forward<<<data.n_out.x, 1>>>(a, new_a, new_dz, z, device_biases);
 
     cudaFree(z);
