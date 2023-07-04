@@ -1,6 +1,6 @@
 #include "includes.h"
 
-__device__ int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
+int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
     return
             previous_map * (data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length)
             + map * (data.receptive_field_length * data.receptive_field_length)
