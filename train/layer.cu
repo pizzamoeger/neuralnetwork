@@ -1,6 +1,6 @@
 #include "includes.h"
 
-int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
+__device__ int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
     return
             previous_map * (data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length)
             + map * (data.receptive_field_length * data.receptive_field_length)
@@ -55,11 +55,11 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) updateW[weight] = 0;
 }
 
-__global__ void forward(float* a, float* new_a, float* new_dz, float* z, layer_data data, float * device_biases) {
+__global__ void forward(float* a, float* new_a, float* new_dz, float* z, float * device_biases) {
     int neuron = blockIdx.x;
     z[neuron] += device_biases[neuron];
-    new_a[neuron] = data.activationFunct(z[neuron]);
-    new_dz[neuron] = data.activationFunctPrime(z[neuron]);
+    new_a[neuron] = relu(z[neuron]);
+    new_dz[neuron] = reluPrime(z[neuron]);
 }
 
 __global__ void calcZ(float* a, float* z, float * device_weights) {
@@ -75,7 +75,7 @@ void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, floa
     cudaMalloc((void**)&z, data.n_out.x*sizeof(float));
 
     calcZ<<<{data.n_in.x, data.n_out.x},1>>>(a, z, device_weights);
-    forward<<<data.n_out.x, 1>>>(a, new_a, new_dz, z, data, device_biases);
+    forward<<<data.n_out.x, 1>>>(a, new_a, new_dz, z, device_biases);
 
     cudaFree(z);
 }
