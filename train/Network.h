@@ -92,8 +92,6 @@ struct fully_connected_layer : public layer {
     void init (layer_data data, layer_data data_previous);
 
     void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
-    __global__ void forward(float* a, float* new_a, float* new_dz, float* z);
-    __global__ void calcZ(float* a, float* z);
 
     void backprop(vector<float> & delta, float* &activations, float* &derivative_z);
 
