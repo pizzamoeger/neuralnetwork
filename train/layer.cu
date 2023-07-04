@@ -58,8 +58,12 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 __global__ void forward(float* a, float* new_a, float* new_dz, float* z, float * device_biases) {
     int neuron = blockIdx.x;
     z[neuron] += device_biases[neuron];
-    new_a[neuron] = relu(z[neuron]);
-    new_dz[neuron] = reluPrime(z[neuron]);
+    new_a[neuron] = 0.0;
+    new_dz[neuron] = 0.0;
+    if (z[neuron] > 0.0) {
+        new_a[neuron] = z[neuron];
+        new_dz[neuron] = 1.0;
+    }
 }
 
 __global__ void calcZ(float* a, float* z, float * device_weights) {

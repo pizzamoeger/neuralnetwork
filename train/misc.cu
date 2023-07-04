@@ -13,7 +13,8 @@ _device__ float relu(float x){
 }
 
 __device__ float reluPrime(float x){
-    return max((float)0, x);
+    if (x > 0) return 1.0f;
+    return 0.0f;
 }
 
 // cross entropy cost function
