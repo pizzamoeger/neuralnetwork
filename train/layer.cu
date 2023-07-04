@@ -8,7 +8,7 @@ int get_convolutional_weights_index(int previous_map, int map, int y, int x, lay
             + x;
 }
 
-__device__ int get_fully_connected_weights_index(int neuron, int previous_neuron) {
+int get_fully_connected_weights_index(int neuron, int previous_neuron) {
     return neuron*previous_neuron+previous_neuron;
 }
 
@@ -69,7 +69,7 @@ __global__ void forward(float* a, float* new_a, float* new_dz, float* z, float *
 __global__ void calcZ(float* a, float* z, float * device_weights) {
     int previous_neuron =  blockIdx.x;
     int neuron = blockIdx.y;
-    z[neuron] += device_weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
+    z[neuron] += device_weights[neuron*previous_neuron+previous_neuron] * a[previous_neuron];
 }
 
 void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
