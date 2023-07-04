@@ -138,7 +138,9 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
         auto durationTrain = chrono::duration_cast<chrono::milliseconds>(end - start).count();
 
         // evaluate the network
-        auto [correct, durationEvaluate] = evaluate(test_data, params.test_data_size);
+        auto eval = evaluate(test_data, params.test_data_size);
+        auto correct = eval.first;
+        auto durationEvaluate = eval.second;
 
         cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
 
@@ -194,39 +196,3 @@ void Network::clear() {
 
     delete[] layers;
 }
-/*
-void Network::load(string filename) {
-    ifstream file(filename);
-
-    file >> L;
-
-    // sizes
-    sizes = vector<int>(L);
-    for (int i = 0; i < L; i++) file >> sizes[i];
-
-    layers = vector<fully_connected_layer>(L);
-    for (int i = 1; i < L; i++) layers[i].init(sizes[i - 1], sizes[i], activationFunct, activationFunctPrime, costFunctPrime);
-
-    // biases
-    for (int i = 1; i < L; i++) {
-        layers[i].biases = vector<float>(sizes[i]);
-        for (int j = 0; j < sizes[i]; j++) {
-            file >> layers[i].biases[j];
-        }
-    }
-
-    // weights
-    for (int i = 1; i < L; i++) {
-        layers[i].weights = vector<vector<float>>(sizes[i]);
-        for (int j = 0; j < sizes[i]; j++) {
-            layers[i].weights[j] = vector<float>(sizes[i - 1]);
-            for (int k = 0; k < sizes[i - 1]; k++) {
-                file >> layers[i].weights[j][k];
-            }
-            char c;
-            file >> c;
-        }
-    }
-
-    file.close();
-}*/
