@@ -21,10 +21,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="fully connected feedforward">
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="cuda files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -235,7 +235,23 @@
       <option name="project" value="LOCAL" />
       <updated>1688494295430</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="bug fix">
+      <option name="closed" value="true" />
+      <created>1688494745071</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1688494745071</updated>
+    </task>
+    <task id="LOCAL-00013" summary="cuda files">
+      <option name="closed" value="true" />
+      <created>1688495118111</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1688495118111</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -272,7 +288,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added automatic search for best hyperparameters" />
-    <MESSAGE value="bug fix" />
     <MESSAGE value="sklav" />
     <MESSAGE value="true random" />
     <MESSAGE value="memory leaks fixxed" />
@@ -281,6 +296,8 @@
     <MESSAGE value="python compiled" />
     <MESSAGE value="organization" />
     <MESSAGE value="fully connected feedforward" />
-    <option name="LAST_COMMIT_MESSAGE" value="fully connected feedforward" />
+    <MESSAGE value="bug fix" />
+    <MESSAGE value="cuda files" />
+    <option name="LAST_COMMIT_MESSAGE" value="cuda files" />
   </component>
 </project>

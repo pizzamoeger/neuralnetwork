@@ -65,7 +65,7 @@ __global__ void fully_connected_layer::forward(float* a, float* &new_a, float* &
     new_a[neuron] = data.activationFunct(z[neuron]);
     new_dz[neuron] = data.activationFunctPrime(z[neuron]);
 }
-__global__ void fully_connected_layer::calcZ(float* a, float* z, int neuron) {
+__device__ void fully_connected_layer::calcZ(float* a, float* z, int neuron) {
     int previous_neuron =  blockIdx.x;
     z[neuron] += device_weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
 }
