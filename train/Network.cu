@@ -43,8 +43,10 @@ pair<float**, float**> Network::feedforward(input_type &a) {
     float** device_activations = new float* [L];
     float** device_derivatives_z = new float* [L];
 
-    cudaMalloc(&device_activations, sizeof(float*)*L);
-    cudaMalloc(&device_derivatives_z, sizeof(float*)*L);
+    for (int i = 0; i < L; ++i) {
+        cudaMalloc(&device_activations[i], sizeof(float) * layers[i]->data.n_out.x * layers[i]->data.n_out.y * layers[i]->data.n_out.feature_maps);
+        cudaMalloc(&device_derivatives_z[i], sizeof(float) * layers[i]->data.n_out.x * layers[i]->data.n_out.y * layers[i]->data.n_out.feature_maps);
+    }
 
     for (int l = 1; l < L; l++) {
         activations[l] = new float [layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps];
