@@ -52,8 +52,12 @@ int main(int argc, char** argv) {
     //layers[5] = outt;
 
     // train network
-    auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
-    auto [training_data, training_data_size] = load_data("mnist_train_normalized.data");
+    auto test= load_data("mnist_test_normalized.data");
+    auto test_data = test.first;
+    auto test_data_size = test.second;
+    auto training= load_data("mnist_train_normalized.data");
+    auto training_data = training.first;
+    auto training_data_size = training.second;
 
     auto params = get_params();
     if (argc == 7) {
@@ -72,9 +76,13 @@ int main(int argc, char** argv) {
     net.SGD(training_data, test_data, params);
 
     // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
-    auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
+    auto Test = net.evaluate(test_data, test_data_size);
+    auto correctTest = Test.first;
+    auto durationTest = Test.second;
 
-    auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
+    auto Training= net.evaluate(training_data, training_data_size);
+    auto correctTrain = Training.first;
+    auto durationTrain = Training.second;
 
     cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
     cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
