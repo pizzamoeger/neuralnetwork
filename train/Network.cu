@@ -85,7 +85,9 @@ pair<int,int> Network::evaluate(data_point* test_data, int test_data_size) {
     auto start = chrono::high_resolution_clock::now();
     int correct = 0;
     for (int k = 0; k < (int) test_data_size; k++) {
-        auto [activations, derivatives_z] = feedforward(test_data[k].first);
+        auto ret = feedforward(test_data[k].first);
+        float** activations = ret.first;
+        float** derivatives_z = ret.second;
         float* output = activations[L-1];
         int max = 0;
         for (int j = 0; j < 10; j++) {
@@ -105,7 +107,9 @@ pair<int,int> Network::evaluate(data_point* test_data, int test_data_size) {
 
 void Network::SGD(data_point* training_data, data_point* test_data, hyperparams params) {
 
-    auto [correct, durationEvaluate] = evaluate(test_data, params.test_data_size);
+    auto eval = evaluate(test_data, params.test_data_size);
+    int correct = eval.first;
+    int durationEvaluate = eval.second;
     cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
     for (int i = 0; i < params.epochs; i++) {
@@ -138,8 +142,8 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
         auto durationTrain = chrono::duration_cast<chrono::milliseconds>(end - start).count();
 
         // evaluate the network
-        auto eval = evaluate(test_data, params.test_data_size);
-        auto correct = eval.first;
+        eval = evaluate(test_data, params.test_data_size);
+        correct = eval.first;
         auto durationEvaluate = eval.second;
 
         cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
@@ -166,7 +170,9 @@ void Network::update_mini_batch(data_point* mini_batch, hyperparams params) {
 
 void Network::backprop(input_type &in, output_type &out) {
     // feedfoward
-    auto [activations, derivatives_z] = feedforward(in);
+    auto ret = feedforward(in);
+    float** activations = ret.first;
+    float** derivatives_z = ret.second;
 
     // backpropagate
     vector<float> delta = vector<float> (layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps, 0);
