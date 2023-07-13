@@ -2,6 +2,7 @@ import math
 import numpy as np
 
 layer_data = []
+L = 0
 
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
@@ -86,12 +87,17 @@ def ffFullConn(l, a):
 
     z = [0] * out[0]
     newA = z
+    print(l)
+    print(L)
 
     for neuron in range(out[0]):
         for previous_neuron in range(inn[0]):
             z[neuron] += weights[neuron*previous_neuron+previous_neuron]*a[previous_neuron]
         z[neuron] += biases[neuron]
-        newA[neuron] = relu(z[neuron])
+        if ((int)(l-1)/2 == L-1):
+            newA[neuron] = sigmoid(z[neuron])
+        else:
+            newA[neuron] = relu(z[neuron])
     return newA
 
 def dataIndex(map, y, x, noutx, nouty):

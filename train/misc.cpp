@@ -15,7 +15,8 @@ float relu(float x){
 }
 
 float reluPrime(float x){
-    return max((float)0, x);
+    if (x > 0) return 0;
+    return (float)0;
 }
 
 // cross entropy cost function

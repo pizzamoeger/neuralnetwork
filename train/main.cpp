@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activationFunctPrime = reluPrime;
-    outt.activationFunct = relu;
+    outt.activationFunctPrime = sigmoidPrime;
+    outt.activationFunct = sigmoid;
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
