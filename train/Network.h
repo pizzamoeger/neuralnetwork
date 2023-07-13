@@ -178,7 +178,7 @@ struct Network {
 
     function<float(float, float)> costFunctPrime;
 
-    void init (layer_data* layers, int L, function<float(float, float)> costFunctPrime, hyperparams params);
+    void init (layer_data* layers, int L, function<float(float, float)> costFunctPrime);
 
     pair<float**, float**> feedforward(input_type &a);
 

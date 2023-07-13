@@ -15,7 +15,7 @@ float relu(float x){
 }
 
 float reluPrime(float x){
-    if (x > 0) return 0;
+    if (x > 0) return 1;
     return (float)0;
 }
 
@@ -77,13 +77,13 @@ hyperparams get_params() {
     params.mini_batch_size = 16;
     params.epochs = 5;
 
-    params.fully_connected_weights_learning_rate = 1.2*0.0084;
-    params.fully_connected_biases_learning_rate = 1.2*0.0084;
-    params.convolutional_weights_learning_rate = 1.2*0.04;
-    params.convolutional_biases_learning_rate = 1.2*0.04;
+    params.fully_connected_weights_learning_rate = 1.2*0.017599067515299563;
+    params.fully_connected_biases_learning_rate = 1.2*0.041000786959874205;
+    params.convolutional_weights_learning_rate = 1.2*1.0075;
+    params.convolutional_biases_learning_rate = 1.2*0.011;
 
-    params.L2_regularization_term = 0.035;
-    params.momentum_coefficient = 0.05;
+    params.L2_regularization_term = 0;
+    params.momentum_coefficient = 0;
 
     return params;
 }

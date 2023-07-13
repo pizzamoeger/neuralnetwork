@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
-    // FIND-TAG-231
+    // FIND-TAG-LAYERS
     int L = 6;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
@@ -50,8 +50,6 @@ int main(int argc, char** argv) {
     layers[3] = fully_connected1;
     layers[4] = fully_connected2;
     layers[5] = outt;
-
-    //cerr << "ihr hurensöhne ich bin ein gotterbarmlicher hurensohn\n";
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
@@ -68,24 +66,36 @@ int main(int argc, char** argv) {
     }
     params.test_data_size  = test_data_size;
     params.training_data_size = training_data_size;
-    //cerr << "epochs: "; cin >> params.epochs;
-    //params.epochs = 150;
-    params.epochs = 5;
-    net.init(layers, L, crossEntropyPrime, params);
+
+    // initialize params learning rate reduction
+    // FIND-TAG-REDUCTION
+    params.fcBRed = params.fully_connected_biases_learning_rate*99/10000;
+    params.fcWRed = params.fully_connected_weights_learning_rate*99/10000;
+    params.convBRed = params.convolutional_biases_learning_rate*99/10000;
+    params.convWRed = params.convolutional_weights_learning_rate*99/10000;
+
+    // FIND-TAG-EPOCHS
+    cerr << "epochs: "; cin >> params.epochs;
+    // params.epochs = 150;
+    // params.epochs = 5;
+
+    net.init(layers, L, crossEntropyPrime);
     net.SGD(training_data, test_data, params);
 
     // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
     auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
-
     auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
     cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
     cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
-    cout << (float)correctTest / params.test_data_size << "\n";
 
-   // cerr << "Where should the network be stored? "; string filename; cin >> filename;
-//    string filename = argv[1];	    
-//    net.save(filename);
+    // FIND-TAG-OUTPUT
+    // cout << (float)correctTest / params.test_data_size << "\n";
+
+    // FIND-TAG-STORING
+    cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    // string filename = argv[1];
+    net.save(filename);
 
     clear_data(test_data);
     clear_data(training_data);
