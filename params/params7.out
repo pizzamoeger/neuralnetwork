@@ -1,0 +1,1203 @@
+/home/hannah/neuralnetwork
+testing fully connected weight learning rate=0.005836199362722949
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1063 evaluated in 221ms
+1 Accuracy: 0.342, trained in 3833ms, evaluated in 338ms
+2 Accuracy: 0.3658, trained in 5232ms, evaluated in 339ms
+3 Accuracy: 0.3757, trained in 5235ms, evaluated in 316ms
+4 Accuracy: 0.3866, trained in 3117ms, evaluated in 226ms
+5 Accuracy: 0.3938, trained in 3128ms, evaluated in 227ms
+accuracy in training data: 0.37775
+general accuracy: 0.3938
+output: 0.3938
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0965 evaluated in 228ms
+1 Accuracy: 0.3627, trained in 3102ms, evaluated in 227ms
+2 Accuracy: 0.4055, trained in 3137ms, evaluated in 228ms
+3 Accuracy: 0.4228, trained in 3151ms, evaluated in 230ms
+4 Accuracy: 0.4322, trained in 3442ms, evaluated in 306ms
+5 Accuracy: 0.4358, trained in 4506ms, evaluated in 344ms
+accuracy in training data: 0.424117
+general accuracy: 0.4358
+output: 0.4358
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0992 evaluated in 239ms
+1 Accuracy: 0.3517, trained in 3197ms, evaluated in 235ms
+2 Accuracy: 0.3694, trained in 3192ms, evaluated in 237ms
+3 Accuracy: 0.3864, trained in 4734ms, evaluated in 345ms
+4 Accuracy: 0.394, trained in 5343ms, evaluated in 346ms
+5 Accuracy: 0.3994, trained in 5407ms, evaluated in 348ms
+accuracy in training data: 0.392667
+general accuracy: 0.3994
+output: 0.3994
+
+============================================
+testing fully connected weight learning rate=0.010295747462655495
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0864 evaluated in 230ms
+1 Accuracy: 0.3137, trained in 3158ms, evaluated in 232ms
+2 Accuracy: 0.3404, trained in 3175ms, evaluated in 230ms
+3 Accuracy: 0.3567, trained in 3196ms, evaluated in 230ms
+4 Accuracy: 0.357, trained in 3799ms, evaluated in 310ms
+5 Accuracy: 0.3706, trained in 3386ms, evaluated in 230ms
+accuracy in training data: 0.365417
+general accuracy: 0.3706
+output: 0.3706
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0965 evaluated in 261ms
+1 Accuracy: 0.2705, trained in 3172ms, evaluated in 229ms
+2 Accuracy: 0.2888, trained in 3149ms, evaluated in 230ms
+3 Accuracy: 0.3126, trained in 3188ms, evaluated in 231ms
+4 Accuracy: 0.3234, trained in 3181ms, evaluated in 231ms
+5 Accuracy: 0.3273, trained in 3209ms, evaluated in 233ms
+accuracy in training data: 0.325033
+general accuracy: 0.3273
+output: 0.3273
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1081 evaluated in 235ms
+1 Accuracy: 0.2932, trained in 3187ms, evaluated in 231ms
+2 Accuracy: 0.318, trained in 3199ms, evaluated in 231ms
+3 Accuracy: 0.3422, trained in 3216ms, evaluated in 235ms
+4 Accuracy: 0.3524, trained in 3204ms, evaluated in 233ms
+5 Accuracy: 0.3558, trained in 5286ms, evaluated in 352ms
+accuracy in training data: 0.358767
+general accuracy: 0.3558
+output: 0.3558
+
+============================================
+testing fully connected weight learning rate=0.018162918918061148
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0831 evaluated in 233ms
+1 Accuracy: 0.3036, trained in 3216ms, evaluated in 234ms
+2 Accuracy: 0.3391, trained in 3212ms, evaluated in 234ms
+3 Accuracy: 0.3602, trained in 4630ms, evaluated in 347ms
+4 Accuracy: 0.3771, trained in 5246ms, evaluated in 349ms
+5 Accuracy: 0.3768, trained in 5419ms, evaluated in 349ms
+accuracy in training data: 0.36285
+general accuracy: 0.3768
+output: 0.3768
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0847 evaluated in 348ms
+1 Accuracy: 0.4244, trained in 4891ms, evaluated in 233ms
+2 Accuracy: 0.4505, trained in 3235ms, evaluated in 243ms
+3 Accuracy: 0.4698, trained in 4604ms, evaluated in 241ms
+4 Accuracy: 0.479, trained in 3281ms, evaluated in 283ms
+5 Accuracy: 0.4845, trained in 4417ms, evaluated in 231ms
+accuracy in training data: 0.473167
+general accuracy: 0.4845
+output: 0.4845
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0944 evaluated in 245ms
+1 Accuracy: 0.3775, trained in 3519ms, evaluated in 309ms
+2 Accuracy: 0.4056, trained in 3851ms, evaluated in 343ms
+3 Accuracy: 0.4312, trained in 3525ms, evaluated in 233ms
+4 Accuracy: 0.4443, trained in 3631ms, evaluated in 351ms
+5 Accuracy: 0.453, trained in 5423ms, evaluated in 351ms
+accuracy in training data: 0.43025
+general accuracy: 0.453
+output: 0.453
+
+============================================
+testing fully connected weight learning rate=0.03204154189102239
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0726 evaluated in 230ms
+1 Accuracy: 0.4573, trained in 3280ms, evaluated in 236ms
+2 Accuracy: 0.4763, trained in 3233ms, evaluated in 238ms
+3 Accuracy: 0.4986, trained in 3228ms, evaluated in 234ms
+4 Accuracy: 0.5063, trained in 3226ms, evaluated in 233ms
+5 Accuracy: 0.5072, trained in 3212ms, evaluated in 234ms
+accuracy in training data: 0.504783
+general accuracy: 0.5072
+output: 0.5072
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0904 evaluated in 233ms
+1 Accuracy: 0.3494, trained in 3200ms, evaluated in 234ms
+2 Accuracy: 0.3761, trained in 3226ms, evaluated in 234ms
+3 Accuracy: 0.3861, trained in 3229ms, evaluated in 234ms
+4 Accuracy: 0.3971, trained in 3217ms, evaluated in 233ms
+5 Accuracy: 0.4022, trained in 3218ms, evaluated in 232ms
+accuracy in training data: 0.409483
+general accuracy: 0.4022
+output: 0.4022
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0838 evaluated in 233ms
+1 Accuracy: 0.4055, trained in 3213ms, evaluated in 236ms
+2 Accuracy: 0.4364, trained in 3219ms, evaluated in 234ms
+3 Accuracy: 0.455, trained in 3209ms, evaluated in 229ms
+4 Accuracy: 0.4663, trained in 5088ms, evaluated in 352ms
+5 Accuracy: 0.468, trained in 5434ms, evaluated in 352ms
+accuracy in training data: 0.473117
+general accuracy: 0.468
+output: 0.468
+
+============================================
+testing fully connected weight learning rate=0.05652507790106549
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1025 evaluated in 242ms
+1 Accuracy: 0.2696, trained in 3334ms, evaluated in 244ms
+2 Accuracy: 0.2793, trained in 4700ms, evaluated in 346ms
+3 Accuracy: 0.2957, trained in 5201ms, evaluated in 350ms
+4 Accuracy: 0.3032, trained in 3676ms, evaluated in 235ms
+5 Accuracy: 0.3068, trained in 4730ms, evaluated in 246ms
+accuracy in training data: 0.3007
+general accuracy: 0.3068
+output: 0.3068
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0981 evaluated in 244ms
+1 Accuracy: 0.4138, trained in 3537ms, evaluated in 348ms
+2 Accuracy: 0.4332, trained in 3661ms, evaluated in 314ms
+3 Accuracy: 0.4448, trained in 4980ms, evaluated in 354ms
+4 Accuracy: 0.4528, trained in 3517ms, evaluated in 237ms
+5 Accuracy: 0.4593, trained in 3473ms, evaluated in 348ms
+accuracy in training data: 0.448683
+general accuracy: 0.4593
+output: 0.4593
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0964 evaluated in 231ms
+1 Accuracy: 0.4314, trained in 3205ms, evaluated in 231ms
+2 Accuracy: 0.4575, trained in 3343ms, evaluated in 232ms
+3 Accuracy: 0.4675, trained in 3198ms, evaluated in 233ms
+4 Accuracy: 0.4793, trained in 3165ms, evaluated in 229ms
+5 Accuracy: 0.4793, trained in 3197ms, evaluated in 235ms
+accuracy in training data: 0.4733
+general accuracy: 0.4793
+output: 0.4793
+
+============================================
+testing fully connected weight learning rate=0.0997169375490242
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0741 evaluated in 234ms
+1 Accuracy: 0.4118, trained in 3204ms, evaluated in 232ms
+2 Accuracy: 0.4492, trained in 3214ms, evaluated in 234ms
+3 Accuracy: 0.4609, trained in 3208ms, evaluated in 236ms
+4 Accuracy: 0.467, trained in 3234ms, evaluated in 234ms
+5 Accuracy: 0.4758, trained in 3199ms, evaluated in 231ms
+accuracy in training data: 0.46935
+general accuracy: 0.4758
+output: 0.4758
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1366 evaluated in 233ms
+1 Accuracy: 0.4235, trained in 3194ms, evaluated in 232ms
+2 Accuracy: 0.4367, trained in 3210ms, evaluated in 235ms
+3 Accuracy: 0.4482, trained in 4776ms, evaluated in 235ms
+4 Accuracy: 0.4534, trained in 4278ms, evaluated in 314ms
+5 Accuracy: 0.455, trained in 3760ms, evaluated in 233ms
+accuracy in training data: 0.445133
+general accuracy: 0.455
+output: 0.455
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0975 evaluated in 234ms
+1 Accuracy: 0.4402, trained in 3218ms, evaluated in 230ms
+2 Accuracy: 0.46, trained in 3194ms, evaluated in 236ms
+3 Accuracy: 0.4664, trained in 3218ms, evaluated in 234ms
+4 Accuracy: 0.4741, trained in 4142ms, evaluated in 350ms
+5 Accuracy: 0.4807, trained in 4577ms, evaluated in 232ms
+accuracy in training data: 0.477567
+general accuracy: 0.4807
+output: 0.4807
+
+============================================
+testing fully connected weight learning rate=0.1759124976627155
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0715 evaluated in 243ms
+1 Accuracy: 0.4047, trained in 3320ms, evaluated in 234ms
+2 Accuracy: 0.42, trained in 4018ms, evaluated in 349ms
+3 Accuracy: 0.4153, trained in 4123ms, evaluated in 237ms
+4 Accuracy: 0.4249, trained in 3874ms, evaluated in 239ms
+5 Accuracy: 0.4297, trained in 4648ms, evaluated in 239ms
+accuracy in training data: 0.42385
+general accuracy: 0.4297
+output: 0.4297
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0912 evaluated in 316ms
+1 Accuracy: 0.4245, trained in 5163ms, evaluated in 351ms
+2 Accuracy: 0.4418, trained in 4117ms, evaluated in 244ms
+3 Accuracy: 0.4561, trained in 3295ms, evaluated in 251ms
+4 Accuracy: 0.4462, trained in 4024ms, evaluated in 233ms
+5 Accuracy: 0.4652, trained in 3748ms, evaluated in 341ms
+accuracy in training data: 0.463983
+general accuracy: 0.4652
+output: 0.4652
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1005 evaluated in 236ms
+1 Accuracy: 0.4695, trained in 3238ms, evaluated in 238ms
+2 Accuracy: 0.4959, trained in 3238ms, evaluated in 234ms
+3 Accuracy: 0.5078, trained in 3229ms, evaluated in 235ms
+4 Accuracy: 0.5085, trained in 3245ms, evaluated in 234ms
+5 Accuracy: 0.5155, trained in 3244ms, evaluated in 234ms
+accuracy in training data: 0.5046
+general accuracy: 0.5155
+output: 0.5155
+
+============================================
+testing fully connected weight learning rate=0.31033049745156055
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0978 evaluated in 236ms
+1 Accuracy: 0.5108, trained in 3241ms, evaluated in 233ms
+2 Accuracy: 0.5235, trained in 3241ms, evaluated in 237ms
+3 Accuracy: 0.5219, trained in 3269ms, evaluated in 227ms
+4 Accuracy: 0.5299, trained in 3198ms, evaluated in 234ms
+5 Accuracy: 0.5308, trained in 3217ms, evaluated in 234ms
+accuracy in training data: 0.516517
+general accuracy: 0.5308
+output: 0.5308
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0685 evaluated in 355ms
+1 Accuracy: 0.4991, trained in 3771ms, evaluated in 234ms
+2 Accuracy: 0.5141, trained in 3226ms, evaluated in 237ms
+3 Accuracy: 0.5327, trained in 3858ms, evaluated in 329ms
+4 Accuracy: 0.5222, trained in 5460ms, evaluated in 300ms
+5 Accuracy: 0.5278, trained in 3243ms, evaluated in 234ms
+accuracy in training data: 0.517483
+general accuracy: 0.5278
+output: 0.5278
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1319 evaluated in 242ms
+1 Accuracy: 0.4646, trained in 4528ms, evaluated in 248ms
+2 Accuracy: 0.4748, trained in 3744ms, evaluated in 316ms
+3 Accuracy: 0.4773, trained in 4379ms, evaluated in 330ms
+4 Accuracy: 0.4834, trained in 3382ms, evaluated in 244ms
+5 Accuracy: 0.4744, trained in 3492ms, evaluated in 348ms
+accuracy in training data: 0.472333
+general accuracy: 0.4744
+output: 0.4744
+
+============================================
+testing fully connected weight learning rate=0.5474597821536406
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0959 evaluated in 232ms
+1 Accuracy: 0.4686, trained in 4647ms, evaluated in 352ms
+2 Accuracy: 0.4864, trained in 5452ms, evaluated in 339ms
+3 Accuracy: 0.4799, trained in 3219ms, evaluated in 234ms
+4 Accuracy: 0.4843, trained in 3284ms, evaluated in 350ms
+5 Accuracy: 0.499, trained in 4299ms, evaluated in 231ms
+accuracy in training data: 0.489833
+general accuracy: 0.499
+output: 0.499
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1209 evaluated in 352ms
+1 Accuracy: 0.4887, trained in 5415ms, evaluated in 351ms
+2 Accuracy: 0.494, trained in 5267ms, evaluated in 232ms
+3 Accuracy: 0.4987, trained in 4477ms, evaluated in 349ms
+4 Accuracy: 0.5027, trained in 5396ms, evaluated in 349ms
+5 Accuracy: 0.4994, trained in 5398ms, evaluated in 349ms
+accuracy in training data: 0.488467
+general accuracy: 0.4994
+output: 0.4994
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1012 evaluated in 349ms
+1 Accuracy: 0.5224, trained in 5402ms, evaluated in 355ms
+2 Accuracy: 0.5253, trained in 4297ms, evaluated in 231ms
+3 Accuracy: 0.5266, trained in 3196ms, evaluated in 232ms
+4 Accuracy: 0.5302, trained in 3210ms, evaluated in 236ms
+5 Accuracy: 0.537, trained in 3201ms, evaluated in 233ms
+accuracy in training data: 0.52945
+general accuracy: 0.537
+output: 0.537
+
+============================================
+testing fully connected weight learning rate=0.9657839482002364
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0885 evaluated in 238ms
+1 Accuracy: 0.4626, trained in 3232ms, evaluated in 236ms
+2 Accuracy: 0.4621, trained in 3245ms, evaluated in 239ms
+3 Accuracy: 0.4643, trained in 3195ms, evaluated in 231ms
+4 Accuracy: 0.4605, trained in 3248ms, evaluated in 235ms
+5 Accuracy: 0.4686, trained in 3216ms, evaluated in 236ms
+accuracy in training data: 0.46505
+general accuracy: 0.4686
+output: 0.4686
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0775 evaluated in 233ms
+1 Accuracy: 0.4829, trained in 4962ms, evaluated in 349ms
+2 Accuracy: 0.4878, trained in 5386ms, evaluated in 348ms
+3 Accuracy: 0.4807, trained in 5407ms, evaluated in 350ms
+4 Accuracy: 0.4872, trained in 3351ms, evaluated in 234ms
+5 Accuracy: 0.4865, trained in 3200ms, evaluated in 232ms
+accuracy in training data: 0.475
+general accuracy: 0.4865
+output: 0.4865
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0745 evaluated in 238ms
+1 Accuracy: 0.4254, trained in 3189ms, evaluated in 232ms
+2 Accuracy: 0.4465, trained in 3742ms, evaluated in 312ms
+3 Accuracy: 0.4322, trained in 3408ms, evaluated in 235ms
+4 Accuracy: 0.4341, trained in 3195ms, evaluated in 234ms
+5 Accuracy: 0.4393, trained in 3196ms, evaluated in 231ms
+accuracy in training data: 0.434467
+general accuracy: 0.4393
+output: 0.4393
+
+============================================
+testing fully connected weight learning rate=1.7037573626540308
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0973 evaluated in 231ms
+1 Accuracy: 0.4911, trained in 4148ms, evaluated in 310ms
+2 Accuracy: 0.5011, trained in 3306ms, evaluated in 235ms
+3 Accuracy: 0.5048, trained in 3230ms, evaluated in 233ms
+4 Accuracy: 0.4919, trained in 4943ms, evaluated in 354ms
+5 Accuracy: 0.5038, trained in 5466ms, evaluated in 353ms
+accuracy in training data: 0.495667
+general accuracy: 0.5038
+output: 0.5038
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0998 evaluated in 347ms
+1 Accuracy: 0.3784, trained in 4008ms, evaluated in 232ms
+2 Accuracy: 0.3847, trained in 3207ms, evaluated in 233ms
+3 Accuracy: 0.374, trained in 3218ms, evaluated in 233ms
+4 Accuracy: 0.3913, trained in 3211ms, evaluated in 236ms
+5 Accuracy: 0.3908, trained in 3311ms, evaluated in 314ms
+accuracy in training data: 0.381483
+general accuracy: 0.3908
+output: 0.3908
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1643 evaluated in 315ms
+1 Accuracy: 0.4601, trained in 3235ms, evaluated in 236ms
+2 Accuracy: 0.4363, trained in 3222ms, evaluated in 232ms
+3 Accuracy: 0.4593, trained in 3826ms, evaluated in 353ms
+4 Accuracy: 0.4778, trained in 3936ms, evaluated in 234ms
+5 Accuracy: 0.4697, trained in 3240ms, evaluated in 237ms
+accuracy in training data: 0.44895
+general accuracy: 0.4697
+output: 0.4697
+
+============================================
+testing fully connected weight learning rate=0.31033049745156055
+============================================
+============================================
+testing fully connected weight learning rate=0.3749733290238312
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0776 evaluated in 353ms
+1 Accuracy: 0.4852, trained in 4832ms, evaluated in 305ms
+2 Accuracy: 0.499, trained in 3809ms, evaluated in 228ms
+3 Accuracy: 0.4963, trained in 4228ms, evaluated in 352ms
+4 Accuracy: 0.4982, trained in 5329ms, evaluated in 350ms
+5 Accuracy: 0.5001, trained in 5425ms, evaluated in 350ms
+accuracy in training data: 0.486667
+general accuracy: 0.5001
+output: 0.5001
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0949 evaluated in 230ms
+1 Accuracy: 0.4884, trained in 3215ms, evaluated in 234ms
+2 Accuracy: 0.4893, trained in 4192ms, evaluated in 310ms
+3 Accuracy: 0.5043, trained in 4997ms, evaluated in 352ms
+4 Accuracy: 0.4994, trained in 4462ms, evaluated in 234ms
+5 Accuracy: 0.5019, trained in 3254ms, evaluated in 312ms
+accuracy in training data: 0.4957
+general accuracy: 0.5019
+output: 0.5019
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0904 evaluated in 340ms
+1 Accuracy: 0.4422, trained in 3203ms, evaluated in 231ms
+2 Accuracy: 0.4538, trained in 3204ms, evaluated in 233ms
+3 Accuracy: 0.4618, trained in 3232ms, evaluated in 234ms
+4 Accuracy: 0.4685, trained in 3205ms, evaluated in 231ms
+5 Accuracy: 0.4615, trained in 3221ms, evaluated in 235ms
+accuracy in training data: 0.458833
+general accuracy: 0.4615
+output: 0.4615
+
+============================================
+testing fully connected weight learning rate=0.45308146841469027
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1028 evaluated in 259ms
+1 Accuracy: 0.3944, trained in 3272ms, evaluated in 287ms
+2 Accuracy: 0.4161, trained in 3222ms, evaluated in 237ms
+3 Accuracy: 0.4251, trained in 3208ms, evaluated in 230ms
+4 Accuracy: 0.4237, trained in 3231ms, evaluated in 233ms
+5 Accuracy: 0.4234, trained in 3216ms, evaluated in 232ms
+accuracy in training data: 0.417167
+general accuracy: 0.4234
+output: 0.4234
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0772 evaluated in 233ms
+1 Accuracy: 0.4045, trained in 3933ms, evaluated in 313ms
+2 Accuracy: 0.4162, trained in 5031ms, evaluated in 351ms
+3 Accuracy: 0.4279, trained in 5434ms, evaluated in 352ms
+4 Accuracy: 0.4238, trained in 3240ms, evaluated in 236ms
+5 Accuracy: 0.4304, trained in 3238ms, evaluated in 233ms
+accuracy in training data: 0.41535
+general accuracy: 0.4304
+output: 0.4304
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0928 evaluated in 233ms
+1 Accuracy: 0.3925, trained in 3290ms, evaluated in 313ms
+2 Accuracy: 0.4266, trained in 5272ms, evaluated in 350ms
+3 Accuracy: 0.4138, trained in 5430ms, evaluated in 351ms
+4 Accuracy: 0.4188, trained in 5209ms, evaluated in 231ms
+5 Accuracy: 0.4133, trained in 3206ms, evaluated in 231ms
+accuracy in training data: 0.411617
+general accuracy: 0.4133
+output: 0.4133
+
+============================================
+testing fully connected weight learning rate=0.5474597821536406
+============================================
+============================================
+testing fully connected weight learning rate=0.31033049745156055
+============================================
+============================================
+testing fully connected weight learning rate=0.3305342221534425
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1164 evaluated in 233ms
+1 Accuracy: 0.4315, trained in 3290ms, evaluated in 233ms
+2 Accuracy: 0.4493, trained in 3282ms, evaluated in 233ms
+3 Accuracy: 0.4505, trained in 3820ms, evaluated in 312ms
+4 Accuracy: 0.4536, trained in 3268ms, evaluated in 234ms
+5 Accuracy: 0.4612, trained in 3284ms, evaluated in 233ms
+accuracy in training data: 0.45605
+general accuracy: 0.4612
+output: 0.4612
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0968 evaluated in 233ms
+1 Accuracy: 0.4224, trained in 3226ms, evaluated in 233ms
+2 Accuracy: 0.4361, trained in 3210ms, evaluated in 235ms
+3 Accuracy: 0.4353, trained in 3204ms, evaluated in 231ms
+4 Accuracy: 0.4303, trained in 3588ms, evaluated in 232ms
+5 Accuracy: 0.4371, trained in 3211ms, evaluated in 235ms
+accuracy in training data: 0.4376
+general accuracy: 0.4371
+output: 0.4371
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1112 evaluated in 234ms
+1 Accuracy: 0.4633, trained in 3626ms, evaluated in 233ms
+2 Accuracy: 0.4917, trained in 3243ms, evaluated in 238ms
+3 Accuracy: 0.4947, trained in 3191ms, evaluated in 229ms
+4 Accuracy: 0.502, trained in 3170ms, evaluated in 233ms
+5 Accuracy: 0.4969, trained in 3193ms, evaluated in 231ms
+accuracy in training data: 0.484167
+general accuracy: 0.4969
+output: 0.4969
+
+============================================
+testing fully connected weight learning rate=0.3520532880647174
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0916 evaluated in 232ms
+1 Accuracy: 0.4686, trained in 3213ms, evaluated in 237ms
+2 Accuracy: 0.4887, trained in 3208ms, evaluated in 233ms
+3 Accuracy: 0.4918, trained in 3214ms, evaluated in 234ms
+4 Accuracy: 0.4954, trained in 3505ms, evaluated in 246ms
+5 Accuracy: 0.4999, trained in 3300ms, evaluated in 237ms
+accuracy in training data: 0.485267
+general accuracy: 0.4999
+output: 0.4999
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0959 evaluated in 230ms
+1 Accuracy: 0.4864, trained in 3240ms, evaluated in 234ms
+2 Accuracy: 0.4981, trained in 4821ms, evaluated in 250ms
+3 Accuracy: 0.5004, trained in 5008ms, evaluated in 353ms
+4 Accuracy: 0.5067, trained in 3804ms, evaluated in 245ms
+5 Accuracy: 0.5059, trained in 3316ms, evaluated in 349ms
+accuracy in training data: 0.496817
+general accuracy: 0.5059
+output: 0.5059
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0939 evaluated in 234ms
+1 Accuracy: 0.4962, trained in 3265ms, evaluated in 232ms
+2 Accuracy: 0.5162, trained in 4059ms, evaluated in 349ms
+3 Accuracy: 0.5041, trained in 5255ms, evaluated in 318ms
+4 Accuracy: 0.5139, trained in 3208ms, evaluated in 229ms
+5 Accuracy: 0.5169, trained in 4003ms, evaluated in 270ms
+accuracy in training data: 0.517567
+general accuracy: 0.5169
+output: 0.5169
+
+============================================
+testing fully connected weight learning rate=0.3749733290238311
+============================================
+============================================
+Done looking for best fully connected weight learning rate, found 0.3633326209128667 to be best
+testing convolutional weight learning rate=0.006465047711078525
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1113 evaluated in 781ms
+1 Accuracy: 0.382, trained in 14271ms, evaluated in 1018ms
+2 Accuracy: 0.4069, trained in 14997ms, evaluated in 744ms
+3 Accuracy: 0.4256, trained in 13383ms, evaluated in 1086ms
+4 Accuracy: 0.4352, trained in 19106ms, evaluated in 752ms
+5 Accuracy: 0.435, trained in 15942ms, evaluated in 1079ms
+accuracy in training data: 0.430367
+general accuracy: 0.435
+output: 0.435
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1091 evaluated in 745ms
+1 Accuracy: 0.5575, trained in 15239ms, evaluated in 1086ms
+2 Accuracy: 0.5901, trained in 15175ms, evaluated in 717ms
+3 Accuracy: 0.5923, trained in 17198ms, evaluated in 870ms
+4 Accuracy: 0.5921, trained in 12242ms, evaluated in 721ms
+5 Accuracy: 0.5933, trained in 15914ms, evaluated in 1017ms
+accuracy in training data: 0.57505
+general accuracy: 0.5933
+output: 0.5933
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0953 evaluated in 688ms
+1 Accuracy: 0.3189, trained in 11766ms, evaluated in 689ms
+2 Accuracy: 0.3524, trained in 11784ms, evaluated in 697ms
+3 Accuracy: 0.3769, trained in 11886ms, evaluated in 694ms
+4 Accuracy: 0.3788, trained in 15187ms, evaluated in 728ms
+5 Accuracy: 0.3849, trained in 14304ms, evaluated in 713ms
+accuracy in training data: 0.385183
+general accuracy: 0.3849
+output: 0.3849
+
+============================================
+testing convolutional weight learning rate=0.011405110488930916
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0774 evaluated in 1081ms
+1 Accuracy: 0.5195, trained in 14971ms, evaluated in 1083ms
+2 Accuracy: 0.5291, trained in 14516ms, evaluated in 1001ms
+3 Accuracy: 0.5334, trained in 14602ms, evaluated in 847ms
+4 Accuracy: 0.5411, trained in 12818ms, evaluated in 718ms
+5 Accuracy: 0.5523, trained in 12153ms, evaluated in 723ms
+accuracy in training data: 0.540817
+general accuracy: 0.5523
+output: 0.5523
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1013 evaluated in 739ms
+1 Accuracy: 0.4391, trained in 17523ms, evaluated in 748ms
+2 Accuracy: 0.4652, trained in 14350ms, evaluated in 723ms
+3 Accuracy: 0.4783, trained in 13566ms, evaluated in 736ms
+4 Accuracy: 0.4785, trained in 12763ms, evaluated in 722ms
+5 Accuracy: 0.4873, trained in 12742ms, evaluated in 721ms
+accuracy in training data: 0.47665
+general accuracy: 0.4873
+output: 0.4873
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0714 evaluated in 1036ms
+1 Accuracy: 0.427, trained in 15937ms, evaluated in 861ms
+2 Accuracy: 0.4541, trained in 14932ms, evaluated in 1041ms
+3 Accuracy: 0.4515, trained in 15421ms, evaluated in 712ms
+4 Accuracy: 0.4497, trained in 12086ms, evaluated in 762ms
+5 Accuracy: 0.4505, trained in 14645ms, evaluated in 986ms
+accuracy in training data: 0.448017
+general accuracy: 0.4505
+output: 0.4505
+
+============================================
+testing convolutional weight learning rate=0.020119966793411662
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0765 evaluated in 871ms
+1 Accuracy: 0.4812, trained in 15660ms, evaluated in 711ms
+2 Accuracy: 0.5091, trained in 13587ms, evaluated in 834ms
+3 Accuracy: 0.5239, trained in 16587ms, evaluated in 700ms
+4 Accuracy: 0.5267, trained in 11910ms, evaluated in 696ms
+5 Accuracy: 0.5389, trained in 13730ms, evaluated in 719ms
+accuracy in training data: 0.52995
+general accuracy: 0.5389
+output: 0.5389
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.107 evaluated in 719ms
+1 Accuracy: 0.4684, trained in 13132ms, evaluated in 1084ms
+2 Accuracy: 0.4936, trained in 14396ms, evaluated in 1083ms
+3 Accuracy: 0.5006, trained in 16213ms, evaluated in 717ms
+4 Accuracy: 0.5016, trained in 14252ms, evaluated in 1078ms
+5 Accuracy: 0.5027, trained in 14947ms, evaluated in 1083ms
+accuracy in training data: 0.498367
+general accuracy: 0.5027
+output: 0.5027
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1128 evaluated in 1079ms
+1 Accuracy: 0.4832, trained in 18980ms, evaluated in 1089ms
+2 Accuracy: 0.5001, trained in 15490ms, evaluated in 1100ms
+3 Accuracy: 0.5055, trained in 15540ms, evaluated in 731ms
+4 Accuracy: 0.5127, trained in 12650ms, evaluated in 1008ms
+5 Accuracy: 0.5123, trained in 15444ms, evaluated in 734ms
+accuracy in training data: 0.505933
+general accuracy: 0.5123
+output: 0.5123
+
+============================================
+testing convolutional weight learning rate=0.03549400631943672
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1037 evaluated in 748ms
+1 Accuracy: 0.4062, trained in 17098ms, evaluated in 878ms
+2 Accuracy: 0.4281, trained in 15170ms, evaluated in 699ms
+3 Accuracy: 0.4349, trained in 12366ms, evaluated in 724ms
+4 Accuracy: 0.4523, trained in 12954ms, evaluated in 700ms
+5 Accuracy: 0.4439, trained in 14029ms, evaluated in 700ms
+accuracy in training data: 0.435133
+general accuracy: 0.4439
+output: 0.4439
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0882 evaluated in 827ms
+1 Accuracy: 0.4351, trained in 16966ms, evaluated in 960ms
+2 Accuracy: 0.4381, trained in 14610ms, evaluated in 1195ms
+3 Accuracy: 0.4588, trained in 14659ms, evaluated in 755ms
+4 Accuracy: 0.4591, trained in 15225ms, evaluated in 990ms
+5 Accuracy: 0.4551, trained in 16106ms, evaluated in 732ms
+accuracy in training data: 0.449433
+general accuracy: 0.4551
+output: 0.4551
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.103 evaluated in 748ms
+1 Accuracy: 0.3375, trained in 17004ms, evaluated in 1082ms
+2 Accuracy: 0.3759, trained in 16917ms, evaluated in 722ms
+3 Accuracy: 0.3816, trained in 15081ms, evaluated in 723ms
+4 Accuracy: 0.3922, trained in 13020ms, evaluated in 719ms
+5 Accuracy: 0.3793, trained in 16190ms, evaluated in 735ms
+accuracy in training data: 0.372117
+general accuracy: 0.3793
+output: 0.3793
+
+============================================
+testing convolutional weight learning rate=0.06261563438647161
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1027 evaluated in 719ms
+1 Accuracy: 0.519, trained in 12239ms, evaluated in 710ms
+2 Accuracy: 0.543, trained in 15484ms, evaluated in 1075ms
+3 Accuracy: 0.5433, trained in 16303ms, evaluated in 704ms
+4 Accuracy: 0.5306, trained in 15433ms, evaluated in 736ms
+5 Accuracy: 0.5586, trained in 16346ms, evaluated in 739ms
+accuracy in training data: 0.547067
+general accuracy: 0.5586
+output: 0.5586
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1236 evaluated in 894ms
+1 Accuracy: 0.6068, trained in 16355ms, evaluated in 994ms
+2 Accuracy: 0.6059, trained in 15507ms, evaluated in 721ms
+3 Accuracy: 0.6205, trained in 15990ms, evaluated in 719ms
+4 Accuracy: 0.6194, trained in 18012ms, evaluated in 964ms
+5 Accuracy: 0.6192, trained in 15429ms, evaluated in 709ms
+accuracy in training data: 0.609683
+general accuracy: 0.6192
+output: 0.6192
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1471 evaluated in 1080ms
+1 Accuracy: 0.5252, trained in 14857ms, evaluated in 1073ms
+2 Accuracy: 0.5484, trained in 15242ms, evaluated in 718ms
+3 Accuracy: 0.5679, trained in 12707ms, evaluated in 711ms
+4 Accuracy: 0.5596, trained in 12975ms, evaluated in 701ms
+5 Accuracy: 0.5637, trained in 15439ms, evaluated in 716ms
+accuracy in training data: 0.565
+general accuracy: 0.5637
+output: 0.5637
+
+============================================
+testing convolutional weight learning rate=0.1104614011260058
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.098 evaluated in 1079ms
+1 Accuracy: 0.5132, trained in 14867ms, evaluated in 1089ms
+2 Accuracy: 0.5655, trained in 16525ms, evaluated in 949ms
+3 Accuracy: 0.5827, trained in 16340ms, evaluated in 1082ms
+4 Accuracy: 0.5945, trained in 16290ms, evaluated in 821ms
+5 Accuracy: 0.5955, trained in 13878ms, evaluated in 1039ms
+accuracy in training data: 0.583933
+general accuracy: 0.5955
+output: 0.5955
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1047 evaluated in 707ms
+1 Accuracy: 0.4706, trained in 11971ms, evaluated in 716ms
+2 Accuracy: 0.499, trained in 11933ms, evaluated in 703ms
+3 Accuracy: 0.5073, trained in 12611ms, evaluated in 707ms
+4 Accuracy: 0.5047, trained in 12531ms, evaluated in 704ms
+5 Accuracy: 0.5047, trained in 11965ms, evaluated in 702ms
+accuracy in training data: 0.49615
+general accuracy: 0.5047
+output: 0.5047
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.098 evaluated in 720ms
+1 Accuracy: 0.4064, trained in 14139ms, evaluated in 944ms
+2 Accuracy: 0.4148, trained in 15055ms, evaluated in 1098ms
+3 Accuracy: 0.4274, trained in 14559ms, evaluated in 720ms
+4 Accuracy: 0.4327, trained in 11955ms, evaluated in 721ms
+5 Accuracy: 0.4296, trained in 11989ms, evaluated in 718ms
+accuracy in training data: 0.422283
+general accuracy: 0.4296
+output: 0.4296
+
+============================================
+testing convolutional weight learning rate=0.1948670049944682
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.102 evaluated in 721ms
+1 Accuracy: 0.4524, trained in 12937ms, evaluated in 1097ms
+2 Accuracy: 0.4988, trained in 14078ms, evaluated in 865ms
+3 Accuracy: 0.4807, trained in 18220ms, evaluated in 1091ms
+4 Accuracy: 0.5117, trained in 17380ms, evaluated in 1099ms
+5 Accuracy: 0.5097, trained in 12727ms, evaluated in 719ms
+accuracy in training data: 0.509883
+general accuracy: 0.5097
+output: 0.5097
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1157 evaluated in 718ms
+1 Accuracy: 0.5036, trained in 11988ms, evaluated in 717ms
+2 Accuracy: 0.5131, trained in 12065ms, evaluated in 717ms
+3 Accuracy: 0.5151, trained in 12037ms, evaluated in 721ms
+4 Accuracy: 0.5225, trained in 12031ms, evaluated in 714ms
+5 Accuracy: 0.5298, trained in 12001ms, evaluated in 716ms
+accuracy in training data: 0.524233
+general accuracy: 0.5298
+output: 0.5298
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1465 evaluated in 697ms
+1 Accuracy: 0.4091, trained in 11812ms, evaluated in 700ms
+2 Accuracy: 0.4398, trained in 11896ms, evaluated in 701ms
+3 Accuracy: 0.4516, trained in 13100ms, evaluated in 1088ms
+4 Accuracy: 0.4617, trained in 13613ms, evaluated in 1082ms
+5 Accuracy: 0.4599, trained in 13959ms, evaluated in 910ms
+accuracy in training data: 0.44625
+general accuracy: 0.4599
+output: 0.4599
+
+============================================
+testing convolutional weight learning rate=0.3437684951343073
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0718 evaluated in 1099ms
+1 Accuracy: 0.4899, trained in 14745ms, evaluated in 1091ms
+2 Accuracy: 0.5146, trained in 17857ms, evaluated in 784ms
+3 Accuracy: 0.5161, trained in 12087ms, evaluated in 719ms
+4 Accuracy: 0.5169, trained in 12990ms, evaluated in 1094ms
+5 Accuracy: 0.5213, trained in 17921ms, evaluated in 1089ms
+accuracy in training data: 0.509867
+general accuracy: 0.5213
+output: 0.5213
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0691 evaluated in 1094ms
+1 Accuracy: 0.4851, trained in 14770ms, evaluated in 740ms
+2 Accuracy: 0.5168, trained in 14259ms, evaluated in 736ms
+3 Accuracy: 0.5336, trained in 15446ms, evaluated in 1100ms
+4 Accuracy: 0.5399, trained in 13258ms, evaluated in 757ms
+5 Accuracy: 0.5404, trained in 15328ms, evaluated in 1107ms
+accuracy in training data: 0.533117
+general accuracy: 0.5404
+output: 0.5404
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0949 evaluated in 717ms
+1 Accuracy: 0.4249, trained in 12869ms, evaluated in 730ms
+2 Accuracy: 0.4561, trained in 18992ms, evaluated in 1089ms
+3 Accuracy: 0.4674, trained in 17204ms, evaluated in 738ms
+4 Accuracy: 0.468, trained in 15222ms, evaluated in 728ms
+5 Accuracy: 0.4792, trained in 14277ms, evaluated in 747ms
+accuracy in training data: 0.477683
+general accuracy: 0.4792
+output: 0.4792
+
+============================================
+testing convolutional weight learning rate=0.6064483735985011
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0975 evaluated in 908ms
+1 Accuracy: 0.4239, trained in 14033ms, evaluated in 742ms
+2 Accuracy: 0.4244, trained in 16886ms, evaluated in 1091ms
+3 Accuracy: 0.4519, trained in 16831ms, evaluated in 804ms
+4 Accuracy: 0.4362, trained in 16019ms, evaluated in 723ms
+5 Accuracy: 0.4493, trained in 11998ms, evaluated in 724ms
+accuracy in training data: 0.429117
+general accuracy: 0.4493
+output: 0.4493
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0885 evaluated in 1078ms
+1 Accuracy: 0.5124, trained in 12851ms, evaluated in 721ms
+2 Accuracy: 0.5414, trained in 14843ms, evaluated in 921ms
+3 Accuracy: 0.5516, trained in 14493ms, evaluated in 976ms
+4 Accuracy: 0.5548, trained in 16318ms, evaluated in 1079ms
+5 Accuracy: 0.5616, trained in 13390ms, evaluated in 701ms
+accuracy in training data: 0.549683
+general accuracy: 0.5616
+output: 0.5616
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.116 evaluated in 1079ms
+1 Accuracy: 0.528, trained in 16006ms, evaluated in 761ms
+2 Accuracy: 0.5591, trained in 15160ms, evaluated in 733ms
+3 Accuracy: 0.5628, trained in 17035ms, evaluated in 708ms
+4 Accuracy: 0.5664, trained in 12541ms, evaluated in 772ms
+5 Accuracy: 0.5768, trained in 12203ms, evaluated in 1068ms
+accuracy in training data: 0.570683
+general accuracy: 0.5768
+output: 0.5768
+
+============================================
+testing convolutional weight learning rate=1.0698468156501049
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0856 evaluated in 724ms
+1 Accuracy: 0.4737, trained in 13432ms, evaluated in 917ms
+2 Accuracy: 0.5113, trained in 14826ms, evaluated in 824ms
+3 Accuracy: 0.5312, trained in 14151ms, evaluated in 715ms
+4 Accuracy: 0.5211, trained in 15263ms, evaluated in 706ms
+5 Accuracy: 0.5281, trained in 13999ms, evaluated in 709ms
+accuracy in training data: 0.522467
+general accuracy: 0.5281
+output: 0.5281
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1125 evaluated in 693ms
+1 Accuracy: 0.2751, trained in 12154ms, evaluated in 696ms
+2 Accuracy: 0.2761, trained in 11785ms, evaluated in 694ms
+3 Accuracy: 0.2963, trained in 11815ms, evaluated in 689ms
+4 Accuracy: 0.3016, trained in 11750ms, evaluated in 694ms
+5 Accuracy: 0.3058, trained in 11742ms, evaluated in 684ms
+accuracy in training data: 0.301217
+general accuracy: 0.3058
+output: 0.3058
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1106 evaluated in 715ms
+1 Accuracy: 0.4416, trained in 11969ms, evaluated in 715ms
+2 Accuracy: 0.4618, trained in 11954ms, evaluated in 712ms
+3 Accuracy: 0.4657, trained in 12899ms, evaluated in 712ms
+4 Accuracy: 0.4835, trained in 13851ms, evaluated in 727ms
+5 Accuracy: 0.4798, trained in 12173ms, evaluated in 913ms
+accuracy in training data: 0.478317
+general accuracy: 0.4798
+output: 0.4798
+
+============================================
+testing convolutional weight learning rate=1.8873365958013648
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1028 evaluated in 1087ms
+1 Accuracy: 0.3518, trained in 13406ms, evaluated in 739ms
+2 Accuracy: 0.3616, trained in 16085ms, evaluated in 1051ms
+3 Accuracy: 0.3749, trained in 12740ms, evaluated in 714ms
+4 Accuracy: 0.3749, trained in 15140ms, evaluated in 728ms
+5 Accuracy: 0.3814, trained in 15294ms, evaluated in 753ms
+accuracy in training data: 0.3797
+general accuracy: 0.3814
+output: 0.3814
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1039 evaluated in 1025ms
+1 Accuracy: 0.5462, trained in 14945ms, evaluated in 1087ms
+2 Accuracy: 0.551, trained in 16334ms, evaluated in 741ms
+3 Accuracy: 0.5807, trained in 15189ms, evaluated in 1080ms
+4 Accuracy: 0.5688, trained in 14929ms, evaluated in 724ms
+5 Accuracy: 0.5714, trained in 11946ms, evaluated in 721ms
+accuracy in training data: 0.5503
+general accuracy: 0.5714
+output: 0.5714
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0958 evaluated in 725ms
+1 Accuracy: 0.4912, trained in 15926ms, evaluated in 1087ms
+2 Accuracy: 0.4952, trained in 19307ms, evaluated in 734ms
+3 Accuracy: 0.485, trained in 15500ms, evaluated in 1092ms
+4 Accuracy: 0.5004, trained in 18215ms, evaluated in 947ms
+5 Accuracy: 0.5064, trained in 15979ms, evaluated in 1096ms
+accuracy in training data: 0.5054
+general accuracy: 0.5064
+output: 0.5064
+
+============================================
+testing convolutional weight learning rate=0.06261563438647161
+============================================
+============================================
+testing convolutional weight learning rate=0.07565867057103919
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.105 evaluated in 747ms
+1 Accuracy: 0.4322, trained in 16243ms, evaluated in 762ms
+2 Accuracy: 0.4378, trained in 13295ms, evaluated in 1083ms
+3 Accuracy: 0.4342, trained in 12473ms, evaluated in 716ms
+4 Accuracy: 0.4399, trained in 15431ms, evaluated in 716ms
+5 Accuracy: 0.4369, trained in 12618ms, evaluated in 740ms
+accuracy in training data: 0.428833
+general accuracy: 0.4369
+output: 0.4369
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1134 evaluated in 966ms
+1 Accuracy: 0.3694, trained in 16136ms, evaluated in 729ms
+2 Accuracy: 0.387, trained in 12965ms, evaluated in 722ms
+3 Accuracy: 0.405, trained in 15358ms, evaluated in 1091ms
+4 Accuracy: 0.4014, trained in 13906ms, evaluated in 731ms
+5 Accuracy: 0.3875, trained in 17877ms, evaluated in 1086ms
+accuracy in training data: 0.386583
+general accuracy: 0.3875
+output: 0.3875
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1042 evaluated in 741ms
+1 Accuracy: 0.3184, trained in 13202ms, evaluated in 832ms
+2 Accuracy: 0.3364, trained in 12998ms, evaluated in 728ms
+3 Accuracy: 0.3456, trained in 14128ms, evaluated in 922ms
+4 Accuracy: 0.3558, trained in 15073ms, evaluated in 732ms
+5 Accuracy: 0.357, trained in 14359ms, evaluated in 707ms
+accuracy in training data: 0.344083
+general accuracy: 0.357
+output: 0.357
+
+============================================
+testing convolutional weight learning rate=0.09141861275805868
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0885 evaluated in 729ms
+1 Accuracy: 0.4055, trained in 14077ms, evaluated in 767ms
+2 Accuracy: 0.4145, trained in 15817ms, evaluated in 961ms
+3 Accuracy: 0.419, trained in 18561ms, evaluated in 728ms
+4 Accuracy: 0.4262, trained in 12565ms, evaluated in 733ms
+5 Accuracy: 0.4268, trained in 13454ms, evaluated in 717ms
+accuracy in training data: 0.422233
+general accuracy: 0.4268
+output: 0.4268
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0837 evaluated in 915ms
+1 Accuracy: 0.5178, trained in 16344ms, evaluated in 710ms
+2 Accuracy: 0.5498, trained in 16610ms, evaluated in 870ms
+3 Accuracy: 0.5511, trained in 15557ms, evaluated in 724ms
+4 Accuracy: 0.5538, trained in 18280ms, evaluated in 1078ms
+5 Accuracy: 0.5584, trained in 13662ms, evaluated in 1070ms
+accuracy in training data: 0.5424
+general accuracy: 0.5584
+output: 0.5584
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1009 evaluated in 701ms
+1 Accuracy: 0.3337, trained in 14925ms, evaluated in 1061ms
+2 Accuracy: 0.3872, trained in 15749ms, evaluated in 726ms
+3 Accuracy: 0.4112, trained in 16405ms, evaluated in 803ms
+4 Accuracy: 0.4257, trained in 16792ms, evaluated in 744ms
+5 Accuracy: 0.4293, trained in 13414ms, evaluated in 716ms
+accuracy in training data: 0.416267
+general accuracy: 0.4293
+output: 0.4293
+
+============================================
+testing convolutional weight learning rate=0.1104614011260058
+============================================
+============================================
+testing convolutional weight learning rate=0.09141861275805868
+============================================
+============================================
+testing convolutional weight learning rate=0.09737032069511078
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1133 evaluated in 1063ms
+1 Accuracy: 0.2772, trained in 15406ms, evaluated in 1065ms
+2 Accuracy: 0.3013, trained in 15277ms, evaluated in 861ms
+3 Accuracy: 0.3093, trained in 12274ms, evaluated in 701ms
+4 Accuracy: 0.3209, trained in 16678ms, evaluated in 959ms
+5 Accuracy: 0.3212, trained in 13311ms, evaluated in 688ms
+accuracy in training data: 0.317183
+general accuracy: 0.3212
+output: 0.3212
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.086 evaluated in 716ms
+1 Accuracy: 0.4933, trained in 12948ms, evaluated in 726ms
+2 Accuracy: 0.5199, trained in 13862ms, evaluated in 1091ms
+3 Accuracy: 0.518, trained in 13865ms, evaluated in 720ms
+4 Accuracy: 0.5288, trained in 13405ms, evaluated in 726ms
+5 Accuracy: 0.5206, trained in 12628ms, evaluated in 721ms
+accuracy in training data: 0.513917
+general accuracy: 0.5206
+output: 0.5206
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1014 evaluated in 708ms
+1 Accuracy: 0.3702, trained in 17540ms, evaluated in 1076ms
+2 Accuracy: 0.3933, trained in 15740ms, evaluated in 1096ms
+3 Accuracy: 0.4011, trained in 14578ms, evaluated in 1010ms
+4 Accuracy: 0.4111, trained in 15840ms, evaluated in 706ms
+5 Accuracy: 0.4168, trained in 15851ms, evaluated in 1079ms
+accuracy in training data: 0.4042
+general accuracy: 0.4168
+output: 0.4168
+
+============================================
+testing convolutional weight learning rate=0.10370950801190054
+============================================
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1168 evaluated in 965ms
+1 Accuracy: 0.4147, trained in 13894ms, evaluated in 719ms
+2 Accuracy: 0.4201, trained in 11919ms, evaluated in 710ms
+3 Accuracy: 0.4226, trained in 14100ms, evaluated in 727ms
+4 Accuracy: 0.4298, trained in 12265ms, evaluated in 742ms
+5 Accuracy: 0.4377, trained in 12315ms, evaluated in 755ms
+accuracy in training data: 0.431233
+general accuracy: 0.4377
+output: 0.4377
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.0968 evaluated in 715ms
+1 Accuracy: 0.4906, trained in 13237ms, evaluated in 709ms
+2 Accuracy: 0.5117, trained in 14933ms, evaluated in 937ms
+3 Accuracy: 0.5136, trained in 13105ms, evaluated in 702ms
+4 Accuracy: 0.521, trained in 12546ms, evaluated in 693ms
+5 Accuracy: 0.521, trained in 13550ms, evaluated in 701ms
+accuracy in training data: 0.505333
+general accuracy: 0.521
+output: 0.521
+
+10000 data loaded from mnist_test_normalized.data
+60000 data loaded from mnist_train_normalized.data
+0 Accuracy: 0.1099 evaluated in 735ms
+1 Accuracy: 0.5458, trained in 13332ms, evaluated in 1083ms
+2 Accuracy: 0.5592, trained in 14011ms, evaluated in 707ms
+3 Accuracy: 0.5454, trained in 11811ms, evaluated in 708ms
+4 Accuracy: 0.557, trained in 11682ms, evaluated in 693ms
+5 Accuracy: 0.5589, trained in 11507ms, evaluated in 688ms
+accuracy in training data: 0.544783
+general accuracy: 0.5589
+output: 0.5589
+
+============================================
+testing convolutional weight learning rate=0.11046140112600585
+============================================
+============================================
+Done looking for best convolutional weight learning rate, found 0.10703222675943568 to be best
+============================================
+I am done: the best parameters are: [0.3633326209128667, 0.13168724279835392, 0.10703222675943568, 0.13168724279835392, 0.0, 0.0]
+Traceback (most recent call last):
+  File "train/findBestParams.py", line 79, in <module>
+    with open(input(), "w") as file:
+OSError: [Errno 9] Bad file descriptor

@@ -13,7 +13,7 @@ names = ["fully connected weight learning rate", "fully connected bias learning 
 s = 7
 st = [10, 3, 3]
 
-testfile = './fully_connected'
+testfile = './train/fully_connected'
 
 def evaluate():
     process = subprocess.Popen([testfile] + [str(base**a) for a in params], stdout=subprocess.PIPE)
@@ -21,7 +21,7 @@ def evaluate():
     output, _ = process.communicate()
 
     output = output.decode()
-    print("output: {}".format(output))
+    print("output: {}".format(output), flush=True)
     return float(output)
 
 dp = {}
@@ -55,9 +55,9 @@ def searchopt(i):
         vals = []
         for a in ttest:
             params[i] = a
-            print("testing {}={}\n============================================".format(names[i], base**params[i]))
+            print("testing {}={}\n============================================".format(names[i], base**params[i]), flush=True)
             vals.append(score())
-            print("============================================")
+            print("============================================", flush=True)
         start = -1
         best = 0
         for test in range(len(vals) - 1):
@@ -67,14 +67,16 @@ def searchopt(i):
         l = ttest[start]
         r = ttest[start+1]
     params[i] = (l + r) / 2
-    print("Done looking for best {}, found {} to be best".format(names[i], base**params[i]))
+    print("Done looking for best {}, found {} to be best".format(names[i], base**params[i]), flush=True)
 
 searchopt(0)
-testfile = "./cnn"
+searchopt(1)
+testfile = "./train/cnn"
 searchopt(2)
+searchopt(3)
 
-print("============================================")
-print("I am done: the best parameters are: {}".format([base**el for el in params]))
+print("============================================", flush=True)
+print("I am done: the best parameters are: {}".format([base**el for el in params]), flush=True)
 
 with open(input(), "w") as file:
     file.write(str([base**el for el in params]))

@@ -68,8 +68,9 @@ int main(int argc, char** argv) {
     }
     params.test_data_size  = test_data_size;
     params.training_data_size = training_data_size;
-    cerr << "epochs: "; cin >> params.epochs;
+    //cerr << "epochs: "; cin >> params.epochs;
     //params.epochs = 150;
+    params.epochs = 5;
     net.init(layers, L, crossEntropyPrime, params);
     net.SGD(training_data, test_data, params);
 
@@ -80,10 +81,11 @@ int main(int argc, char** argv) {
 
     cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
     cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
-    //cout << (float)correctTest / params.test_data_size << "\n";
+    cout << (float)correctTest / params.test_data_size << "\n";
 
-    cerr << "Where should the network be stored? "; string filename; cin >> filename;
-    net.save(filename);
+   // cerr << "Where should the network be stored? "; string filename; cin >> filename;
+//    string filename = argv[1];	    
+//    net.save(filename);
 
     clear_data(test_data);
     clear_data(training_data);

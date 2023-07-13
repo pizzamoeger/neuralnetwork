@@ -7,10 +7,15 @@ void Network::init(layer_data* layers, int L, function<float(float, float)> cost
     this->layers = new unique_ptr<layer>[L];
 
     // initialize params learningrate reduction
-    params.fcBRed = params.fully_connected_biases_learning_rate*99/10000;
-    params.fcWRed = params.fully_connected_weights_learning_rate*99/10000;
-    params.convBRed = params.convolutional_biases_learning_rate*99/10000;
-    params.convWRed = params.convolutional_weights_learning_rate*99/10000;
+    //params.fcBRed = params.fully_connected_biases_learning_rate*99/10000;
+    //params.fcWRed = params.fully_connected_weights_learning_rate*99/10000;
+    //params.convBRed = params.convolutional_biases_learning_rate*99/10000;
+    //params.convWRed = params.convolutional_weights_learning_rate*99/10000;
+    params.fcBRed = 0;
+    params.fcWRed = 0;
+    params.convBRed = 0;
+    params.convWRed = 0;
+
 
     // initialize layers
     for (int l = 0; l < L; l++) {
