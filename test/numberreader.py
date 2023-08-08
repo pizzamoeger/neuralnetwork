@@ -1,9 +1,10 @@
 import pygame
 from pygame.locals import *
-from test import boundingbox, neuralnetwork
+import boundingbox, neuralnetwork
 import os
+import sys
 
-neuralnetwork.load()
+neuralnetwork.load(input())
 
 pygame.init()
 screen = pygame.display.set_mode((700, 700))
@@ -76,9 +77,10 @@ while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+                pygame.display.quit()
                 os.remove("number.jpg")
                 os.remove("number.data")
-                exit()
+                sys.exit(0)
             elif event.type == MOUSEBUTTONDOWN:
                 draw = True
             elif event.type == MOUSEBUTTONUP:
@@ -120,7 +122,10 @@ while True:
 
                 elif event.key == K_ESCAPE:
                     pygame.quit()
-                    exit()
+                    pygame.display.quit()
+                    os.remove("number.jpg")
+                    os.remove("number.data")
+                    sys.exit(0)
                 elif event.key == K_c:
                     # clear the black square and the prediction
                     pygame.draw.rect(screen, (255, 255, 255), (350, 50, 350, 450))

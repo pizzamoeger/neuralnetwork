@@ -194,8 +194,6 @@ void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float*
     float* z = new float [data.n_out.feature_maps * data.n_out.y * data.n_out.x];
     for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) z[i] = 0;
 
-    //int rn = 0;
-
     for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
             for (int x = 0; x < data.n_out.x; x++) {

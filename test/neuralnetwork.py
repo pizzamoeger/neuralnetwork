@@ -87,21 +87,19 @@ def ffFullConn(l, a):
 
     z = [0] * out[0]
     newA = z
-    print(l)
-    print(L)
 
     for neuron in range(out[0]):
         for previous_neuron in range(inn[0]):
             z[neuron] += weights[neuron*previous_neuron+previous_neuron]*a[previous_neuron]
         z[neuron] += biases[neuron]
-        if ((int)(l-1)/2 == L-1):
+        if (l == len(layer_data)-1):
             newA[neuron] = sigmoid(z[neuron])
         else:
             newA[neuron] = relu(z[neuron])
     return newA
 
 def dataIndex(map, y, x, noutx, nouty):
-    return map*noutx*nouty+y*noutx+x
+    return map*noutx*nouty + y*noutx + x
 
 def convweightIndex(prevmap, map, y, x, recf, noutfm):
     return prevmap* (noutfm*recf*recf) + map * (recf*recf) + y*recf + x
@@ -114,6 +112,8 @@ def ffConv(l, a):
     featureMaps = layer_data[l][-1][2]
     noutx = layer_data[l][-1][0]
     nouty = layer_data[l][-1][1]
+    prevnoutx = layer_data[l-2][-1][0]
+    prevnouty = layer_data[l-2][-1][1]
 
     z = [0] * featureMaps*noutx*nouty
     newA = z
@@ -124,7 +124,7 @@ def ffConv(l, a):
                 for prevmap in range(layer_data[l-2][-1][2]):
                     for kerny in range(receptiveFieldLength):
                         for kernx in range(receptiveFieldLength):
-                            z[dataIndex(map,y,x,noutx,nouty)] += weights[convweightIndex(prevmap, map, kerny, kernx, receptiveFieldLength, featureMaps)]*a[dataIndex(prevmap, y*strideLength+kerny, x*strideLength+kernx, noutx, nouty)]
+                            z[dataIndex(map,y,x,noutx,nouty)] += weights[convweightIndex(prevmap, map, kerny, kernx, receptiveFieldLength, featureMaps)]*a[dataIndex(prevmap, y*strideLength+kerny, x*strideLength+kernx, prevnoutx, prevnouty)]
                 z[dataIndex(map,y,x,noutx,nouty)] += biases[map]
                 newA[dataIndex(map,y,x,noutx,nouty)] = relu(z[dataIndex(map,y,x,noutx,nouty)])
 
@@ -133,6 +133,7 @@ def ffConv(l, a):
 def ffMaxPool(l, a):
     summarizedRegLen = layer_data[l][0]
     out = layer_data[l][1]
+    prevout = layer_data[l-2][-1]
 
     z = [-1000000] * out[0]*out[1]*out[2]
 
@@ -141,7 +142,7 @@ def ffMaxPool(l, a):
             for x in range(out[0]):
                 for kerny in range(summarizedRegLen):
                     for kernx in range(summarizedRegLen):
-                        z[dataIndex(map, y, x, out[0], out[1])] = max(z[dataIndex(map, y, x, out[0], out[1])], a[dataIndex(map, y*summarizedRegLen+kerny, x*summarizedRegLen+kernx, out[0], out[1])])
+                        z[dataIndex(map, y, x, out[0], out[1])] = max(z[dataIndex(map, y, x, out[0], out[1])], a[dataIndex(map, y*summarizedRegLen+kerny, x*summarizedRegLen+kernx, prevout[0], prevout[1])])
     return z
 def ff(l, activations):
     if layer_data[l] == 0:
@@ -151,8 +152,7 @@ def ff(l, activations):
     elif layer_data[l] == 2:
         return ffMaxPool(l+1, activations)
 
-def load():
-    filename = "net.txt"
+def load(filename):
     network = open(filename, 'r').readlines()
 
     L = int(network[0][0])
