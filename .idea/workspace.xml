@@ -22,12 +22,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="improved bash scripts">
-      <change afterPath="$PROJECT_DIR$/test/compilePy.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/neuralnetwork.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/neuralnetwork.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/numberreader.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/numberreader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/misc.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +48,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="cuda" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -83,7 +83,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "CMakeSettings",
     "structure.view.defaults.are.configured": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -104,7 +104,12 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.neuralnetwork">
-    <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -117,7 +122,6 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="/usr/bin/python3.10" />
-      <option name="SDK_NAME" value="Python 3.10" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -160,6 +164,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.tst" />
+        <item itemvalue="Python.tst" />
       </list>
     </recent_temporary>
   </component>
@@ -191,6 +196,7 @@
       <workItem from="1689251629709" duration="25000" />
       <workItem from="1689252684328" duration="1850000" />
       <workItem from="1691481914558" duration="4929000" />
+      <workItem from="1691492375870" duration="1531000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
