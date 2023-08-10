@@ -18,34 +18,43 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     cudaMalloc((void**) &dev_weights, data.n_out.x*data.n_in.x*sizeof(float));
     cudaMalloc((void**) &dev_weights_vel, data.n_out.x*data.n_in.x*sizeof(float));
     cudaMalloc((void**) &dev_weights_updt, data.n_out.x*data.n_in.x*sizeof(float));
-    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, &this->dev_data->n_in.x);
+
+    // weights init: https://www.analyticsvidhya.com/blog/2021/05/how-to-initialize-weights-in-neural-networks/
+    // https://wandb.ai/sauravmaheshkar/initialization/reports/A-Gentle-Introduction-To-Weight-Initialization-for-Neural-Networks--Vmlldzo2ODExMTg
+    // https://stats.stackexchange.com/questions/373136/softmax-weights-initialization
+    float stddev;
+    if (data.activation_function == RELU) stddev = sqrt(2.0/data.n_in.x); // He-et-al
+    else stddev = sqrt(2.0/data.n_in.x+data.n_in.x); // Xavier
+    float* dev_stddev;
+    cudaMalloc((void**) &dev_stddev, sizeof(float));
+    cudaMemcpy(dev_stddev, &stddev, sizeof(float), cudaMemcpyHostToDevice);
+    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, dev_stddev);
     set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_vel, 0);
     set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_updt, 0);
 
     cudaMalloc((void**) &dev_biases, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &dev_biases_vel, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &dev_biases_updt, data.n_out.x*sizeof(float));
-    set_to_random<<<data.n_out.x, 1>>>(dev_biases, &this->dev_data->n_in.x);
+    // biases init: https://medium.com/@glenmeyerowitz/bias-initialization-in-a-neural-network-2e5d26fed0f0
+    set_to<<<data.n_out.x, 1>>>(dev_biases, 0.01);
     set_to<<<data.n_out.x,1>>>(dev_biases_vel, 0);
     set_to<<<data.n_out.x,1>>>(dev_biases_updt, 0);
+
+    cudaFree(dev_stddev);
 }
 
 void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &dev_z, int* dev_elems) {
     calc_z<<<data.n_out.x, data.n_in.x>>>(dev_a, dev_weights, dev_biases, dev_z, &dev_data->n_in.x, dev_elems);
     cudaDeviceSynchronize();
+
     float* sum_of_exp;
     cudaMalloc((void**) &sum_of_exp, sizeof(float));
     set_to<<<1,1>>> (sum_of_exp, 0);
+
     if (data.activation_function == SOFTMAX) calc_sum_of_exp<<<data.n_out.x, 1>>>(sum_of_exp, dev_z, dev_elems);
-    /*float sum;
-    cudaMemcpy(&sum, sum_of_exp, sizeof(float), cudaMemcpyDeviceToHost);
-    int eee;
-    cudaMemcpy(&eee, dev_elems, sizeof(int), cudaMemcpyDeviceToHost);
-    output_type z;
-    if (data.activation_function == SOFTMAX) cudaMemcpy(z, &dev_z[eee], 10*sizeof(float), cudaMemcpyDeviceToHost);*/
+    cudaDeviceSynchronize();
+
     calc_a_and_dz<<<data.n_out.x, 1>>>(dev_z, dev_a, dev_dz, dev_elems, &dev_data->activation_function, sum_of_exp);
-    /*output_type aa;
-    if (data.activation_function == SOFTMAX) cudaMemcpy(aa, &dev_a[eee], 10*sizeof(float), cudaMemcpyDeviceToHost);*/
     cudaDeviceSynchronize();
 }
 
@@ -69,7 +78,7 @@ void fully_connected_layer::backprop(float * &delta, float* &activations, float*
 
     cudaFree(delta);
     cudaMalloc((void**) &delta, data.n_in.x*sizeof(float));
-    cudaMemcpy(dev_new_delta, delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(delta, dev_new_delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
     cudaFree(dev_new_delta);
 }
 
@@ -103,7 +112,7 @@ void fully_connected_layer::save(string filename) {
     file << "//";
 
     float* biases_vel = new float [data.n_out.x];
-    cudaMemcpy(biases_vel, dev_biases, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(biases_vel, dev_biases_vel, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
     for (int bias_vel = 0; bias_vel < data.n_out.x; bias_vel++) file << biases_vel[bias_vel] << " ";
     delete[] biases_vel;
     file << "//";

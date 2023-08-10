@@ -213,7 +213,7 @@ __global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyp
 __global__ void update_weights (float* weights, float* weights_vel, hyperparams* params);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value
-__global__ void set_to_random (float *vec, int* data_n_in_x); // initialize the elements to random value with mean 0 and stddev 1/sqrt(data_n_in_x
+__global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and stddev 1/sqrt(data_n_in_x
 __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
 __global__ void calc_sum_of_exp (float* sum, float* vec, int* offset); // sum += exp(vec[i+offset])

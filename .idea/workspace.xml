@@ -24,10 +24,8 @@
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="storing of activation function&#10;&#10;(cherry picked from commit 09d1dd47db6b71922b3a89d0657c92b2b5c24806)">
       <changelist_data name="pizzamoeger" email="osshannahsophie@gmail.com" date="1691663145000" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/neuralnetwork.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/neuralnetwork.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -209,6 +207,7 @@
       <workItem from="1691763135116" duration="3451000" />
       <workItem from="1691831835571" duration="7062000" />
       <workItem from="1691842268029" duration="2624000" />
+      <workItem from="1691914850962" duration="6159000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -545,11 +544,6 @@
           <url>file://$PROJECT_DIR$/train/main.cu</url>
           <line>90</line>
           <option name="timeStamp" value="15" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/train/Network.cu</url>
-          <line>70</line>
-          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

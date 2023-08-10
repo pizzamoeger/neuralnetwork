@@ -13,8 +13,8 @@ __device__ float relu(float x){
 }
 
 __device__ float relu_prime(float x){
-    if (x > 0) return 1;
-    return (float)0;
+    if (x > 0) return 1.0f;
+    return 0.0f;
 }
 
 __device__ float softmax(float x, float sum_of_exp) {
@@ -147,7 +147,7 @@ void clear_data(data_point *data) {
 __global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
-    if (previous_neuron == 0) z[(*offset)+neuron] += biases[neuron];
+    if (previous_neuron == 0) atomicAdd(&z[(*offset)+neuron], biases[neuron]);
     atomicAdd(&z[(*offset)+neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]);
 }
 
@@ -191,12 +191,12 @@ __global__ void set_to (float *vec, float value) {
     vec[index] = value;
 }
 
-__global__ void set_to_random (float *vec, int *data_n_in_x) {
+__global__ void set_to_random (float *vec, float *stddev) {
     int index = blockIdx.x;
 
     curandState state;
     curand_init(clock64(), index, 0, &state);
-    vec[index] = curand_normal(&state)/sqrtf(*data_n_in_x);
+    vec[index] = curand_normal(&state)*(*stddev);
 }
 
 __global__ void add (float *vec_a, float *vec_b) {
