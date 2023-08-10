@@ -8,8 +8,6 @@ float sigmoidPrime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
-const float al = 0;
-
 float relu(float x){
     return max(x, 0.0f);
 }
@@ -17,6 +15,26 @@ float relu(float x){
 float reluPrime(float x){
     if (x > 0) return 1;
     return (float)0;
+}
+
+float activationFunction(float x, int activationFunction) {
+    switch (activationFunction) {
+        case SIGMOID:
+            return sigmoid(x);
+        case RELU:
+            return relu(x);
+    }
+    return 0;
+}
+
+float activationFunctionPrime(float x, int activationFunction) {
+    switch (activationFunction) {
+        case SIGMOID:
+            return sigmoidPrime(x);
+        case RELU:
+            return reluPrime(x);
+    }
+    return 0;
 }
 
 // cross entropy cost function

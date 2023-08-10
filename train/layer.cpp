@@ -61,8 +61,8 @@ void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, floa
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++)
             z[neuron] += weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
         z[neuron] += biases[neuron];
-        new_a[neuron] = data.activationFunct(z[neuron]);
-        new_dz[neuron] = data.activationFunctPrime(z[neuron]);
+        new_a[neuron] = activationFunction(z[neuron], data.activation_function);
+        new_dz[neuron] = activationFunctionPrime(z[neuron], data.activation_function);
     }
 
     delete[] z;
@@ -126,6 +126,7 @@ void fully_connected_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_FULLY_CONNECTED << "//";
+    file << data.activation_function << "//";
     file << data.n_out.x << "//";
 
     for (int bias = 0; bias < data.n_out.x; bias++) file << biases[bias] << " ";
@@ -211,8 +212,8 @@ void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float*
                 }
                 //if (biases[map] > 0.5) rn++;
                 z[get_data_index(map, y, x, data)] += biases[map];
-                new_a[get_data_index(map, y, x, data)] = data.activationFunct(z[get_data_index(map, y, x, data)]);
-                new_dz[get_data_index(map, y, x, data)] = data.activationFunctPrime(z[get_data_index(map, y, x, data)]);
+                new_a[get_data_index(map, y, x, data)] = activationFunction(z[get_data_index(map, y, x, data)], data.activation_function);
+                new_dz[get_data_index(map, y, x, data)] = activationFunctionPrime(z[get_data_index(map, y, x, data)], data.activation_function);
             }
         }
     }
@@ -295,6 +296,7 @@ void convolutional_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_CONVOLUTIONAL << "//";
+    file << data.activation_function << "//";
     file << data.stride_length << " " << data.receptive_field_length << " " << data.n_out.feature_maps << "//";
 
     for (int bias = 0; bias < data.n_out.feature_maps; bias++) file << biases[bias] << " ";

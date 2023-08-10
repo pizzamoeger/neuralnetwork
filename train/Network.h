@@ -15,10 +15,24 @@ struct hyperparams {
     int test_data_size;
 };
 
+enum {
+    LAYER_NUM_FULLY_CONNECTED,
+    LAYER_NUM_CONVOLUTIONAL,
+    LAYER_NUM_MAX_POOLING,
+    LAYER_NUM_INPUT
+};
+
+enum {
+    SIGMOID,
+    RELU
+};
+
 float sigmoid(float x);
 float sigmoidPrime(float x);
 float relu(float x);
 float reluPrime(float x);
+float activationFunction(float x, int activationFunction);
+float activationFunctionPrime(float x, int activationFunction);
 
 typedef float input_type[28*28];
 typedef float output_type[10];
@@ -48,9 +62,7 @@ struct layer_data {
 
     int summarized_region_length;
 
-    function<float(float)> activationFunct;
-    function<float(float)> activationFunctPrime;
-
+    int activation_function;
 };
 
 struct layer {
@@ -61,13 +73,6 @@ struct layer {
     virtual void update(hyperparams params) = 0;
     virtual void save(string file) = 0;
     virtual void clear() = 0;
-};
-
-enum {
-    LAYER_NUM_FULLY_CONNECTED,
-    LAYER_NUM_CONVOLUTIONAL,
-    LAYER_NUM_MAX_POOLING,
-    LAYER_NUM_INPUT
 };
 
 // TODO activation functions: a number which act func, make a function which you can call where it automatically calls the correct act func -> act func can be stored

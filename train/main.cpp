@@ -14,8 +14,7 @@ int main(int argc, char** argv) {
     convolutional.type = LAYER_NUM_CONVOLUTIONAL;
     convolutional.stride_length = 1;
     convolutional.receptive_field_length = 5;
-    convolutional.activationFunctPrime = reluPrime;
-    convolutional.activationFunct = relu;
+    convolutional.activation_function = RELU;
     convolutional.n_out = {-1,-1, 3};
 
     layer_data maxpool;
@@ -24,34 +23,29 @@ int main(int argc, char** argv) {
 
     layer_data fully_connected1;
     fully_connected1.type = LAYER_NUM_FULLY_CONNECTED;
-    fully_connected1.activationFunctPrime = reluPrime;
-    fully_connected1.activationFunct = relu;
+    fully_connected1.activation_function = RELU;
     fully_connected1.n_out = {30, 1, 1};
 
     layer_data fully_connected2;
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
-    fully_connected2.activationFunctPrime = reluPrime;
-    fully_connected2.activationFunct = relu;
+    fully_connected2.activation_function = RELU;
     fully_connected2.n_out = {30, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activationFunctPrime = sigmoidPrime;
-    //outt.activationFunctPrime = reluPrime;
-    outt.activationFunct = sigmoid;
-    //outt.activationFunct = relu;
+    outt.activation_function = SIGMOID;
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 6;
+    int L = 5;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
     layers[2] = maxpool;
     layers[3] = fully_connected1;
-    layers[4] = fully_connected2;
-    layers[5] = outt;
+    layers[3] = fully_connected2;
+    layers[4] = outt;
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
