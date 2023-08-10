@@ -15,10 +15,21 @@ struct hyperparams {
     int test_data_size;
 };
 
-float sigmoid(float x);
-float sigmoidPrime(float x);
-float relu(float x);
-float reluPrime(float x);
+enum {
+    LAYER_NUM_FULLY_CONNECTED,
+    LAYER_NUM_CONVOLUTIONAL,
+    LAYER_NUM_MAX_POOLING,
+    LAYER_NUM_INPUT
+};
+
+enum {
+    SIGMOID,
+    RELU,
+    SOFTMAX
+};
+
+__device__ float activation_function(float x, int activation_func, float sum_of_exp);
+__device__ float activation_function_prime(float x, int activation_func, float sum_of_exp);
 
 typedef float input_type[28*28];
 typedef float output_type[10];
@@ -48,9 +59,7 @@ struct layer_data {
 
     int summarized_region_length;
 
-    function<float(float)> activationFunct;
-    function<float(float)> activationFunctPrime;
-
+    int activation_function;
 };
 
 struct layer {
@@ -62,13 +71,6 @@ struct layer {
     virtual void update(hyperparams* params) = 0;
     virtual void save(string file) = 0;
     virtual void clear() = 0;
-};
-
-enum {
-    LAYER_NUM_FULLY_CONNECTED,
-    LAYER_NUM_CONVOLUTIONAL,
-    LAYER_NUM_MAX_POOLING,
-    LAYER_NUM_INPUT
 };
 
 // TODO activation functions: a number which act func, make a function which you can call where it automatically calls the correct act func -> act func can be stored
@@ -203,8 +205,8 @@ int get_data_index(int map, int y, int x, layer_data &data);
 int get_fully_connected_weight_index(int neuron, int previous_neuron, int data_n_in);
 __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
-__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in, int* elems);
-__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz, int* elems);
+__global__ void calc_z (float* a, float* weights, float * biases, float* z, int* data_n_in, int* elems);
+__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* elems, int* af, float* sum_of_exp);
 __global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int* offset);
 __global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
 __global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params);
@@ -214,3 +216,4 @@ __global__ void set_to (float *vec, float value); // initialize the elements to 
 __global__ void set_to_random (float *vec, int* data_n_in_x); // initialize the elements to random value with mean 0 and stddev 1/sqrt(data_n_in_x
 __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
+__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset); // sum += exp(vec[i+offset])

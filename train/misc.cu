@@ -1,20 +1,51 @@
 #include "includes.h"
 
 // sigmoid function and its derivative
-float sigmoid(float x) {
-    return 1.0 / (1.0 + exp(-x));
+__device__ float sigmoid(float x) {
+    return 1.0 / (1.0 + expf(-x));
 }
-float sigmoidPrime(float x) {
+__device__ float sigmoid_prime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
-float relu(float x){
+__device__ float relu(float x){
     return max(x, 0.0f);
 }
 
-float reluPrime(float x){
+__device__ float relu_prime(float x){
     if (x > 0) return 1;
     return (float)0;
+}
+
+__device__ float softmax(float x, float sum_of_exp) {
+    return expf(x)/sum_of_exp;
+}
+
+__device__ float softmax_prime(float x, float sum_of_exp) {
+    return (softmax(x, sum_of_exp)*(1-softmax(x, sum_of_exp)));
+}
+__device__ float activation_function(float x, int activation_func, float sum_of_exp) {
+    switch (activation_func) {
+        case SIGMOID:
+            return sigmoid(x);
+        case RELU:
+            return relu(x);
+        case SOFTMAX:
+            return softmax(x, sum_of_exp);
+    }
+    return 0;
+}
+
+__device__ float activation_function_prime(float x, int activation_func, float sum_of_exp) {
+    switch (activation_func) {
+        case SIGMOID:
+            return sigmoid_prime(x);
+        case RELU:
+            return relu_prime(x);
+        case SOFTMAX:
+            return softmax_prime(x, sum_of_exp);
+    }
+    return 0;
 }
 
 // cross entropy cost function
@@ -113,23 +144,18 @@ void clear_data(data_point *data) {
     delete[] data;
 }
 
-__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in, int* offset) {
+__global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
+    if (previous_neuron == 0) z[(*offset)+neuron] += biases[neuron];
     atomicAdd(&z[(*offset)+neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]);
 }
 
-__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz, int* offset) {
+__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* offset, int* activation_func, float* sum_of_exp) {
     int neuron = blockIdx.x;
-    z[(*offset)+neuron] += biases[neuron];
-    // TODO : actually use the activation function
-    if (z[(*offset)+neuron] >= 0) {
-        new_a[(*offset)+neuron] = z[(*offset)+neuron];
-        new_dz[(*offset)+neuron] = 1;
-    } else {
-        new_a[(*offset)+neuron] = 0;
-        new_dz[(*offset)+neuron] = 0;
-    }
+
+    new_a[(*offset)+neuron] = activation_function(z[(*offset) + neuron], *activation_func, *sum_of_exp);
+    new_dz[(*offset)+neuron] = activation_function_prime(z[(*offset) + neuron], *activation_func, *sum_of_exp);
 }
 
 __global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) {
@@ -165,24 +191,12 @@ __global__ void set_to (float *vec, float value) {
     vec[index] = value;
 }
 
-__device__ int sqrt(int num) {
-    int l = 0;
-    int r = num;
-    while (l+1 != r) {
-        int m = (l+r)/2;
-        if (m*m > num) r = m;
-        else l = m;
-    }
-    return l;
-}
-
 __global__ void set_to_random (float *vec, int *data_n_in_x) {
     int index = blockIdx.x;
 
     curandState state;
     curand_init(clock64(), index, 0, &state);
-    vec[index] = curand_normal(&state)/sqrt(*data_n_in_x);
-    //vec[index] = 0;
+    vec[index] = curand_normal(&state)/sqrtf(*data_n_in_x);
 }
 
 __global__ void add (float *vec_a, float *vec_b) {
@@ -193,4 +207,9 @@ __global__ void add (float *vec_a, float *vec_b) {
 __global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     int index = blockIdx.x;
     vec_a[index] *= vec_b[index+(*offset_b)];
+}
+
+__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset) {
+    int index = blockIdx.x+(*offset);
+    atomicAdd(sum, expf(vec[index]));
 }

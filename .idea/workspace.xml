@@ -21,9 +21,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="finished fully connected in cuda">
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="storing of activation function&#10;&#10;(cherry picked from commit 09d1dd47db6b71922b3a89d0657c92b2b5c24806)">
+      <changelist_data name="pizzamoeger" email="osshannahsophie@gmail.com" date="1691663145000" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/neuralnetwork.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/neuralnetwork.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
@@ -534,7 +535,8 @@
     <MESSAGE value="project ready to be programmed in cuda" />
     <MESSAGE value="fully connected working in cuda" />
     <MESSAGE value="finished fully connected in cuda" />
-    <option name="LAST_COMMIT_MESSAGE" value="finished fully connected in cuda" />
+    <MESSAGE value="storing of activation function&#10;&#10;(cherry picked from commit 09d1dd47db6b71922b3a89d0657c92b2b5c24806)" />
+    <option name="LAST_COMMIT_MESSAGE" value="storing of activation function&#10;&#10;(cherry picked from commit 09d1dd47db6b71922b3a89d0657c92b2b5c24806)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -545,9 +547,9 @@
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/train/layer.cu</url>
-          <line>64</line>
-          <option name="timeStamp" value="22" />
+          <url>file://$PROJECT_DIR$/train/Network.cu</url>
+          <line>70</line>
+          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

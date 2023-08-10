@@ -10,9 +10,14 @@ def sigmoid(x):
 def relu(x):
     return max(0.0, x)
 
+def softmax(x, sum):
+    return math.exp(x)/sum
+
 def loadFullyConn(data):
+    acivationFunc = int(data[0])
+    data = data[1:]
     out = [int(data[0]), 1, 1]
-    inn = layer_data[-2][-1]
+    inn = layer_data[-2]["out"]
     newinn = 1
     for i in inn:
         newinn *= i
@@ -38,14 +43,16 @@ def loadFullyConn(data):
     for weightVel in data[4][:-1]:
         weightsVelocity.append(float(weightVel))
 
-    layer_data.append([biases, weights, inn, out])
+    layer_data.append({"biases":biases, "weights":weights, "in":inn, "out":out, "activationFunc":acivationFunc})
 
 def loadConvLayer(data):
+    activationFunc = int(data[0])
+    data = data[1:]
     data[0] = data[0].split(" ")
     strideLength = int(data[0][0])
     receptiveFieldLength = int(data[0][1])
     featureMaps = int(data[0][2])
-    inn = layer_data[-2][-1]
+    inn = layer_data[-2]["out"]
     out = [int((inn[0]-receptiveFieldLength+1)/strideLength), int((inn[1]-receptiveFieldLength+1)/strideLength), featureMaps]
 
     data[1] = data[1].split(" ")
@@ -68,34 +75,41 @@ def loadConvLayer(data):
     for weightVel in data[4][:-1]:
         weightsVelocity.append(float(weightVel))
 
-    layer_data.append([biases, weights, strideLength, receptiveFieldLength, inn, out])
+    layer_data.append({"biases":biases, "weights":weights, "strideLength":strideLength, "receptiveFieldLength":receptiveFieldLength, "in":inn, "out":out, "activationFunc":activationFunc})
 
 def loadMaxPoolLayer(data):
-    inn = layer_data[-2][-1]
+    inn = layer_data[-2]["out"]
     out = [int(inn[0]/int(data[0])), int(inn[1]/int(data[0])), inn[2]]
-    layer_data.append([int(data[0]), out])
+    layer_data.append({"summarizedRegionLength":int(data[0]), "out":out})
 
 def loadInput(data):
     data[0] = data[0].split(" ")
-    layer_data.append([[int(data[0][0]), int(data[0][1]), 1]])
+    layer_data.append({"out":[int(data[0][0]), int(data[0][1]), 1]})
 
 def ffFullConn(l, a):
-    biases = layer_data[l][0]
-    weights = layer_data[l][1]
-    inn = layer_data[l][2]
-    out = layer_data[l][3]
+    biases = layer_data[l]["biases"]
+    weights = layer_data[l]["weights"]
+    inn = layer_data[l]["in"]
+    out = layer_data[l]["out"]
+    activationFunc = layer_data[l]["activationFunc"]
 
     z = [0] * out[0]
     newA = z
+    sum = 0
 
     for neuron in range(out[0]):
         for previous_neuron in range(inn[0]):
             z[neuron] += weights[neuron*previous_neuron+previous_neuron]*a[previous_neuron]
         z[neuron] += biases[neuron]
-        if (l == len(layer_data)-1):
+        sum += math.exp(z[neuron])
+
+    for neuron in range(out[0]):
+        if (activationFunc == 0):
             newA[neuron] = sigmoid(z[neuron])
-        else:
+        elif (activationFunc == 1):
             newA[neuron] = relu(z[neuron])
+        elif (activationFunc == 2)
+            newA[neuron] = softmax(z[neuron], sum)
     return newA
 
 def dataIndex(map, y, x, noutx, nouty):
@@ -105,15 +119,16 @@ def convweightIndex(prevmap, map, y, x, recf, noutfm):
     return prevmap* (noutfm*recf*recf) + map * (recf*recf) + y*recf + x
 
 def ffConv(l, a):
-    biases = layer_data[l][0]
-    weights = layer_data[l][1]
-    strideLength = layer_data[l][2]
-    receptiveFieldLength = layer_data[l][3]
-    featureMaps = layer_data[l][-1][2]
-    noutx = layer_data[l][-1][0]
-    nouty = layer_data[l][-1][1]
-    prevnoutx = layer_data[l-2][-1][0]
-    prevnouty = layer_data[l-2][-1][1]
+    biases = layer_data[l]["biases"]
+    weights = layer_data[l]["weights"]
+    strideLength = layer_data[l]["strideLength"]
+    receptiveFieldLength = layer_data[l]["receptiveFieldLength"]
+    featureMaps = layer_data[l]["out"][2]
+    noutx = layer_data[l]["out"][0]
+    nouty = layer_data[l]["out"][1]
+    prevnoutx = layer_data[l]["in"][0]
+    prevnouty = layer_data[l]["in"][1]
+    activationFunc = layer_data[l]["activationFunc"]
 
     z = [0] * featureMaps*noutx*nouty
     newA = z
@@ -121,19 +136,20 @@ def ffConv(l, a):
     for map in range(featureMaps):
         for y in range(nouty):
             for x in range(noutx):
-                for prevmap in range(layer_data[l-2][-1][2]):
+                for prevmap in range(layer_data[l]["in"][2]):
                     for kerny in range(receptiveFieldLength):
                         for kernx in range(receptiveFieldLength):
                             z[dataIndex(map,y,x,noutx,nouty)] += weights[convweightIndex(prevmap, map, kerny, kernx, receptiveFieldLength, featureMaps)]*a[dataIndex(prevmap, y*strideLength+kerny, x*strideLength+kernx, prevnoutx, prevnouty)]
                 z[dataIndex(map,y,x,noutx,nouty)] += biases[map]
-                newA[dataIndex(map,y,x,noutx,nouty)] = relu(z[dataIndex(map,y,x,noutx,nouty)])
+                if (activationFunc == 1):
+                    newA[dataIndex(map,y,x,noutx,nouty)] = relu(z[dataIndex(map,y,x,noutx,nouty)])
 
     return newA
 
 def ffMaxPool(l, a):
-    summarizedRegLen = layer_data[l][0]
-    out = layer_data[l][1]
-    prevout = layer_data[l-2][-1]
+    summarizedRegLen = layer_data[l]["summarizedRegionLength"]
+    out = layer_data[l]["out"]
+    prevout = layer_data[l-2]["out"]
 
     z = [-1000000] * out[0]*out[1]*out[2]
 

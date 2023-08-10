@@ -31,9 +31,21 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 }
 
 void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &dev_z, int* dev_elems) {
-    addWeights<<<data.n_out.x, data.n_in.x>>>(dev_a, dev_weights, dev_z, &dev_data->n_in.x, dev_elems);
+    calc_z<<<data.n_out.x, data.n_in.x>>>(dev_a, dev_weights, dev_biases, dev_z, &dev_data->n_in.x, dev_elems);
     cudaDeviceSynchronize();
-    getNewA<<<data.n_out.x,1>>> (dev_z, dev_biases, dev_a, dev_dz, dev_elems);
+    float* sum_of_exp;
+    cudaMalloc((void**) &sum_of_exp, sizeof(float));
+    set_to<<<1,1>>> (sum_of_exp, 0);
+    if (data.activation_function == SOFTMAX) calc_sum_of_exp<<<data.n_out.x, 1>>>(sum_of_exp, dev_z, dev_elems);
+    /*float sum;
+    cudaMemcpy(&sum, sum_of_exp, sizeof(float), cudaMemcpyDeviceToHost);
+    int eee;
+    cudaMemcpy(&eee, dev_elems, sizeof(int), cudaMemcpyDeviceToHost);
+    output_type z;
+    if (data.activation_function == SOFTMAX) cudaMemcpy(z, &dev_z[eee], 10*sizeof(float), cudaMemcpyDeviceToHost);*/
+    calc_a_and_dz<<<data.n_out.x, 1>>>(dev_z, dev_a, dev_dz, dev_elems, &dev_data->activation_function, sum_of_exp);
+    /*output_type aa;
+    if (data.activation_function == SOFTMAX) cudaMemcpy(aa, &dev_a[eee], 10*sizeof(float), cudaMemcpyDeviceToHost);*/
     cudaDeviceSynchronize();
 }
 
@@ -81,6 +93,7 @@ void fully_connected_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_FULLY_CONNECTED << "//";
+    file << data.activation_function << "//";
     file << data.n_out.x << "//";
 
     float* biases = new float [data.n_out.x];
@@ -179,8 +192,8 @@ void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float*
                     }
                 }
                 z[get_data_index(map, y, x, data)] += biases[map];
-                new_a[get_data_index(map, y, x, data)] = data.activationFunct(z[get_data_index(map, y, x, data)]);
-                new_dz[get_data_index(map, y, x, data)] = data.activationFunctPrime(z[get_data_index(map, y, x, data)]);
+                new_a[get_data_index(map, y, x, data)] = activation_function(z[get_data_index(map, y, x, data)], data.activation_function);
+                new_dz[get_data_index(map, y, x, data)] = activation_function_prime(z[get_data_index(map, y, x, data)], data.activation_function);
             }
         }
     }
@@ -257,6 +270,7 @@ void convolutional_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_CONVOLUTIONAL << "//";
+    file << data.activation_function << "//";
     file << data.stride_length << " " << data.receptive_field_length << " " << data.n_out.feature_maps << "//";
 
     for (int bias = 0; bias < data.n_out.feature_maps; bias++) file << biases[bias] << " ";
