@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
+#include <curand.h>
+#include <curand_kernel.h>
 using namespace std;
 #include "Network.h"
-// käse
-

@@ -44,14 +44,14 @@ int main(int argc, char** argv) {
     outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 6;
+    int L = 2;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
-    layers[2] = maxpool;
-    layers[3] = fully_connected1;
-    layers[4] = fully_connected2;
-    layers[5] = outt;
+    layers[1] = maxpool;
+    layers[1] = fully_connected1;
+    layers[1] = fully_connected2;
+    layers[1] = outt;
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");

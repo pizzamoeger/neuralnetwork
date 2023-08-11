@@ -100,7 +100,7 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
         for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
             for (int k = 0; k < params.mini_batch_size; k++) {
                 for (int p = 0; p < 784; p++) {
-                    mini_batch[k].first[p] =  training_data[j * params.mini_batch_size + k].first[p];
+                    mini_batch[k].first[p] = training_data[j * params.mini_batch_size + k].first[p];
                 }
                 for (int c = 0; c < 10; c++) {
                     mini_batch[k].second[c] = training_data[j * params.mini_batch_size + k].second[c];
@@ -148,10 +148,17 @@ void Network::backprop(input_type &in, output_type &out) {
     auto derivatives_z = ret.second;
 
     // backpropagate
-    vector<float> delta = vector<float> (layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps, 0);
+    float* delta = new float[layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps];
     for (int i = 0; i < layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps; i++) delta[i] = costFunctPrime(activations[L - 1][i], out[i]);
 
-    for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
+    for (int l = L - 1; l >= 1; l--) {
+        float* new_delta = new float [layers[l]->data.n_in.x*layers[l]->data.n_in.y*layers[l]->data.n_in.feature_maps];
+        layers[l]->backprop(delta, activations[l-1], derivatives_z[l], new_delta);
+        delete[] delta;
+        delta = new float [layers[l]->data.n_in.x*layers[l]->data.n_in.y*layers[l]->data.n_in.feature_maps];
+        memcpy(delta, new_delta, layers[l]->data.n_in.x*layers[l]->data.n_in.y*layers[l]->data.n_in.feature_maps);
+        delete[] new_delta;
+    }
 
     // clean
     for (int l = L - 1; l > 0; l--) {
@@ -175,39 +182,3 @@ void Network::clear() {
 
     delete[] layers;
 }
-/*
-void Network::load(string filename) {
-    ifstream file(filename);
-
-    file >> L;
-
-    // sizes
-    sizes = vector<int>(L);
-    for (int i = 0; i < L; i++) file >> sizes[i];
-
-    layers = vector<fully_connected_layer>(L);
-    for (int i = 1; i < L; i++) layers[i].init(sizes[i - 1], sizes[i], activationFunct, activationFunctPrime, costFunctPrime);
-
-    // biases
-    for (int i = 1; i < L; i++) {
-        layers[i].biases = vector<float>(sizes[i]);
-        for (int j = 0; j < sizes[i]; j++) {
-            file >> layers[i].biases[j];
-        }
-    }
-
-    // weights
-    for (int i = 1; i < L; i++) {
-        layers[i].weights = vector<vector<float>>(sizes[i]);
-        for (int j = 0; j < sizes[i]; j++) {
-            layers[i].weights[j] = vector<float>(sizes[i - 1]);
-            for (int k = 0; k < sizes[i - 1]; k++) {
-                file >> layers[i].weights[j][k];
-            }
-            char c;
-            file >> c;
-        }
-    }
-
-    file.close();
-}*/

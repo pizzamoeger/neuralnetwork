@@ -57,7 +57,7 @@ struct layer {
     layer_data data;
     virtual void init(layer_data data, layer_data data_previous) = 0;
     virtual void feedforward(float* a, float* dz, float* &new_a, float* &new_dz) = 0;
-    virtual void backprop(vector<float> &delta, float* &activations, float* &derivative_z) = 0;
+    virtual void backprop(float* &delta, float* &activations, float* &derivative_z, float* &new_delta) = 0;
     virtual void update(hyperparams params) = 0;
     virtual void save(string file) = 0;
     virtual void clear() = 0;
@@ -76,22 +76,21 @@ struct fully_connected_layer : public layer {
     layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
-    float* biases;
-    float* biasesVelocity;
+    float* dev_biases;
+    float* dev_biases_vel;
+    float* dev_biases_updt;
+
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    float* weights;
-    float* weightsVelocity;
-
-    // what needs to be updated
-    float* updateB;
-    float* updateW;
+    float* dev_weights;
+    float* dev_weights_vel;
+    float* dev_weights_updt;
 
     void init (layer_data data, layer_data data_previous);
 
     void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> & delta, float* &activations, float* &derivative_z);
+    void backprop(float* & delta, float* &activations, float* &derivative_z, float* &new_delta);
 
     void update(hyperparams params);
 
@@ -122,7 +121,7 @@ struct convolutional_layer : public layer {
 
     void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> &delta, float* &activations, float* &derivative_z);
+    void backprop(float* &delta, float* &activations, float* &derivative_z, float* &new_delta);
 
     void update(hyperparams params);
 
@@ -142,7 +141,7 @@ struct max_pooling_layer : public layer {
 
     void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> &delta, float* &activations, float* &derivative_z);
+    void backprop(float* &delta, float* &activations, float* &derivative_z, float* &new_delta);
 
     void update(hyperparams params);
 
@@ -160,7 +159,7 @@ struct input_layer : public layer {
 
     void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
 
-    void backprop(vector<float> &delta, float* &activations, float* &derivative_z);
+    void backprop(float* &delta, float* &activations, float* &derivative_z, float* &new_delta);
 
     void update(hyperparams params);
 
@@ -196,3 +195,20 @@ struct Network {
 
     pair<int,int> evaluate(data_point* test_data, int test_data_size);
 };
+
+int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data);
+int get_data_index(int map, int y, int x, layer_data &data);
+int get_fully_connected_weight_index(int neuron, int previous_neuron, int data_n_in);
+__device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
+
+__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in);
+__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz);
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x);
+__global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
+__global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params);
+__global__ void update_weights (float* weights, float* weights_vel, hyperparams* params);
+
+__global__ void set_to (float *vec, float value); // initialize the elements to value
+__global__ void set_to_random (float *vec, int* data_n_in_x); // initialize the elements to random value with mean 0 and stddev 1/sqrt(data_n_in_x
+__global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
+__global__ void mult (float *vec_a, float *vec_b); // vec_a *= vec_b

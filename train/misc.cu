@@ -24,6 +24,29 @@ float crossEntropyPrime(float output_activation, float y) {
     return (output_activation-y);
 }
 
+int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
+    return
+            previous_map * (data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length)
+            + map * (data.receptive_field_length * data.receptive_field_length)
+            + y * (data.receptive_field_length)
+            + x;
+}
+
+int get_data_index(int map, int y, int x, layer_data &data) {
+    return
+            map * (data.n_out.x * data.n_out.y)
+            + y * (data.n_out.x)
+            + x;
+}
+
+int get_fully_connected_weight_index(int neuron, int previous_neuron, int data_n_in) {
+    return neuron*data_n_in+previous_neuron;
+}
+
+__device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in) {
+    return neuron*data_n_in+previous_neuron;
+}
+
 // load data
 pair<data_point*, int> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
@@ -90,4 +113,88 @@ hyperparams get_params() {
 
 void clear_data(data_point *data) {
     delete[] data;
+}
+
+__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in) {
+    int neuron = blockIdx.x;
+    int previous_neuron = blockIdx.y;
+    atomicAdd(&z[neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[previous_neuron]);
+}
+
+__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz) {
+    int neuron = blockIdx.x;
+    z[neuron] += biases[neuron];
+    if (z[neuron] >= 0) { // TODO : actually use the activation function
+        new_a[neuron] = z[neuron];
+        new_dz[neuron] = 1;
+    } else {
+        new_a[neuron] = new_dz[neuron] = 0;
+    }
+}
+
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x) {
+    int neuron = blockIdx.x;
+    int previous_neuron = blockIdx.y;
+    atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[previous_neuron]);
+    atomicAdd(&dev_new_delta[previous_neuron], dev_delta[neuron] * dev_weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)]);
+}
+
+__global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params) {
+    int neuron = blockIdx.x;
+    biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
+                             (params->fully_connected_biases_learning_rate / params->mini_batch_size) *
+                             biases_updt[neuron];
+}
+
+__global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params) {
+    int weight = blockIdx.x;
+    weights_vel[weight] =
+            params->momentum_coefficient * weights_updt[weight] -
+            (params->fully_connected_weights_learning_rate / params->mini_batch_size) *
+            weights_updt[weight];
+}
+
+__global__ void update_weights (float* weights, float* weights_vel, hyperparams* params) {
+    int weight = blockIdx.x;
+    weights[weight] = (1 - params->fully_connected_weights_learning_rate * params->L2_regularization_term
+                        / params->training_data_size) * weights[weight] + weights_vel[weight];
+}
+
+__global__ void set_to (float *vec, float value) {
+    int index = blockIdx.x;
+    vec[index] = value;
+}
+
+__device__ int sqrt(int num) {
+    int l = 0;
+    int r = num;
+    while (l+1 != r) {
+        int m = (l+r)/2;
+        if (m*m > num) r = m;
+        else l = m;
+    }
+    return l;
+}
+
+// TODO : just clean the whole mess up
+
+__global__ void set_to_random (float *vec, int *data_n_in_x) {
+    int index = blockIdx.x;
+
+    // TODO : find an actually working random thingy
+    curandState state;
+
+    curand_init(clock64(), index, 0, &state);
+
+    vec[index] = curand_log_normal(&state, 0.0, 1.0/sqrt(*data_n_in_x))-1;
+}
+
+__global__ void add (float *vec_a, float *vec_b) {
+    int index = blockIdx.x;
+    vec_a[index] += vec_b[index];
+}
+
+__global__ void mult (float *vec_a, float *vec_b) {
+    int index = blockIdx.x;
+    vec_a[index] *= vec_b[index];
 }
