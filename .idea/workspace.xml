@@ -21,13 +21,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="finished fully connected in cuda">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" afterPath="$PROJECT_DIR$/neuralnetwork" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/includes.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/includes.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
@@ -40,7 +37,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -206,7 +203,11 @@
       <workItem from="1691695580944" duration="2116000" />
       <workItem from="1691697739728" duration="1854000" />
       <workItem from="1691699755815" duration="322000" />
-      <workItem from="1691745400019" duration="2441000" />
+      <workItem from="1691745400019" duration="4388000" />
+      <workItem from="1691752303952" duration="4508000" />
+      <workItem from="1691763135116" duration="3451000" />
+      <workItem from="1691831835571" duration="7062000" />
+      <workItem from="1691842268029" duration="2624000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -468,7 +469,15 @@
       <option name="project" value="LOCAL" />
       <updated>1691494022840</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="fully connected working in cuda">
+      <option name="closed" value="true" />
+      <created>1691748151097</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1691748151097</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -523,12 +532,29 @@
     <MESSAGE value="bug fixes in activation functions" />
     <MESSAGE value="improved bash scripts" />
     <MESSAGE value="project ready to be programmed in cuda" />
-    <option name="LAST_COMMIT_MESSAGE" value="project ready to be programmed in cuda" />
+    <MESSAGE value="fully connected working in cuda" />
+    <MESSAGE value="finished fully connected in cuda" />
+    <option name="LAST_COMMIT_MESSAGE" value="finished fully connected in cuda" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/main.cu</url>
+          <line>90</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/layer.cu</url>
+          <line>64</line>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
         <watch expression="weights" language="ObjectiveC" />
+        <watch expression="wee[i*data.n_in.x+j]" language="ObjectiveC" />
       </configuration>
     </watches-manager>
   </component>

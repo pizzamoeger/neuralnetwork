@@ -14,10 +14,10 @@ void Network::init(layer_data* layers, int L, function<float(float, float)> cost
                 new_layer = make_unique<input_layer>();
                 break;
             case LAYER_NUM_CONVOLUTIONAL:
-                new_layer = make_unique<convolutional_layer>();
+                //new_layer = make_unique<convolutional_layer>();
                 break;
             case LAYER_NUM_MAX_POOLING:
-                new_layer = make_unique<max_pooling_layer>();
+                //new_layer = make_unique<max_pooling_layer>();
                 break;
             case LAYER_NUM_FULLY_CONNECTED:
                 new_layer = make_unique<fully_connected_layer>();
@@ -30,49 +30,60 @@ void Network::init(layer_data* layers, int L, function<float(float, float)> cost
     }
 }
 
-pair<float**, float**> Network::feedforward(input_type &a) {
+pair<float*, float*> Network::feedforward(input_type &a) {
+    float* dev_activations;
+    float* dev_derivatives_z;
+    float* dev_z;
+    int elems = 0;
+    for (int l = 0; l < L; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
 
-    float** activations = new float* [L];
-    float** derivatives_z = new float* [L];
+    cudaMalloc((void**) &dev_activations, elems*sizeof(float));
+    cudaMalloc((void**) &dev_z, elems*sizeof(float));
+    cudaMalloc((void**) &dev_derivatives_z, elems*sizeof(float));
+    set_to<<<elems,1>>>(dev_activations, 0);
+    set_to<<<elems,1>>>(dev_z, 0);
+    set_to<<<elems,1>>>(dev_derivatives_z, 0);
+
+    cudaMemcpy(dev_activations, a, 28*28*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_derivatives_z, a, 28*28*sizeof(float), cudaMemcpyHostToDevice);
+
+    elems = layers[0]->data.n_out.x*layers[0]->data.n_out.y*layers[0]->data.n_out.feature_maps;;
+    int* dev_elems;
+    cudaMalloc((void**) &dev_elems, sizeof(int));
+    cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
 
     for (int l = 1; l < L; l++) {
-        activations[l] = new float [layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps];
-        derivatives_z[l] = new float [layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps];
-        for (int i = 0; i < layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps; ++i) {
-            activations[l][i] = 0;
-            derivatives_z[l][i] = 0;
-        }
+        layers[l]->feedforward(dev_activations, dev_derivatives_z, dev_z, dev_elems);
+        elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
+        cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
     }
 
-    activations[0] = a;
-    derivatives_z[0] = a;
-
-    for (int i = 1; i < L; i++) {
-        layers[i]->feedforward(activations[i-1], derivatives_z[i-1], activations[i], derivatives_z[i]);
-    }
-
-    return {activations, derivatives_z};
+    cudaFree(dev_z);
+    cudaFree(dev_elems);
+    return {dev_activations, dev_derivatives_z};
 }
 
 pair<int,int> Network::evaluate(data_point* test_data, int test_data_size) {
     auto start = chrono::high_resolution_clock::now();
     int correct = 0;
+    int elems = 0;
+    for (int l = 0; l < L-1; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
+
     for (int k = 0; k < (int) test_data_size; k++) {
         auto ret = feedforward(test_data[k].first);
         auto activations = ret.first;
         auto derivatives_z = ret.second;
-        float* output = activations[L-1];
+        output_type output;
+        cudaMemcpy(output, &activations[elems], sizeof(output_type), cudaMemcpyDeviceToHost);
+
         int max = 0;
         for (int j = 0; j < 10; j++) {
             if (output[j] > output[max]) max = j;
         }
         if (test_data[k].second[max] == 1.0) correct++;
-        for (int l = L - 1; l > 0; l--) {
-            delete[] activations[l];
-            delete[] derivatives_z[l];
-        }
-        delete[] activations;
-        delete[] derivatives_z;
+
+        cudaFree(activations);
+        cudaFree(derivatives_z);
     }
     auto end = chrono::high_resolution_clock::now();
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
@@ -84,6 +95,10 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
     auto correct = ev.first;
     auto durationEvaluate = ev.second;
     cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
+
+    hyperparams* dev_params;
+    cudaMalloc((void**) &dev_params, sizeof(hyperparams));
+    cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
 
     for (int i = 0; i < params.epochs; i++) {
         // time the epoch
@@ -106,7 +121,7 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
                     mini_batch[k].second[c] = training_data[j * params.mini_batch_size + k].second[c];
                 }
             }
-            update_mini_batch(mini_batch, params);
+            update_mini_batch(mini_batch, params, dev_params);
         }
         delete[] mini_batch;
 
@@ -127,46 +142,55 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
             params.fully_connected_weights_learning_rate -= params.fcWRed;
             params.convolutional_biases_learning_rate -= params.convBRed;
             params.convolutional_weights_learning_rate -= params.convWRed;
+            cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
         }
     }
+    cudaFree(dev_params);
 }
 
-void Network::update_mini_batch(data_point* mini_batch, hyperparams params) {
+void Network::update_mini_batch(data_point* mini_batch, hyperparams params, hyperparams* dev_params) {
 
     for (int num = 0; num < params.mini_batch_size; num++) {
         backprop(mini_batch[num].first, mini_batch[num].second);
     }
 
     // update velocities
-    for (int i = 1; i < L; i++) layers[i]->update(params);
+    for (int i = 1; i < L; i++) layers[i]->update(dev_params);
 }
 
 void Network::backprop(input_type &in, output_type &out) {
     // feedfoward
-    auto ret = feedforward(in);
-    auto activations = ret.first;
-    auto derivatives_z = ret.second;
+    pair<float*, float*> ret = feedforward(in);
+    float* activations = ret.first;
+    float* derivatives_z = ret.second;
+
+    int elems = 0;
+    for (int l = 0; l < L; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
+    int* dev_elems;
+    cudaMalloc((void**) &dev_elems, sizeof(int));
 
     // backpropagate
-    float* delta = new float[layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps];
-    for (int i = 0; i < layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps; i++) delta[i] = costFunctPrime(activations[L - 1][i], out[i]);
+    float* delta;
+    output_type host_delta;
+    output_type host_activations;
+
+    cudaMalloc((void**) &delta, 10*sizeof(float));
+    cudaMemcpy(host_activations, &activations[elems-10], sizeof(output_type), cudaMemcpyDeviceToHost);
+
+    for (int neuron = 0; neuron < 10; neuron++) host_delta[neuron] = costFunctPrime(host_activations[neuron], out[neuron]);
+    cudaMemcpy(delta, host_delta, sizeof(output_type), cudaMemcpyHostToDevice);
 
     for (int l = L - 1; l >= 1; l--) {
-        float* new_delta = new float [layers[l]->data.n_in.x*layers[l]->data.n_in.y*layers[l]->data.n_in.feature_maps];
-        layers[l]->backprop(delta, activations[l-1], derivatives_z[l], new_delta);
-        delete[] delta;
-        delta = new float [layers[l]->data.n_in.x*layers[l]->data.n_in.y*layers[l]->data.n_in.feature_maps];
-        memcpy(delta, new_delta, layers[l]->data.n_in.x*layers[l]->data.n_in.y*layers[l]->data.n_in.feature_maps);
-        delete[] new_delta;
+        elems -= layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
+        cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
+        layers[l]->backprop(delta, activations, derivatives_z, dev_elems);
     }
 
     // clean
-    for (int l = L - 1; l > 0; l--) {
-        delete[] activations[l];
-        delete[] derivatives_z[l];
-    }
-    delete[] activations;
-    delete[] derivatives_z;
+    cudaFree(dev_elems);
+    cudaFree(delta);
+    cudaFree(activations);
+    cudaFree(derivatives_z);
 }
 
 void Network::save(string filename) {

@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activationFunctPrime = reluPrime;
     fully_connected2.activationFunct = relu;
-    fully_connected2.n_out = {30, 1, 1};
+    fully_connected2.n_out = {10, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
@@ -44,14 +44,14 @@ int main(int argc, char** argv) {
     outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 2;
+    int L = 3;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
     layers[1] = maxpool;
     layers[1] = fully_connected1;
     layers[1] = fully_connected2;
-    layers[1] = outt;
+    layers[2] = outt;
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");

@@ -8,116 +8,61 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     data.n_in = {data_previous.n_out.feature_maps * data_previous.n_out.y * data_previous.n_out.x, 1, 1};
     this->data = data;
     this->data_previous = data_previous;
-    int* data_n_in_x;
-    cudaMalloc((void**) &data_n_in_x, sizeof(int));
-    cudaMemcpy(data_n_in_x, &data.n_in.x, sizeof(int), cudaMemcpyHostToDevice);
+
+    cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
+    cudaMalloc((void**) &this->dev_data_previous, sizeof(layer_data));
+
+    cudaMemcpy(this->dev_data, &data, sizeof(layer_data), cudaMemcpyHostToDevice);
+    cudaMemcpy(this->dev_data_previous, &data_previous, sizeof(layer_data), cudaMemcpyHostToDevice);
 
     cudaMalloc((void**) &dev_weights, data.n_out.x*data.n_in.x*sizeof(float));
     cudaMalloc((void**) &dev_weights_vel, data.n_out.x*data.n_in.x*sizeof(float));
     cudaMalloc((void**) &dev_weights_updt, data.n_out.x*data.n_in.x*sizeof(float));
-    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, data_n_in_x);
+    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, &this->dev_data->n_in.x);
     set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_vel, 0);
     set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_updt, 0);
 
     cudaMalloc((void**) &dev_biases, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &dev_biases_vel, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &dev_biases_updt, data.n_out.x*sizeof(float));
-    set_to_random<<<data.n_out.x, 1>>>(dev_biases, data_n_in_x);
+    set_to_random<<<data.n_out.x, 1>>>(dev_biases, &this->dev_data->n_in.x);
     set_to<<<data.n_out.x,1>>>(dev_biases_vel, 0);
     set_to<<<data.n_out.x,1>>>(dev_biases_updt, 0);
 }
 
-void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
-    (void) dz;
-
-    float* dev_a;
-    float* dev_z;
-    float* dev_new_a;
-    float* dev_new_dz;
-    int* dev_n_in_x;
-
-    cudaMalloc((void**) &dev_n_in_x, sizeof(int));
-    cudaMalloc((void**) &dev_a, data.n_in.x*sizeof(float));
-    cudaMalloc((void**) &dev_z, data.n_out.x*sizeof(float));
-    cudaMalloc((void**) &dev_new_a, data.n_out.x*sizeof(float));
-    cudaMalloc((void**) &dev_new_dz, data.n_out.x*sizeof(float));
+void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &dev_z, int* dev_elems) {
+    addWeights<<<data.n_out.x, data.n_in.x>>>(dev_a, dev_weights, dev_z, &dev_data->n_in.x, dev_elems);
     cudaDeviceSynchronize();
-
-    set_to<<<data.n_out.x, 1>>>(dev_z, 0);
-    cudaMemcpy(dev_a, a, data.n_in.x*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_n_in_x, &data.n_in.x, sizeof(int), cudaMemcpyHostToDevice);
+    getNewA<<<data.n_out.x,1>>> (dev_z, dev_biases, dev_a, dev_dz, dev_elems);
     cudaDeviceSynchronize();
-
-    dim3 grid(data.n_out.x, data.n_in.x);
-    addWeights<<<grid, 1>>>(dev_a, dev_weights, dev_z, dev_n_in_x);
-    cudaDeviceSynchronize();
-    getNewA<<<data.n_out.x,1>>> (dev_z, dev_biases, dev_new_a, dev_new_dz);
-    cudaDeviceSynchronize();
-    cudaMemcpy(new_a, dev_new_a, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
-    cudaMemcpy(new_dz, dev_new_dz, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
-
-    cudaDeviceSynchronize();
-
-    cudaFree(dev_z);
-    cudaFree(dev_a);
-    cudaFree(dev_new_a);
-    cudaFree(dev_new_dz);
-    cudaFree(dev_n_in_x);
 }
 
-void fully_connected_layer::backprop(float * &delta, float* &activations, float* &derivative_z, float * &new_delta) {
-    float* dev_delta;
-    float* dev_derivative_z;
-    float* dev_activations;
+void fully_connected_layer::backprop(float * &delta, float* &activations, float* &derivative_z, int* elems) {
     float* dev_new_delta;
-    int* dev_data_n_in_x;
-
-    cudaError err = cudaMalloc((void**) &dev_new_delta, data.n_in.x*sizeof(float));
-    if (err != cudaSuccess) cerr << cudaGetErrorString(err) << "dev new delta\n";
-    err = cudaMalloc((void**) &dev_delta, data.n_out.x*sizeof(float));
-    //if (err != cudaSuccess) cout << cudaGetErrorString(err) << "dev delta\n";
-    err = cudaMalloc((void**) &dev_derivative_z, data.n_out.x*sizeof(float));
-    //if (err != cudaSuccess) cout << cudaGetErrorString(err) << "dev dz\n";
-    cudaMemcpy(dev_delta, delta, data.n_out.x*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_derivative_z, derivative_z, data.n_out.x*sizeof(float), cudaMemcpyHostToDevice);
+    cudaMalloc((void**) &dev_new_delta, data.n_in.x*sizeof(float));
     set_to<<<data.n_in.x,1>>>(dev_new_delta, 0);
-    cudaMalloc((void**) &dev_activations, data.n_in.x*sizeof(float));
-    cudaMemcpy(dev_activations, activations, data.n_in.x*sizeof(float), cudaMemcpyHostToDevice);
-    cudaMalloc((void**) &dev_data_n_in_x, sizeof(int));
-    cudaMemcpy(dev_data_n_in_x, &data.n_in.x, sizeof(int), cudaMemcpyHostToDevice);
 
     if (!data.last_layer) {
-        mult<<<data.n_out.x,1>>>(dev_delta, dev_derivative_z);
+        mult<<<data.n_out.x,1>>>(delta, derivative_z, elems);
     }
-    /*cudaDeviceSynchronize();
-    for (int i = 0; i < data.n_out.x; i++) cerr << delta[i]*derivative_z[i] << " ";
-    cerr << "\n";
-    cudaMemcpy(delta, dev_delta, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
-    for (int i = 0; i < data.n_out.x; i++) cerr << delta[i] << " ";
-    cerr << "\n";*/
-    // BUG FREE HERE
 
-    add<<<data.n_out.x,1>>>(dev_biases_updt, dev_delta);
     cudaDeviceSynchronize();
 
-    dim3 grid(data.n_out.x, data.n_in.x);
-    backprop_logic<<<grid,1>>>(dev_weights_updt, dev_delta, dev_activations, dev_new_delta, dev_weights, dev_data_n_in_x);
+    add<<<data.n_out.x,1>>>(dev_biases_updt, delta);
     cudaDeviceSynchronize();
 
-    cudaMemcpy(new_delta, dev_new_delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToHost);
-    cudaFree(dev_delta);
-    cudaFree(dev_derivative_z);
-    cudaFree(dev_activations);
+    backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, activations, dev_new_delta, dev_weights, &dev_data->n_in.x, elems);
+
+    cudaDeviceSynchronize();
+
+    cudaFree(delta);
+    cudaMalloc((void**) &delta, data.n_in.x*sizeof(float));
+    cudaMemcpy(dev_new_delta, delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
     cudaFree(dev_new_delta);
-    cudaFree(dev_data_n_in_x);
 }
 
-void fully_connected_layer::update(hyperparams params) {
+void fully_connected_layer::update(hyperparams* dev_params) {
     // update velocities
-    hyperparams* dev_params;
-    cudaMalloc((void**) &dev_params, sizeof(hyperparams));
-    cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
-
     update_bias_vel<<<data.n_out.x,1>>>(dev_biases_vel, dev_biases_updt, dev_params);
     update_weights_vel<<<data.n_out.x*data.n_in.x,1>>>(dev_weights_vel, dev_weights_updt, dev_params);
     cudaDeviceSynchronize();
@@ -130,8 +75,6 @@ void fully_connected_layer::update(hyperparams params) {
     set_to<<<data.n_out.x,1>>>(dev_biases_updt, 0);
     set_to<<<data.n_out.x*data.n_in.x,1>>>(dev_weights_updt, 0);
     cudaDeviceSynchronize();
-
-    cudaFree(dev_params);
 }
 
 void fully_connected_layer::save(string filename) {
@@ -174,9 +117,11 @@ void fully_connected_layer::clear() {
     cudaFree(dev_biases);
     cudaFree(dev_biases_vel);
     cudaFree(dev_biases_updt);
+    cudaFree(dev_data_previous);
+    cudaFree(dev_data);
 }
 
-void convolutional_layer::init(layer_data data, layer_data data_previous) {
+/*void convolutional_layer::init(layer_data data, layer_data data_previous) {
 
     data.n_in = data_previous.n_out;
     data.n_out.x = (data.n_in.x - data.receptive_field_length + 1) / data.stride_length;
@@ -401,30 +346,18 @@ void max_pooling_layer::save(string filename) {
 }
 
 void max_pooling_layer::clear() {}
-
+*/
 void input_layer::init(layer_data data, layer_data data_previous) {
     this->data = data;
     (void) data_previous;
 }
 
-void input_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
-    (void) a;
-    (void) dz;
-    (void) new_a;
-    (void) new_dz;
-}
+void input_layer::feedforward(float* &a, float* &dz, float* &dev_z, int* elems) {}
 
 void input_layer::backprop(float * &delta,
-                           float* &activations, float* &derivative_z, float * &new_delta) {
-    (void) delta;
-    (void) activations;
-    (void) derivative_z;
-    (void) new_delta;
-}
+                           float* &activations, float* &derivative_z, int* elems) {}
 
-void input_layer::update(hyperparams params) {
-    (void) params;
-}
+void input_layer::update(hyperparams* params) {}
 
 void input_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);

@@ -8,8 +8,6 @@ float sigmoidPrime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
-const float al = 0;
-
 float relu(float x){
     return max(x, 0.0f);
 }
@@ -115,27 +113,29 @@ void clear_data(data_point *data) {
     delete[] data;
 }
 
-__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in) {
+__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in, int* offset) {
     int neuron = blockIdx.x;
-    int previous_neuron = blockIdx.y;
-    atomicAdd(&z[neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[previous_neuron]);
+    int previous_neuron = threadIdx.x;
+    atomicAdd(&z[(*offset)+neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]);
 }
 
-__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz) {
+__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz, int* offset) {
     int neuron = blockIdx.x;
-    z[neuron] += biases[neuron];
-    if (z[neuron] >= 0) { // TODO : actually use the activation function
-        new_a[neuron] = z[neuron];
-        new_dz[neuron] = 1;
+    z[(*offset)+neuron] += biases[neuron];
+    // TODO : actually use the activation function
+    if (z[(*offset)+neuron] >= 0) {
+        new_a[(*offset)+neuron] = z[(*offset)+neuron];
+        new_dz[(*offset)+neuron] = 1;
     } else {
-        new_a[neuron] = new_dz[neuron] = 0;
+        new_a[(*offset)+neuron] = 0;
+        new_dz[(*offset)+neuron] = 0;
     }
 }
 
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x) {
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) {
     int neuron = blockIdx.x;
-    int previous_neuron = blockIdx.y;
-    atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[previous_neuron]);
+    int previous_neuron = threadIdx.x;
+    atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[(*offset)-(*data_n_in_x)+previous_neuron]);
     atomicAdd(&dev_new_delta[previous_neuron], dev_delta[neuron] * dev_weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)]);
 }
 
@@ -176,17 +176,13 @@ __device__ int sqrt(int num) {
     return l;
 }
 
-// TODO : just clean the whole mess up
-
 __global__ void set_to_random (float *vec, int *data_n_in_x) {
     int index = blockIdx.x;
 
-    // TODO : find an actually working random thingy
     curandState state;
-
     curand_init(clock64(), index, 0, &state);
-
-    vec[index] = curand_log_normal(&state, 0.0, 1.0/sqrt(*data_n_in_x))-1;
+    vec[index] = curand_normal(&state)/sqrt(*data_n_in_x);
+    //vec[index] = 0;
 }
 
 __global__ void add (float *vec_a, float *vec_b) {
@@ -194,7 +190,7 @@ __global__ void add (float *vec_a, float *vec_b) {
     vec_a[index] += vec_b[index];
 }
 
-__global__ void mult (float *vec_a, float *vec_b) {
+__global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     int index = blockIdx.x;
-    vec_a[index] *= vec_b[index];
+    vec_a[index] *= vec_b[index+(*offset_b)];
 }
