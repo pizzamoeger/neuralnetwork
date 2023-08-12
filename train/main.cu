@@ -1,10 +1,7 @@
 #include "includes.h"
-int* zero_pointer;
-float* f_zero_pointer;
+using namespace std;
 
 int main(int argc, char** argv) {
-    cudaGetSymbolAddress((void**) &zero_pointer, zero);
-    cudaGetSymbolAddress((void**) &f_zero_pointer, zero);
     srand(time(NULL));
 
     Network net;
@@ -17,7 +14,8 @@ int main(int argc, char** argv) {
     convolutional.type = LAYER_NUM_CONVOLUTIONAL;
     convolutional.stride_length = 1;
     convolutional.receptive_field_length = 5;
-    convolutional.activation_function = RELU;
+    convolutional.activationFunctPrime = reluPrime;
+    convolutional.activationFunct = relu;
     convolutional.n_out = {-1,-1, 3};
 
     layer_data maxpool;
@@ -26,20 +24,24 @@ int main(int argc, char** argv) {
 
     layer_data fully_connected1;
     fully_connected1.type = LAYER_NUM_FULLY_CONNECTED;
-    fully_connected1.activation_function = RELU;
+    fully_connected1.activationFunctPrime = reluPrime;
+    fully_connected1.activationFunct = relu;
     fully_connected1.n_out = {30, 1, 1};
 
     layer_data fully_connected2;
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
-    fully_connected2.activation_function = RELU;
-    // FIND-TAG-ARCHITECTURE
-    fully_connected2.n_out = {885, 1, 1};
+    fully_connected2.activationFunctPrime = reluPrime;
+    fully_connected2.activationFunct = relu;
+    fully_connected2.n_out = {10, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activation_function = RELU;
+    outt.activationFunctPrime = sigmoidPrime;
+    //outt.activationFunctPrime = reluPrime;
+    outt.activationFunct = sigmoid;
+    //outt.activationFunct = relu;
     outt.last_layer = true;
-    outt.n_out = {OUTPUT_NEURONS, 1, 1};
+    outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
     int L = 3;
@@ -53,11 +55,11 @@ int main(int argc, char** argv) {
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");
-    vector<pair<float*, float*>> test_data = tst.first;
-    int test_data_size = tst.second;
+    auto test_data = tst.first;
+    auto test_data_size = tst.second;
     auto trn = load_data("mnist_train_normalized.data");
-    vector<pair<float*, float*>>  training_data = trn.first;
-    int training_data_size = trn.second;
+    auto training_data = trn.first;
+    auto training_data_size = trn.second;
 
     auto params = get_params();
     if (argc == 7) {
@@ -68,7 +70,7 @@ int main(int argc, char** argv) {
         params.L2_regularization_term = atof(argv[5]);
         params.momentum_coefficient = atof(argv[6]);
     }
-    params.test_data_size = test_data_size;
+    params.test_data_size  = test_data_size;
     params.training_data_size = training_data_size;
 
     // initialize params learning rate reduction
@@ -79,28 +81,31 @@ int main(int argc, char** argv) {
     params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // FIND-TAG-EPOCHS
-    // cerr << "epochs: "; cin >> params.epochs;
+    cerr << "epochs: "; cin >> params.epochs;
     // params.epochs = 150;
-    params.epochs = 0;
+    // params.epochs = 5;
 
-    net.init(layers, L, params);
-    net.SGD(training_data, test_data);
+    net.init(layers, L, crossEntropyPrime);
+    net.SGD(training_data, test_data, params);
 
+    // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
     auto evtst = net.evaluate(test_data, test_data_size);
-    int correct_test = evtst.first;
+    auto correctTest = evtst.first;
+    auto durationTest = evtst.second;
     auto evtrn = net.evaluate(training_data, training_data_size);
-    int correct_train = evtrn.first;
+    auto correctTrain = evtrn.first;
+    auto durationTrain = evtrn.second;
 
-    cerr << "accuracy in training data: " << (float) correct_train / params.training_data_size << "\n";
-    cerr << "general accuracy: " << (float) correct_test / params.test_data_size << "\n";
+    cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
+    cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
-    cout << evtst.second << "\n";
+    // cout << (float)correctTest / params.test_data_size << "\n";
 
     // FIND-TAG-STORING
-    // cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    cerr << "Where should the network be stored? "; string filename; cin >> filename;
     // string filename = argv[1];
-    // net.save(filename);
+    net.save(filename);
 
     clear_data(test_data);
     clear_data(training_data);

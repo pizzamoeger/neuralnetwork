@@ -1,64 +1,25 @@
 #include "includes.h"
 
 // sigmoid function and its derivative
-inline __device__ float sigmoid(float x) {
-    return 1.0 / (1.0 + expf(-x));
+float sigmoid(float x) {
+    return 1.0 / (1.0 + exp(-x));
 }
-
-inline __device__ float sigmoid_prime(float x) {
+float sigmoidPrime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
-inline __device__ float relu(float x){
+float relu(float x){
     return max(x, 0.0f);
 }
 
-inline __device__ float relu_prime(float x){
-    if (x > 0) return 1.0f;
-    return 0.0f;
+float reluPrime(float x){
+    if (x > 0) return 1;
+    return (float)0;
 }
 
-inline __device__ float softmax(float x, float sum_of_exp) {
-    return expf(x)/sum_of_exp;
-}
-
-inline __device__ float softmax_prime(float x, float sum_of_exp) {
-    return (softmax(x, sum_of_exp)*(1-softmax(x, sum_of_exp)));
-}
-
-inline __device__ float cross_entropy_prime(float out_net, float out_cor) {
-    return (out_net-out_cor);
-}
-
-inline __device__ float activation_function(float x, int activation_func, float sum_of_exp) {
-    switch (activation_func) {
-        case SIGMOID:
-            return sigmoid(x);
-        case RELU:
-            return relu(x);
-        case SOFTMAX:
-            return softmax(x, sum_of_exp);
-        default:
-            return 0;
-    }
-}
-
-inline __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp) {
-    switch (activation_func) {
-        case SIGMOID:
-            return sigmoid_prime(x);
-        case RELU:
-            return relu_prime(x);
-        case SOFTMAX:
-            return softmax_prime(x, sum_of_exp);
-        default:
-            return 0;
-    }
-}
-
-inline __device__ float cost_function_prime(float out_net, float out_cor, int cost_function) {
-    if (cost_function == CROSSENTROPY) return cross_entropy_prime(out_net, out_cor);
-    else return 0;
+// cross entropy cost function
+float crossEntropyPrime(float output_activation, float y) {
+    return (output_activation-y);
 }
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
@@ -76,12 +37,16 @@ int get_data_index(int map, int y, int x, layer_data &data) {
             + x;
 }
 
-inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in) {
+int get_fully_connected_weight_index(int neuron, int previous_neuron, int data_n_in) {
+    return neuron*data_n_in+previous_neuron;
+}
+
+__device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in) {
     return neuron*data_n_in+previous_neuron;
 }
 
 // load data
-pair<vector<pair<float*,float*>>, int> load_data(string filename) {
+pair<data_point*, int> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
     ifstream file;
     string line;
@@ -93,20 +58,18 @@ pair<vector<pair<float*,float*>>, int> load_data(string filename) {
     while (getline(file, line)) {
         dataPoints++;
     }
+    file.close();
 
-    file.clear(); // Reset stream state
-    file.seekg(0); // Move cursor back to beginning
+    file.open(filename);
 
+    data_point *data = new data_point[dataPoints];
     int lineIndex = 0;
-    vector<pair<float*,float*>> data (dataPoints, {nullptr, nullptr});
 
     while (getline(file, line)) {
         stringstream ss(line);
-        float* data_in = new float [INPUT_NEURONS];
-        float* data_out = new float [OUTPUT_NEURONS];
 
-        for (int i = 0; i < INPUT_NEURONS; i++) data_in[i] = 0;
-        for (int i = 0; i < OUTPUT_NEURONS; i++) data_out[i] = 0;
+        for (int i = 0; i < 10; i++) data[lineIndex].second[i] = 0;
+        for (int i = 0; i < 28 * 28; i++) data[lineIndex].first[i] = 0;
 
         int label = -1;
         int i = 0;
@@ -116,27 +79,14 @@ pair<vector<pair<float*,float*>>, int> load_data(string filename) {
             if (label == -1) {
                 label = stoi(substr);
             } else {
-                if (i == INPUT_NEURONS) break;
-                data_in[i] = atof(substr.c_str());
+                if (i == 28 * 28) break;
+                data[lineIndex].first[i] = atof(substr.c_str());
                 i++;
             }
         }
-        data_out[label] = 1;
-
-        float* dev_data_in;
-        float* dev_data_out;
-        cudaMalloc((void**) &dev_data_in, INPUT_NEURONS*sizeof(float));
-        cudaMalloc((void**) &dev_data_out, OUTPUT_NEURONS*sizeof(float));
-        cudaMemcpy(dev_data_in, data_in, INPUT_NEURONS*sizeof(float), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_data_out, data_out, OUTPUT_NEURONS*sizeof(float), cudaMemcpyHostToDevice);
-        data[lineIndex] = {dev_data_in, dev_data_out};
-
+        data[lineIndex].second[label] = 1;
         lineIndex++;
-
-        delete [] data_in;
-        delete [] data_out;
     }
-
     cerr << dataPoints << " data loaded from " + filename + "\n";
     file.close();
     return {data, dataPoints};
@@ -156,35 +106,37 @@ hyperparams get_params() {
     params.L2_regularization_term = 0;
     params.momentum_coefficient = 0;
 
-    params.cost = CROSSENTROPY;
-
     return params;
 }
 
-void clear_data(vector<pair<float*,float*>> & data) {
-    for (int data_point = 0; data_point < (int)data.size(); data_point++) {
-        cudaFree(data[data_point].first);
-        cudaFree(data[data_point].second);
+void clear_data(data_point *data) {
+    delete[] data;
+}
+
+__global__ void addWeights (float* a, float* weights, float* z, int* data_n_in, int* offset) {
+    int neuron = blockIdx.x;
+    int previous_neuron = threadIdx.x;
+    atomicAdd(&z[(*offset)+neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]);
+}
+
+__global__ void getNewA (float* z, float* biases, float* new_a, float* new_dz, int* offset) {
+    int neuron = blockIdx.x;
+    z[(*offset)+neuron] += biases[neuron];
+    // TODO : actually use the activation function
+    if (z[(*offset)+neuron] >= 0) {
+        new_a[(*offset)+neuron] = z[(*offset)+neuron];
+        new_dz[(*offset)+neuron] = 1;
+    } else {
+        new_a[(*offset)+neuron] = 0;
+        new_dz[(*offset)+neuron] = 0;
     }
 }
 
-__global__ void calc_a_and_dz (float* new_a, float* new_dz, int* activation_func, float* sum_of_exp) {
-    int neuron = blockIdx.x;
-
-    new_dz[neuron] = activation_function_prime(new_a[neuron], *activation_func, *sum_of_exp);
-    new_a[neuron] = activation_function(new_a[neuron], *activation_func, *sum_of_exp);
-}
-
-__global__ void set_delta (float* delta, float* activations, float* out, int* cost_func) {
-    int neuron = blockIdx.x;
-    delta[neuron] = cost_function_prime(activations[neuron], out[neuron], *cost_func);
-}
-
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x) {
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
-    //atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[previous_neuron]);
-    //atomicAdd(&dev_new_delta[previous_neuron], dev_delta[neuron] * dev_weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)]);
+    atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[(*offset)-(*data_n_in_x)+previous_neuron]);
+    atomicAdd(&dev_new_delta[previous_neuron], dev_delta[neuron] * dev_weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)]);
 }
 
 __global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params) {
@@ -208,27 +160,29 @@ __global__ void update_weights (float* weights, float* weights_vel, hyperparams*
                         / params->training_data_size) * weights[weight] + weights_vel[weight];
 }
 
-__global__ void eval (float* correct, float* output, int* counter, int* size) {
-    int index = 0;
-
-    for (int i = 0; i < (*size); i++) {
-        if (output[i] > output[index]) index = i;
-    }
-
-    if (correct[index] == 1) (*counter)++;
-}
-
 __global__ void set_to (float *vec, float value) {
     int index = blockIdx.x;
     vec[index] = value;
 }
 
-__global__ void set_to_random (float *vec, float *stddev) {
+__device__ int sqrt(int num) {
+    int l = 0;
+    int r = num;
+    while (l+1 != r) {
+        int m = (l+r)/2;
+        if (m*m > num) r = m;
+        else l = m;
+    }
+    return l;
+}
+
+__global__ void set_to_random (float *vec, int *data_n_in_x) {
     int index = blockIdx.x;
 
     curandState state;
     curand_init(clock64(), index, 0, &state);
-    vec[index] = curand_normal(&state)*(*stddev);
+    vec[index] = curand_normal(&state)/sqrt(*data_n_in_x);
+    //vec[index] = 0;
 }
 
 __global__ void add (float *vec_a, float *vec_b) {
@@ -236,109 +190,7 @@ __global__ void add (float *vec_a, float *vec_b) {
     vec_a[index] += vec_b[index];
 }
 
-__global__ void mult (float *vec_a, float *vec_b) {
-    int bid = blockIdx.x;
-    int tid = threadIdx.x;
-    int index = tid*gridDim.x+bid;
-    vec_a[index] *= vec_b[bid];
-}
-
-__global__ void calc_exp (float* res, float* vec, int* max_id) {
+__global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     int index = blockIdx.x;
-    res[index] = expf(vec[index]-vec[*max_id]);
-}
-
-__global__ void find_max (float* vec, int* id, int* size) {
-    int index = blockIdx.x;
-    (*id) = 0;
-    for (int i = 0; i < (*size); i++) {
-        if (vec[index+i] > vec[index+(*id)]) (*id) = i;
-    }
-}
-
-inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
-    if (block_size > 32) {
-        if (ind < block_size - 32 && ind < 32) sum[ind] += sum[ind + 32];
-    }
-    if (block_size > 16) {
-        if (ind < block_size - 16 && ind < 16) sum[ind] += sum[ind + 16];
-    }
-    if (block_size > 8) {
-        if (ind < block_size - 8 && ind < 8) sum[ind] += sum[ind + 8];
-    }
-    if (block_size > 4) {
-        if (ind < block_size - 4 && ind < 4) sum[ind] += sum[ind + 4];
-    }
-    if (block_size > 2) {
-        if (ind < block_size - 2 && ind < 2) sum[ind] += sum[ind + 2];
-    }
-    if (block_size > 1) {
-        if (ind < block_size - 1 && ind < 1) sum[ind] += sum[ind + 1];
-    }
-}
-
-inline __device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n, float* add_once) {
-    switch (calc) {
-        case CALC_Z: {
-            float ret = inpt[bid * size + tid] * mult_n[tid];
-            if (tid == 0) ret += add_once[bid];
-            return ret;
-        }
-        case ADD_EXP:
-            return inpt[bid*size+tid];
-        default:
-            return 0;
-    }
-}
-
-inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, int *activation_func, float *sum_of_exp) {
-    switch (calc) {
-        case CALC_Z:
-            while(*activation_func == SOFTMAX);
-            res_2[bid] = activation_function_prime(res_1[bid], *activation_func, 0);
-            res_1[bid] = activation_function(res_1[bid], *activation_func, 0);
-            break;
-        case ADD_EXP:
-            break;
-    }
-}
-
-__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_n, float* add_once, float* res_2, int* activation_func, float* sum_of_exp) {
-    const int block_size = *block_size_ptr;
-    extern __shared__ float sum[];
-    int tid = threadIdx.x;
-    int bid = blockIdx.x;
-    int add = block_size;
-
-    if (tid >= block_size) return;
-
-    sum[tid] = calc_input(calc, bid, tid, *size, input, mult_n, add_once);
-    while (tid + add < *size) {
-        sum[tid] += calc_input(calc, bid, tid+add, *size, input, mult_n, add_once);
-        add += block_size;
-    }
-    __syncthreads();
-
-    if (block_size > 512) {
-        if (tid < block_size - 512) sum[tid] += sum[tid + 512];
-        __syncthreads();
-    }
-    if (block_size > 256) {
-        if (tid < block_size - 256 && tid < 256) sum[tid] += sum[tid + 256];
-        __syncthreads();
-    }
-    if (block_size > 128) {
-        if (tid < block_size - 128 && tid < 128) sum[tid] += sum[tid + 128];
-        __syncthreads();
-    }
-    if (block_size > 64) {
-        if (tid < block_size - 64 && tid < 64) sum[tid] += sum[tid + 64];
-        __syncthreads();
-    }
-
-    if (tid < 32) reduce_last_warp(sum, tid, block_size);
-    if (tid == 0) {
-        res_1[bid] = sum[tid];
-        calc_res(calc, bid, res_1, res_2, activation_func, sum_of_exp);
-    }
+    vec_a[index] *= vec_b[index+(*offset_b)];
 }
