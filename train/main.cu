@@ -33,9 +33,9 @@ int main(int argc, char** argv) {
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activation_function = SOFTMAX;
+    outt.activation_function = RELU;
     outt.last_layer = true;
-    outt.n_out = {10, 1, 1};
+    outt.n_out = {OUTPUT_NEURONS, 1, 1};
 
     // FIND-TAG-LAYERS
     int L = 4;
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
         params.L2_regularization_term = atof(argv[5]);
         params.momentum_coefficient = atof(argv[6]);
     }
-    params.test_data_size  = test_data_size;
+    params.test_data_size = test_data_size;
     params.training_data_size = training_data_size;
 
     // initialize params learning rate reduction
@@ -79,19 +79,16 @@ int main(int argc, char** argv) {
     // params.epochs = 150;
     // params.epochs = 5;
 
-    net.init(layers, L, CROSSENTROPY);
-    net.SGD(training_data, test_data, params);
+    net.init(layers, L, params);
+    net.SGD(training_data, test_data);
 
-    // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
     auto evtst = net.evaluate(test_data, test_data_size);
-    auto correctTest = evtst.first;
-    auto durationTest = evtst.second;
+    int correct_test = evtst.first;
     auto evtrn = net.evaluate(training_data, training_data_size);
-    auto correctTrain = evtrn.first;
-    auto durationTrain = evtrn.second;
+    int correct_train = evtrn.first;
 
-    cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    cerr << "accuracy in training data: " << (float) correct_test / params.training_data_size << "\n";
+    cerr << "general accuracy: " << (float) correct_train / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
     // cout << (float)correctTest / params.test_data_size << "\n";

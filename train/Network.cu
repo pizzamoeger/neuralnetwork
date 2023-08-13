@@ -1,11 +1,11 @@
 #include "includes.h"
 
-void Network::init(layer_data* layers, int L, int cost_func) {
+void Network::init(layer_data* layers, int L, hyperparams params) {
 
     this->L = L;
-    this->cost_func = cost_func;
-    cudaMalloc((void**) &this->dev_cost_func, sizeof(int));
-    cudaMemcpy(this->dev_cost_func, &cost_func, sizeof(int), cudaMemcpyHostToDevice);
+    this->params = params;
+    cudaMalloc((void**) &dev_params, sizeof(hyperparams));
+    cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
     this->layers = new unique_ptr<layer>[L];
 
     // initialize layers
@@ -97,16 +97,12 @@ pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
 }
 
-void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data, hyperparams params) {
+void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data) {
 
     auto ev = evaluate(test_data, params.test_data_size);
     auto correct = ev.first;
     auto durationEvaluate = ev.second;
     cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
-
-    hyperparams* dev_params;
-    cudaMalloc((void**) &dev_params, sizeof(hyperparams));
-    cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
 
     for (int i = 0; i < params.epochs; i++) {
         // time the epoch
@@ -125,7 +121,7 @@ void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,
                 mini_batch[k].first = training_data[j * params.mini_batch_size + k].first;
                 mini_batch[k].second = training_data[j * params.mini_batch_size + k].second;
             }
-            update_mini_batch(mini_batch, params, dev_params);
+            update_mini_batch(mini_batch);
         }
 
         // end the timer
@@ -145,13 +141,14 @@ void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,
             params.fully_connected_weights_learning_rate -= params.fcWRed;
             params.convolutional_biases_learning_rate -= params.convBRed;
             params.convolutional_weights_learning_rate -= params.convWRed;
+            //cudaFree(dev_params);
+            //cudaMalloc((void**) &dev_params, sizeof(hyperparams));
             cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
         }
     }
-    cudaFree(dev_params);
 }
 
-void Network::update_mini_batch(vector<pair<float*,float*>> mini_batch, hyperparams params, hyperparams* dev_params) {
+void Network::update_mini_batch(vector<pair<float*,float*>> mini_batch) {
 
     for (int num = 0; num < params.mini_batch_size; num++) {
         backprop(mini_batch[num].first, mini_batch[num].second);
@@ -180,9 +177,7 @@ void Network::backprop(float* in, float* out) {
     set_to<<<OUTPUT_NEURONS, 1>>> (delta, 0);
     cudaDeviceSynchronize();
 
-    set_delta<<<OUTPUT_NEURONS,1>>> (delta, activations, dev_elems, out, dev_cost_func);
-    float* host_delt = new float [OUTPUT_NEURONS];
-    cudaMemcpy(host_delt, delta, sizeof(float)*OUTPUT_NEURONS, cudaMemcpyDeviceToHost);
+    set_delta<<<OUTPUT_NEURONS,1>>> (delta, activations, dev_elems, out, &dev_params->cost);
 
     for (int l = L - 1; l >= 1; l--) {
         layers[l]->backprop(delta, activations, derivatives_z, dev_elems);
@@ -208,5 +203,6 @@ void Network::save(string filename) {
 void Network::clear() {
     for (int l = 0; l < L; l++) layers[l]->clear();
 
+    cudaFree(dev_params);
     delete[] layers;
 }

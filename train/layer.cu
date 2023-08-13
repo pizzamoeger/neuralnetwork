@@ -7,7 +7,6 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 
     data.n_in = {data_previous.n_out.feature_maps * data_previous.n_out.y * data_previous.n_out.x, 1, 1};
     this->data = data;
-    this->data_previous = data_previous;
 
     cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
     cudaMalloc((void**) &this->dev_data_previous, sizeof(layer_data));

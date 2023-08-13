@@ -13,6 +13,7 @@ struct hyperparams {
     int mini_batch_size;
     int training_data_size;
     int test_data_size;
+    int cost;
 };
 
 enum {
@@ -29,7 +30,8 @@ enum {
 };
 
 enum {
-    CROSSENTROPY
+    CROSSENTROPY,
+    MSE
 };
 
 #define OUTPUT_NEURONS 10
@@ -38,7 +40,7 @@ enum {
 __device__ float activation_function(float x, int activation_func, float sum_of_exp);
 __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp);
 
-pair<vector<pair<float*,float*>>, int> load_data(string filename);
+pair<vector<pair<float*,float*>>, int> load_data(string filename); // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
 hyperparams get_params();
 void clear_data(vector<pair<float*,float*>> & data);
 
@@ -65,8 +67,8 @@ struct layer_data {
 };
 
 struct layer {
-    layer_data* dev_data;
     layer_data data;
+    layer_data* dev_data;
     virtual void init(layer_data data, layer_data data_previous) = 0;
     virtual void feedforward(float* &a, float* &dz, float* &dev_z, int* elems) = 0;
     virtual void backprop(float* &delta, float* &activations, float* &derivative_z, int* elems) = 0;
@@ -77,13 +79,11 @@ struct layer {
 
 struct fully_connected_layer : public layer {
     layer_data* dev_data_previous;
-    layer_data data_previous;
 
     // biases[i] is bias of ith neuron.
     float* dev_biases;
     float* dev_biases_vel;
     float* dev_biases_updt;
-
 
     // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
     float* dev_weights;
@@ -179,16 +179,16 @@ struct Network {
     // layers
     unique_ptr<layer> *layers;
 
-    int cost_func;
-    int* dev_cost_func;
+    hyperparams params;
+    hyperparams* dev_params;
 
-    void init (layer_data* layers, int L, int cost_func);
+    void init (layer_data* layers, int L, hyperparams params);
 
     pair<float*, float*> feedforward(float* a);
 
-    void SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data, hyperparams params);
+    void SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data);
 
-    void update_mini_batch(vector<pair<float*,float*>> mini_batch, hyperparams params, hyperparams* dev_params);
+    void update_mini_batch(vector<pair<float*,float*>> mini_batch);
 
     void backprop(float* in, float* out);
 
@@ -203,20 +203,19 @@ struct Network {
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data);
 int get_data_index(int map, int y, int x, layer_data &data);
-int get_fully_connected_weight_index(int neuron, int previous_neuron, int data_n_in);
 __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
-__global__ void calc_z (float* a, float* weights, float * biases, float* z, int* data_n_in, int* elems);
+__global__ void calc_z (float* a, float* weights, float * biases, float* z, int* data_n_in, int* elems); // TODO: faster with https://cuvilib.com/Reduction.pdf
 __global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* elems, int* af, float* sum_of_exp);
 __global__ void set_delta (float* delta, float* activations, int* offset, float* out, int* cost_func);
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int* offset);
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int* offset);  // TODO: faster with https://cuvilib.com/Reduction.pdf
 __global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
 __global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params);
 __global__ void update_weights (float* weights, float* weights_vel, hyperparams* params);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value
-__global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and stddev 1/sqrt(data_n_in_x
+__global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev
 __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
 __global__ void calc_sum_of_exp (float* sum, float* vec, int* offset); // sum += exp(vec[i+offset])
-__global__ void find_max (float* vec, int* offset, int* id, int* size);
+__global__ void find_max (float* vec, int* offset, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf

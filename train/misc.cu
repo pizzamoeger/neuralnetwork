@@ -75,10 +75,6 @@ int get_data_index(int map, int y, int x, layer_data &data) {
             + x;
 }
 
-int get_fully_connected_weight_index(int neuron, int previous_neuron, int data_n_in) {
-    return neuron*data_n_in+previous_neuron;
-}
-
 __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in) {
     return neuron*data_n_in+previous_neuron;
 }
@@ -159,6 +155,8 @@ hyperparams get_params() {
     params.L2_regularization_term = 0;
     params.momentum_coefficient = 0;
 
+    params.cost = CROSSENTROPY;
+
     return params;
 }
 
@@ -169,7 +167,7 @@ void clear_data(vector<pair<float*,float*>> & data) {
     }
 }
 
-__global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) { // TODO: faster with https://cuvilib.com/Reduction.pdf
+__global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     if (previous_neuron == 0) atomicAdd(&z[(*offset)+neuron], biases[neuron]);
@@ -188,7 +186,7 @@ __global__ void set_delta (float* delta, float* activations, int* offset, float*
     delta[neuron] = cost_function_prime(activations[neuron+(*offset)], out[neuron], *cost_func);
 }
 
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) { // TODO: faster with https://cuvilib.com/Reduction.pdf
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[(*offset)-(*data_n_in_x)+previous_neuron]);
@@ -239,7 +237,7 @@ __global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     vec_a[index] *= vec_b[index+(*offset_b)];
 }
 
-__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset) { // TODO: faster with https://cuvilib.com/Reduction.pdf
+__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset) {
     int index = blockIdx.x+(*offset);
     atomicAdd(sum, expf(vec[index]));
 }
