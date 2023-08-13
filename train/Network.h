@@ -28,17 +28,19 @@ enum {
     SOFTMAX
 };
 
+enum {
+    CROSSENTROPY
+};
+
+#define OUTPUT_NEURONS 10
+#define INPUT_NEURONS 28*28
+
 __device__ float activation_function(float x, int activation_func, float sum_of_exp);
 __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp);
 
-typedef float input_type[28*28];
-typedef float output_type[10];
-typedef pair<input_type, output_type> data_point;
-
-float crossEntropyPrime(float output_activation, float y);
-pair<data_point*, int> load_data(string filename);
+pair<vector<pair<float*,float*>>, int> load_data(string filename);
 hyperparams get_params();
-void clear_data(data_point *data);
+void clear_data(vector<pair<float*,float*>> & data);
 
 struct network_data {
     int x;
@@ -72,8 +74,6 @@ struct layer {
     virtual void save(string file) = 0;
     virtual void clear() = 0;
 };
-
-// TODO activation functions: a number which act func, make a function which you can call where it automatically calls the correct act func -> act func can be stored
 
 struct fully_connected_layer : public layer {
     layer_data* dev_data_previous;
@@ -179,17 +179,18 @@ struct Network {
     // layers
     unique_ptr<layer> *layers;
 
-    function<float(float, float)> costFunctPrime;
+    int cost_func;
+    int* dev_cost_func;
 
-    void init (layer_data* layers, int L, function<float(float, float)> costFunctPrime);
+    void init (layer_data* layers, int L, int cost_func);
 
-    pair<float*, float*> feedforward(input_type &a);
+    pair<float*, float*> feedforward(float* a);
 
-    void SGD(data_point* training_data, data_point* test_data, hyperparams params);
+    void SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data, hyperparams params);
 
-    void update_mini_batch(data_point* mini_batch, hyperparams params, hyperparams* dev_params);
+    void update_mini_batch(vector<pair<float*,float*>> mini_batch, hyperparams params, hyperparams* dev_params);
 
-    void backprop(input_type &in, output_type &out);
+    void backprop(float* in, float* out);
 
     void save(string filename);
 
@@ -197,7 +198,7 @@ struct Network {
 
     void clear();
 
-    pair<int,int> evaluate(data_point* test_data, int test_data_size);
+    pair<int,int> evaluate(vector<pair<float*,float*>> test_data, int test_data_size);
 };
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data);
@@ -207,6 +208,7 @@ __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_ne
 
 __global__ void calc_z (float* a, float* weights, float * biases, float* z, int* data_n_in, int* elems);
 __global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* elems, int* af, float* sum_of_exp);
+__global__ void set_delta (float* delta, float* activations, int* offset, float* out, int* cost_func);
 __global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int* offset);
 __global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
 __global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params);
@@ -217,3 +219,4 @@ __global__ void set_to_random (float *vec, float* stddev); // initialize the ele
 __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
 __global__ void calc_sum_of_exp (float* sum, float* vec, int* offset); // sum += exp(vec[i+offset])
+__global__ void find_max (float* vec, int* offset, int* id, int* size);

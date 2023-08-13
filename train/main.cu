@@ -49,11 +49,11 @@ int main(int argc, char** argv) {
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");
-    auto test_data = tst.first;
-    auto test_data_size = tst.second;
+    vector<pair<float*, float*>> test_data = tst.first;
+    int test_data_size = tst.second;
     auto trn = load_data("mnist_train_normalized.data");
-    auto training_data = trn.first;
-    auto training_data_size = trn.second;
+    vector<pair<float*, float*>>  training_data = trn.first;
+    int training_data_size = trn.second;
 
     auto params = get_params();
     if (argc == 7) {
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     // params.epochs = 150;
     // params.epochs = 5;
 
-    net.init(layers, L, crossEntropyPrime);
+    net.init(layers, L, CROSSENTROPY);
     net.SGD(training_data, test_data, params);
 
     // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster

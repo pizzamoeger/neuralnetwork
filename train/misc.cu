@@ -24,6 +24,11 @@ __device__ float softmax(float x, float sum_of_exp) {
 __device__ float softmax_prime(float x, float sum_of_exp) {
     return (softmax(x, sum_of_exp)*(1-softmax(x, sum_of_exp)));
 }
+
+__device__ float cross_entropy_prime(float out_net, float out_cor) {
+    return (out_net-out_cor);
+}
+
 __device__ float activation_function(float x, int activation_func, float sum_of_exp) {
     switch (activation_func) {
         case SIGMOID:
@@ -48,9 +53,11 @@ __device__ float activation_function_prime(float x, int activation_func, float s
     return 0;
 }
 
-// cross entropy cost function
-float crossEntropyPrime(float output_activation, float y) {
-    return (output_activation-y);
+__device__ float cost_function_prime(float out_net, float out_cor, int cost_function) {
+    switch (cost_function) {
+        case CROSSENTROPY:
+            return cross_entropy_prime(out_net, out_cor);
+    }
 }
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
@@ -77,7 +84,7 @@ __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_ne
 }
 
 // load data
-pair<data_point*, int> load_data(string filename) {
+pair<vector<pair<float*,float*>>, int> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
     ifstream file;
     string line;
@@ -89,18 +96,20 @@ pair<data_point*, int> load_data(string filename) {
     while (getline(file, line)) {
         dataPoints++;
     }
-    file.close();
 
-    file.open(filename);
+    file.clear(); // Reset stream state
+    file.seekg(0); // Move cursor back to beginning
 
-    data_point *data = new data_point[dataPoints];
     int lineIndex = 0;
+    vector<pair<float*,float*>> data (dataPoints, {nullptr, nullptr});
 
     while (getline(file, line)) {
         stringstream ss(line);
+        float* data_in = new float [INPUT_NEURONS];
+        float* data_out = new float [OUTPUT_NEURONS];
 
-        for (int i = 0; i < 10; i++) data[lineIndex].second[i] = 0;
-        for (int i = 0; i < 28 * 28; i++) data[lineIndex].first[i] = 0;
+        for (int i = 0; i < INPUT_NEURONS; i++) data_in[i] = 0;
+        for (int i = 0; i < OUTPUT_NEURONS; i++) data_out[i] = 0;
 
         int label = -1;
         int i = 0;
@@ -110,14 +119,27 @@ pair<data_point*, int> load_data(string filename) {
             if (label == -1) {
                 label = stoi(substr);
             } else {
-                if (i == 28 * 28) break;
-                data[lineIndex].first[i] = atof(substr.c_str());
+                if (i == INPUT_NEURONS) break;
+                data_in[i] = atof(substr.c_str());
                 i++;
             }
         }
-        data[lineIndex].second[label] = 1;
+        data_out[label] = 1;
+
+        float* dev_data_in;
+        float* dev_data_out;
+        cudaMalloc((void**) &dev_data_in, INPUT_NEURONS*sizeof(float));
+        cudaMalloc((void**) &dev_data_out, OUTPUT_NEURONS*sizeof(float));
+        cudaMemcpy(dev_data_in, data_in, INPUT_NEURONS*sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_data_out, data_out, OUTPUT_NEURONS*sizeof(float), cudaMemcpyHostToDevice);
+        data[lineIndex] = {dev_data_in, dev_data_out};
+
         lineIndex++;
+
+        delete [] data_in;
+        delete [] data_out;
     }
+
     cerr << dataPoints << " data loaded from " + filename + "\n";
     file.close();
     return {data, dataPoints};
@@ -140,11 +162,14 @@ hyperparams get_params() {
     return params;
 }
 
-void clear_data(data_point *data) {
-    delete[] data;
+void clear_data(vector<pair<float*,float*>> & data) {
+    for (int data_point = 0; data_point < (int)data.size(); data_point++) {
+        cudaFree(data[data_point].first);
+        cudaFree(data[data_point].second);
+    }
 }
 
-__global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) {
+__global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) { // TODO: faster with https://cuvilib.com/Reduction.pdf
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     if (previous_neuron == 0) atomicAdd(&z[(*offset)+neuron], biases[neuron]);
@@ -158,7 +183,12 @@ __global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* offse
     new_dz[(*offset)+neuron] = activation_function_prime(z[(*offset) + neuron], *activation_func, *sum_of_exp);
 }
 
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) {
+__global__ void set_delta (float* delta, float* activations, int* offset, float* out, int* cost_func) {
+    int neuron = blockIdx.x;
+    delta[neuron] = cost_function_prime(activations[neuron+(*offset)], out[neuron], *cost_func);
+}
+
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) { // TODO: faster with https://cuvilib.com/Reduction.pdf
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[(*offset)-(*data_n_in_x)+previous_neuron]);
@@ -209,7 +239,15 @@ __global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     vec_a[index] *= vec_b[index+(*offset_b)];
 }
 
-__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset) {
+__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset) { // TODO: faster with https://cuvilib.com/Reduction.pdf
     int index = blockIdx.x+(*offset);
     atomicAdd(sum, expf(vec[index]));
+}
+
+__global__ void find_max (float* vec, int* offset, int* id, int* size) {
+    int index = blockIdx.x+(*offset);
+    (*id) = 0;
+    for (int i = 0; i < (*size); i++) {
+        if (vec[index+i] > vec[index+(*id)]) (*id) = i;
+    }
 }
