@@ -219,3 +219,14 @@ __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
 __global__ void calc_sum_of_exp (float* sum, float* vec, int* offset); // sum += exp(vec[i+offset])
 __global__ void find_max (float* vec, int* offset, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
+
+// https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
+/*
+ * Suppose for example, that the input data has exactly 32 elements - the number of threads in a warp. In such scenario a single warp can be assigned to perform the reduction. Given that warp executes in a perfect sync, many __syncthreads() instructions can be removed - when compared to a block-level reduction.
+ *
+ * prev_map*prev_y*prev_x is max dimension of previous. has to be <= 1024 so that i can use it in one block (for parallel reduction).
+ * not possible unless we only have one map. split up into multiple maps
+ * blockIdx = for which previous_map
+ * blockIdy = for which map
+ * blcokIdz = for which x and y ?
+ * */

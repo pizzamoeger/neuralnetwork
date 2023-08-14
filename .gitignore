@@ -6,6 +6,7 @@ params
 Testing
 venv
 .cmake
+.idea
 cmake_install.cmake
 Makefile
 CMakeFiles
