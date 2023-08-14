@@ -8,10 +8,6 @@ int get_convolutional_weights_index(int previous_map, int map, int y, int x, lay
             + x;
 }
 
-int get_fully_connected_weights_index(int neuron, int previous_neuron) {
-    return neuron*previous_neuron+previous_neuron;
-}
-
 int get_data_index(int map, int y, int x, layer_data &data) {
     return
             map * (data.n_out.x * data.n_out.y)
@@ -32,7 +28,7 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     biases = new float [data.n_out.x];
     biasesVelocity = new float [data.n_out.x];
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
-        biases[neuron] = distribution(generator);
+        biases[neuron] = 0.01;
         biasesVelocity[neuron] = 0;
     }
 
@@ -40,8 +36,8 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     weightsVelocity = new float[data.n_out.x*data.n_in.x];
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            weights[get_fully_connected_weights_index(neuron, previous_neuron)] = distribution(generator);
-            weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] = 0;
+            weights[neuron*data.n_in.x+previous_neuron] = 1.0/(neuron*data.n_in.x+previous_neuron+1);
+            weightsVelocity[neuron*data.n_in.x+previous_neuron] = 0;
         }
     }
 
@@ -59,7 +55,7 @@ void fully_connected_layer::feedforward(float* a, float* dz, float* &new_a, floa
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         // get new activations
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++)
-            z[neuron] += weights[get_fully_connected_weights_index(neuron, previous_neuron)] * a[previous_neuron];
+            z[neuron] += weights[neuron*data.n_in.x+previous_neuron] * a[previous_neuron];
         z[neuron] += biases[neuron];
         new_a[neuron] = activationFunction(z[neuron], data.activation_function);
         new_dz[neuron] = activationFunctionPrime(z[neuron], data.activation_function);
@@ -81,8 +77,8 @@ fully_connected_layer::backprop(vector<float> &delta, float* &activations, float
 
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            updateW[get_fully_connected_weights_index(neuron, previous_neuron)] += delta[get_data_index(0, 0, neuron, data)] * activations[get_data_index(0, 0, previous_neuron, data)];
-            newDelta[get_data_index(0, 0, previous_neuron, data_previous)] += delta[get_data_index(0, 0, neuron, data)] * weights[get_fully_connected_weights_index(neuron, previous_neuron)];
+            updateW[neuron*data.n_in.x+previous_neuron] += delta[neuron] * activations[previous_neuron];
+            newDelta[get_data_index(0, 0, previous_neuron, data_previous)] += delta[get_data_index(0, 0, neuron, data)] * weights[neuron*data.n_in.x+previous_neuron];
         }
     }
     delta = newDelta;
@@ -98,10 +94,10 @@ void fully_connected_layer::update(hyperparams params) {
 
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] =
-                    params.momentum_coefficient * weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)] -
+            weightsVelocity[neuron*data.n_in.x+previous_neuron] =
+                    params.momentum_coefficient * weightsVelocity[neuron*data.n_in.x+previous_neuron] -
                     (params.fully_connected_weights_learning_rate / params.mini_batch_size) *
-                    updateW[get_fully_connected_weights_index(neuron, previous_neuron)];
+                    updateW[neuron*data.n_in.x+previous_neuron];
         }
     }
 
@@ -111,10 +107,10 @@ void fully_connected_layer::update(hyperparams params) {
     }
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            weights[get_fully_connected_weights_index(neuron, previous_neuron)] = (1 - params.fully_connected_weights_learning_rate *
+            weights[neuron*data.n_in.x+previous_neuron] = (1 - params.fully_connected_weights_learning_rate *
                                                     params.L2_regularization_term / params.training_data_size) *
-                                               weights[get_fully_connected_weights_index(neuron, previous_neuron)] +
-                                               weightsVelocity[get_fully_connected_weights_index(neuron, previous_neuron)];
+                                               weights[neuron*data.n_in.x+previous_neuron] +
+                                               weightsVelocity[neuron*data.n_in.x+previous_neuron];
         }
     }
 

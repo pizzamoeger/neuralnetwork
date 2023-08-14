@@ -33,19 +33,19 @@ int main(int argc, char** argv) {
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activation_function = SIGMOID;
+    outt.activation_function = RELU;
     outt.last_layer = true;
     outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 5;
+    int L = 4;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
-    layers[2] = maxpool;
-    layers[3] = fully_connected1;
-    layers[3] = fully_connected2;
-    layers[4] = outt;
+    layers[1] = maxpool;
+    layers[1] = fully_connected1;
+    layers[2] = fully_connected2;
+    layers[3] = outt;
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");

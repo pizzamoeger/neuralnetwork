@@ -89,7 +89,7 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
 
         // obtain a time-based seed
         unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-        shuffle(training_data, training_data+params.training_data_size, default_random_engine(seed));
+        //shuffle(training_data, training_data+params.training_data_size, default_random_engine(seed));
 
         // create mini batches and update them
         auto* mini_batch = new data_point [params.mini_batch_size];
