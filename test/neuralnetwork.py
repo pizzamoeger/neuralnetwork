@@ -95,7 +95,7 @@ def ffFullConn(l, a):
 
     for neuron in range(out[0]):
         for previous_neuron in range(inn[0]):
-            z[neuron] += weights[neuron*previous_neuron+previous_neuron]*a[previous_neuron]
+            z[neuron] += weights[neuron*inn[0]+previous_neuron]*a[previous_neuron]
         z[neuron] += biases[neuron]
         if (activationFunc == 0):
             newA[neuron] = sigmoid(z[neuron])
