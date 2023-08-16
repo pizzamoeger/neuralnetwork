@@ -36,7 +36,7 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     weightsVelocity = new float[data.n_out.x*data.n_in.x];
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
-            weights[neuron*data.n_in.x+previous_neuron] = 1.0/(neuron*data.n_in.x+previous_neuron+1);
+            weights[neuron*data.n_in.x+previous_neuron] = distribution(generator);
             weightsVelocity[neuron*data.n_in.x+previous_neuron] = 0;
         }
     }
@@ -108,7 +108,7 @@ void fully_connected_layer::update(hyperparams params) {
     for (int neuron = 0; neuron < data.n_out.x; neuron++) {
         for (int previous_neuron = 0; previous_neuron < data.n_in.x; previous_neuron++) {
             weights[neuron*data.n_in.x+previous_neuron] = (1 - params.fully_connected_weights_learning_rate *
-                                                    params.L2_regularization_term / params.training_data_size) *
+                                                    params.L2_regularization_term) *
                                                weights[neuron*data.n_in.x+previous_neuron] +
                                                weightsVelocity[neuron*data.n_in.x+previous_neuron];
         }
@@ -243,7 +243,7 @@ void convolutional_layer::backprop(vector<float> &delta,
                                     delta[get_data_index(map, y, x, data)] * weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)];
                             updateW[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] +=
                                     activations[get_data_index(previous_map, y * data.stride_length + kernel_y,
-                                            x * data.stride_length + kernel_x, data)] * delta[get_data_index(map, y, x, data)];
+                                            x * data.stride_length + kernel_x, data_previous)] * delta[get_data_index(map, y, x, data)];
                         }
                     }
                 }
@@ -275,8 +275,7 @@ void convolutional_layer::update(hyperparams params) {
                                                                       params.convolutional_weights_learning_rate /
                                                                       (data.n_out.x * data.n_out.y) *
                                                                       data.stride_length * data.stride_length *
-                                                                      params.L2_regularization_term /
-                                                                      params.training_data_size) *
+                                                                      params.L2_regularization_term) *
                                                                      weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] +
                                                                      weightsVelocity[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)];
                 }

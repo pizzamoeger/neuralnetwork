@@ -15,6 +15,10 @@ sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp 
     net.save(filename);
 EOF
 
+sed -i -e '/\/\/ FIND-TAG-MARK-END/{n; r /dev/stdin' -e 'd;}' train/main.cpp <<EOF
+    cerr << "DONE";
+EOF
+
 make
 
 # set epochs back to reading them from input
@@ -33,12 +37,16 @@ sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp 
     net.save(filename);
 EOF
 
+sed -i -e '/\/\/ FIND-TAG-MARK-END/{n; r /dev/stdin' -e 'd;}' train/main.cpp <<EOF
+    // cerr << "DONE";
+EOF
+
 n=5
 # the program was run with "./runNetworks n" and this accesses the n
 n="$1"
 
-for ((i=0; i<n; i++))
+for ((i=10; i<10+n; i++))
 do
-  nohup ./neuralnetwork "networks/net$i.txt" > "networks/net$i.out" &
+  nohup ./neuralnetwork1 "networks/net$i.txt" > "networks/net$i.out" &
 done
 

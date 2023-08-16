@@ -38,14 +38,14 @@ int main(int argc, char** argv) {
     outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 4;
+    int L = 6;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
-    layers[1] = maxpool;
-    layers[1] = fully_connected1;
-    layers[2] = fully_connected2;
-    layers[3] = outt;
+    layers[2] = maxpool;
+    layers[3] = fully_connected1;
+    layers[4] = fully_connected2;
+    layers[5] = outt;
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
@@ -97,4 +97,7 @@ int main(int argc, char** argv) {
     clear_data(training_data);
     net.clear();
     delete[] layers;
+
+    // FIND-TAG-MARK-END
+    // cerr << "DONE";
 }
