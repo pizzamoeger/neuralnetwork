@@ -78,8 +78,12 @@ while True:
             if event.type == QUIT:
                 pygame.quit()
                 pygame.display.quit()
-                os.remove("number.jpg")
-                os.remove("number.data")
+                # look if number.jpg exists and delete it
+                if (os.path.isfile("number.jpg")):
+                    os.remove("number.jpg")
+                # look if number.data exists and delete it
+                if (os.path.isfile("number.data")):
+                    os.remove("number.data")
                 sys.exit(0)
             elif event.type == MOUSEBUTTONDOWN:
                 draw = True
@@ -123,8 +127,12 @@ while True:
                 elif event.key == K_ESCAPE:
                     pygame.quit()
                     pygame.display.quit()
-                    os.remove("number.jpg")
-                    os.remove("number.data")
+                    # look if number.jpg exists and delete it
+                    if (os.path.isfile("number.jpg")):
+                        os.remove("number.jpg")
+                    # look if number.data exists and delete it
+                    if (os.path.isfile("number.data")):
+                        os.remove("number.data")
                     sys.exit(0)
                 elif event.key == K_c:
                     # clear the black square and the prediction
@@ -142,8 +150,12 @@ while True:
 
                     pygame.display.flip()
 
-                    os.remove("number.jpg")
-                    os.remove("number.data")
+                    # look if number.jpg exists and delete it
+                    if (os.path.isfile("number.jpg")):
+                        os.remove("number.jpg")
+                    # look if number.data exists and delete it
+                    if (os.path.isfile("number.data")):
+                        os.remove("number.data")
                 elif event.key == K_s:
                     # wait until the user presses a number
                     num = 0
