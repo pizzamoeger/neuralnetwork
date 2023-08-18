@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activation_function = SOFTMAX;
+    outt.activation_function = SIGMOID;
     outt.last_layer = true;
     outt.n_out = {OUTPUT_NEURONS, 1, 1};
 

@@ -237,9 +237,9 @@ __global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     vec_a[index] *= vec_b[index+(*offset_b)];
 }
 
-__global__ void calc_exp (float* res, float* vec, int* offset) {
+__global__ void calc_exp (float* res, float* vec, int* offset, int* max_id) {
     int index = blockIdx.x;
-    res[index] = expf(vec[index+(*offset)]);
+    res[index] = expf(vec[index+(*offset)]-vec[*max_id+(*offset)]);
 }
 
 __global__ void find_max (float* vec, int* offset, int* id, int* size) {
@@ -250,7 +250,6 @@ __global__ void find_max (float* vec, int* offset, int* id, int* size) {
     }
 }
 
-// TODO: actually use this
 __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
     if (block_size > 32) {
         if (ind < block_size - 32 && ind < 32) sum[ind] += sum[ind + 32];

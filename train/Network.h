@@ -219,7 +219,7 @@ __global__ void set_to (float *vec, float value); // initialize the elements to 
 __global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev
 __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
-__global__ void calc_exp (float* res, float* vec, int* offset); // sum += exp(vec[i+offset])
+__global__ void calc_exp (float* res, float* vec, int* offset, int* max_id); // sum += exp(vec[i+offset])
 __global__ void find_max (float* vec, int* offset, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
 
 __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
