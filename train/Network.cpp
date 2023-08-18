@@ -125,6 +125,32 @@ void Network::SGD(data_point* training_data, data_point* test_data, hyperparams 
     }
 }
 
+void Network::ascendInput (input_type &start, vector<int> inc, vector<int> dec, hyperparams params){
+    for (int i = 0; i < params.ascent_epochs; ++i) {
+        // feedfoward
+        auto [activations, derivatives_z] = feedforward(start);
+
+        // backpropagate
+        vector<float> delta = vector<float> (layers[L-1]->data.n_out.x*layers[L-1]->data.n_out.y*layers[L-1]->data.n_out.feature_maps, 0);
+        for (int incs : inc) delta[incs] = 1;
+        for (int decs : dec) delta[decs] = -1;
+
+        for (int l = L - 1; l >= 1; l--) layers[l]->backprop(delta, activations[l-1], derivatives_z[l]);
+
+        // clean
+        for (int l = L - 1; l > 0; l--) {
+            delete[] activations[l];
+            delete[] derivatives_z[l];
+        }
+        delete[] activations;
+        delete[] derivatives_z;
+
+        for (int j = 0; j < 28 * 28; ++j) {
+            start[j] += params.ascent_learning_rate * delta[j];
+        }
+    }
+}
+
 void Network::update_mini_batch(data_point* mini_batch, hyperparams params) {
 
     for (int num = 0; num < params.mini_batch_size; num++) {

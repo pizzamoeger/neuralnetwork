@@ -3,6 +3,7 @@ struct hyperparams {
     float convolutional_biases_learning_rate;
     float fully_connected_weights_learning_rate;
     float fully_connected_biases_learning_rate;
+    float ascent_learning_rate;
     float convWRed;
     float convBRed;
     float fcWRed;
@@ -10,6 +11,7 @@ struct hyperparams {
     float L2_regularization_term;
     float momentum_coefficient;
     int epochs;
+    int ascent_epochs;
     int mini_batch_size;
     int training_data_size;
     int test_data_size;
@@ -190,6 +192,8 @@ struct Network {
     void SGD(data_point* training_data, data_point* test_data, hyperparams params);
 
     void update_mini_batch(data_point* mini_batch, hyperparams params);
+
+    void ascendInput(input_type &start, vector<int> inc, vector<int> dec, hyperparams params);
 
     void backprop(input_type &in, output_type &out);
 

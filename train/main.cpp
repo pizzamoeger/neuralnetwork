@@ -95,6 +95,16 @@ int main(int argc, char** argv) {
 
     clear_data(test_data);
     clear_data(training_data);
+
+    input_type start;
+    for (int i = 0; i < 28 * 28; ++i) start[i] = training_data[0].first[i];
+
+    net.ascendInput(start, {7}, {}, params);
+
+    fstream outnum; outnum.open("outnum.txt", ios::out);
+    cout << fixed << setprecision(2);
+    for (int i = 0; i < 28 * 28; ++i) outnum << start[i] << " " << (i % 28 == 27 ? "\n" : "");
+
     net.clear();
     delete[] layers;
 
