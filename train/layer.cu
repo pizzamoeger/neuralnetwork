@@ -47,14 +47,45 @@ void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &d
     cudaDeviceSynchronize();
 
     float* sum_of_exp;
+    float* exp_vec;
+    cudaMalloc((void**) &exp_vec, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &sum_of_exp, sizeof(float));
     set_to<<<1,1>>> (sum_of_exp, 0);
 
-    if (data.activation_function == SOFTMAX) calc_sum_of_exp<<<data.n_out.x, 1>>>(sum_of_exp, dev_z, dev_elems);
+    if (data.activation_function == SOFTMAX) {
+        int elems;
+        cudaMemcpy(&elems, dev_elems, sizeof(int), cudaMemcpyDeviceToHost);
+        float* host_exp = new float[data.n_out.x];
+        cudaMemcpy(host_exp, &dev_z[elems], sizeof(float)*data.n_out.x, cudaMemcpyDeviceToHost);
+        float sum = 0;
+        for (int i = 0; i < data.n_out.x; i++) {
+            sum += exp(host_exp[i]);
+            //cerr << exp(host_exp[i]) << ";";
+        }
+        //cerr << sum << " ";
+
+        calc_exp<<<data.n_out.x, 1>>>(exp_vec, dev_z, dev_elems);
+        assert(data.n_out.x < (1<<10));
+        cudaMemcpy(host_exp, exp_vec, sizeof(float)*data.n_out.x, cudaMemcpyDeviceToHost);
+        sum = 0;
+        for (int i = 0; i < data.n_out.x; i++) {
+            sum += host_exp[i];
+            //cerr << host_exp[i] << ";";
+        }
+        //cerr << sum << " ";
+
+        cudaDeviceSynchronize();
+        reduce<<<1, data.n_out.x, data.n_out.x*sizeof(float)>>>(exp_vec, sum_of_exp, &dev_data->n_out.x, &dev_data->n_out.x);
+        cudaMemcpy(&sum, sum_of_exp, sizeof(float), cudaMemcpyDeviceToHost);
+        //cerr << sum << "\n";
+    }
     cudaDeviceSynchronize();
 
     calc_a_and_dz<<<data.n_out.x, 1>>>(dev_z, dev_a, dev_dz, dev_elems, &dev_data->activation_function, sum_of_exp);
     cudaDeviceSynchronize();
+
+    //cudaFree(exp_vec);
+    //cudaFree(sum_of_exp);
 }
 
 void fully_connected_layer::backprop(float * &delta, float* &activations, float* &derivative_z, int* elems) {

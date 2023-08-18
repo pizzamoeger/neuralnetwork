@@ -1,3 +1,5 @@
+//#define float double
+
 struct hyperparams {
     float convolutional_weights_learning_rate;
     float convolutional_biases_learning_rate;
@@ -217,9 +219,11 @@ __global__ void set_to (float *vec, float value); // initialize the elements to 
 __global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev
 __global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
 __global__ void mult (float *vec_a, float *vec_b, int* offset_b); // vec_a[i] *= vec_b[i+offset_b]
-__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset); // sum += exp(vec[i+offset])
+__global__ void calc_exp (float* res, float* vec, int* offset); // sum += exp(vec[i+offset])
 __global__ void find_max (float* vec, int* offset, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
 
+__device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
+__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr);
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*
  * Suppose for example, that the input data has exactly 32 elements - the number of threads in a warp. In such scenario a single warp can be assigned to perform the reduction. Given that warp executes in a perfect sync, many __syncthreads() instructions can be removed - when compared to a block-level reduction.

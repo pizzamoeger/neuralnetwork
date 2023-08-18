@@ -33,19 +33,19 @@ int main(int argc, char** argv) {
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activation_function = RELU;
+    outt.activation_function = SOFTMAX;
     outt.last_layer = true;
     outt.n_out = {OUTPUT_NEURONS, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 4;
+    int L = 3;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
     layers[1] = maxpool;
     layers[1] = fully_connected1;
-    layers[2] = fully_connected2;
-    layers[3] = outt;
+    layers[1] = fully_connected2;
+    layers[2] = outt;
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");
@@ -87,8 +87,8 @@ int main(int argc, char** argv) {
     auto evtrn = net.evaluate(training_data, training_data_size);
     int correct_train = evtrn.first;
 
-    cerr << "accuracy in training data: " << (float) correct_test / params.training_data_size << "\n";
-    cerr << "general accuracy: " << (float) correct_train / params.test_data_size << "\n";
+    cerr << "accuracy in training data: " << (float) correct_train / params.training_data_size << "\n";
+    cerr << "general accuracy: " << (float) correct_test / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
     // cout << (float)correctTest / params.test_data_size << "\n";

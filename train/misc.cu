@@ -237,9 +237,9 @@ __global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
     vec_a[index] *= vec_b[index+(*offset_b)];
 }
 
-__global__ void calc_sum_of_exp (float* sum, float* vec, int* offset) {
-    int index = blockIdx.x+(*offset);
-    atomicAdd(sum, expf(vec[index]));
+__global__ void calc_exp (float* res, float* vec, int* offset) {
+    int index = blockIdx.x;
+    res[index] = expf(vec[index+(*offset)]);
 }
 
 __global__ void find_max (float* vec, int* offset, int* id, int* size) {
@@ -248,4 +248,60 @@ __global__ void find_max (float* vec, int* offset, int* id, int* size) {
     for (int i = 0; i < (*size); i++) {
         if (vec[index+i] > vec[index+(*id)]) (*id) = i;
     }
+}
+
+// TODO: actually use this
+__device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
+    if (block_size > 32) {
+        if (ind < block_size - 32 && ind < 32) sum[ind] += sum[ind + 32];
+    }
+    if (block_size > 16) {
+        if (ind < block_size - 16 && ind < 16) sum[ind] += sum[ind + 16];
+    }
+    if (block_size > 8) {
+        if (ind < block_size - 8 && ind < 8) sum[ind] += sum[ind + 8];
+    }
+    if (block_size > 4) {
+        if (ind < block_size - 4 && ind < 4) sum[ind] += sum[ind + 4];
+    }
+    if (block_size > 2) {
+        if (ind < block_size - 2 && ind < 2) sum[ind] += sum[ind + 2];
+    }
+    if (block_size > 1) {
+        if (ind < block_size - 1 && ind < 1) sum[ind] += sum[ind + 1];
+    }
+}
+
+__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr) {
+    const int block_size = *block_size_ptr;
+    extern __shared__ float sum[];
+    int tid = threadIdx.x;
+    int bid = blockIdx.x;
+    int add = block_size;
+    sum[tid] = input[bid * block_size + tid];
+    while (tid + add < *size) {
+        sum[tid] += input[bid * block_size + tid + add];
+        add += block_size;
+    }
+    __syncthreads();
+
+    if (block_size > 512) {
+        if (tid < block_size - 512) sum[tid] += sum[tid + 512];
+        __syncthreads();
+    }
+    if (block_size > 256) {
+        if (tid < block_size - 256 && tid < 256) sum[tid] += sum[tid + 256];
+        __syncthreads();
+    }
+    if (block_size > 128) {
+        if (tid < block_size - 128 && tid < 128) sum[tid] += sum[tid + 128];
+        __syncthreads();
+    }
+    if (block_size > 64) {
+        if (tid < block_size - 64 && tid < 64) sum[tid] += sum[tid + 64];
+        __syncthreads();
+    }
+
+    if (tid < 32) reduce_last_warp(sum, tid, block_size);
+    if (tid == 0) res[bid] = sum[tid];
 }

@@ -12,4 +12,5 @@ set(CMAKE_CUDA_ARCHITECTURES 61;70) # idk what this does
 #add_definitions(-funroll-loops -Ofast)
 
 add_executable(neuralnetwork train/main.cu train/Network.cu train/layer.cu train/misc.cu)
-#add_executable(neuralnetwork train/evalAtomicAdd.cu)
+add_executable(reduction train/reduction.cu)
+add_executable(evalAdds train/evalAtomicAdd.cu)
