@@ -11,9 +11,8 @@
   </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
-      <config projectName="neuralnetwork" targetName="reduction" />
+      <config projectName="neuralnetwork" targetName="debug" />
       <config projectName="neuralnetwork" targetName="neuralnetwork" />
-      <config projectName="neuralnetwork" targetName="evalAdds" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -25,7 +24,10 @@
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/includes.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/includes.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
@@ -81,7 +83,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/ossha/CLionProjects/neuralnetwork/test&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/hannah/neuralnetwork/CMakeLists.txt&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -108,7 +110,7 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.neuralnetwork">
-    <configuration name="evalAdds" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="evalAdds" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="evalAdds">
+    <configuration name="debug" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="debug" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -118,10 +120,31 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="reduction" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="reduction" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="reduction">
+    <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="bestHyperparams" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="neuralnetwork" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="/usr/bin/python3.10" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bestHyperparams.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <configuration name="bestHyperparams" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="neuralnetwork" />
@@ -165,10 +188,30 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="tst" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="neuralnetwork" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/tst.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="CMake Application.evalAdds" />
+      <item itemvalue="CMake Application.debug" />
       <item itemvalue="CMake Application.neuralnetwork" />
-      <item itemvalue="CMake Application.reduction" />
       <item itemvalue="Python.bestHyperparams" />
       <item itemvalue="Python.tst" />
     </list>
@@ -230,7 +273,16 @@
       <workItem from="1692348307854" duration="5031000" />
       <workItem from="1692356596424" duration="4039000" />
       <workItem from="1692364223959" duration="10478000" />
-      <workItem from="1692377307287" duration="1880000" />
+      <workItem from="1692377307287" duration="3759000" />
+      <workItem from="1692705061027" duration="1730000" />
+      <workItem from="1692711533115" duration="9839000" />
+      <workItem from="1692724235258" duration="2044000" />
+      <workItem from="1692727040823" duration="54000" />
+      <workItem from="1692727922019" duration="4000" />
+      <workItem from="1692728266058" duration="40000" />
+      <workItem from="1692862252459" duration="4695000" />
+      <workItem from="1692868345943" duration="757000" />
+      <workItem from="1692900688315" duration="1410000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -524,7 +576,15 @@
       <option name="project" value="LOCAL" />
       <updated>1692377572455</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="fixed softmax overflow">
+      <option name="closed" value="true" />
+      <created>1692379258124</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1692379258124</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -560,8 +620,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="sklav" />
-    <MESSAGE value="true random" />
     <MESSAGE value="memory leaks fixxed" />
     <MESSAGE value="learning rate reduction" />
     <MESSAGE value="improved numberreader for linux" />
@@ -585,15 +643,32 @@
     <MESSAGE value="bug fixes" />
     <MESSAGE value="data stored on device" />
     <MESSAGE value="broken reduction implementation (WIP)" />
-    <option name="LAST_COMMIT_MESSAGE" value="broken reduction implementation (WIP)" />
+    <MESSAGE value="fixed softmax overflow" />
+    <MESSAGE value="commit for checkout" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed softmax overflow" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/train/Network.cu</url>
-          <line>139</line>
+          <line>141</line>
           <option name="timeStamp" value="21" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/layer.cu</url>
+          <line>66</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/Network.cu</url>
+          <line>54</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/layer.cu</url>
+          <line>114</line>
+          <option name="timeStamp" value="29" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

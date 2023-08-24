@@ -1,7 +1,10 @@
 #include "includes.h"
-using namespace std;
+int* zero_pointer;
+float* f_zero_pointer;
 
 int main(int argc, char** argv) {
+    cudaGetSymbolAddress((void**) &zero_pointer, zero);
+    cudaGetSymbolAddress((void**) &f_zero_pointer, zero);
     srand(time(NULL));
 
     Network net;
@@ -33,7 +36,7 @@ int main(int argc, char** argv) {
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
-    outt.activation_function = SIGMOID;
+    outt.activation_function = RELU;
     outt.last_layer = true;
     outt.n_out = {OUTPUT_NEURONS, 1, 1};
 

@@ -49,19 +49,17 @@ pair<float*, float*> Network::feedforward(float* a) {
     cudaMemcpy(dev_activations, a, 28*28*sizeof(float), cudaMemcpyDeviceToDevice);
     cudaMemcpy(dev_derivatives_z, a, 28*28*sizeof(float), cudaMemcpyDeviceToDevice);
 
-    elems = layers[0]->data.n_out.x*layers[0]->data.n_out.y*layers[0]->data.n_out.feature_maps;;
-    int* dev_elems;
-    cudaMalloc((void**) &dev_elems, sizeof(int));
-    cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
-
+    //cudaProfilerStart();
+    auto start = chrono::high_resolution_clock::now();
     for (int l = 1; l < L; l++) {
-        layers[l]->feedforward(dev_activations, dev_derivatives_z, dev_z, dev_elems);
-        elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
-        cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
+        layers[l]->feedforward(dev_activations, dev_derivatives_z, dev_z);
     }
+    auto end = chrono::high_resolution_clock::now();
+    double dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
+    //cerr << dr << "micros for ff\n";
+    //cudaProfilerStop();
 
     cudaFree(dev_z);
-    cudaFree(dev_elems);
     return {dev_activations, dev_derivatives_z};
 }
 
@@ -74,6 +72,8 @@ pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_
     for (int l = 0; l < L-1; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
     cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
 
+    double tot = 0;
+
     for (int k = 0; k < (int) test_data_size; k++) {
         auto ret = feedforward(test_data[k].first);
         auto activations = ret.first;
@@ -81,18 +81,20 @@ pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_
 
         int* dev_id_max;
         cudaMalloc((void**) &dev_id_max, sizeof(int));
-        find_max<<<1,1>>> (activations, dev_elems, dev_id_max, &layers[L-1]->dev_data->n_out.x);
+        find_max<<<1,1>>> (&activations[layers[L-1]->data.elems], dev_id_max, &layers[L-1]->dev_data->n_out.x);
 
+        // TODO: this can be done on device
         int id_max;
         cudaMemcpy(&id_max, dev_id_max, sizeof(int), cudaMemcpyDeviceToHost);
-
         float res;
         cudaMemcpy(&res, &test_data[k].second[id_max], sizeof(float), cudaMemcpyDeviceToHost);
         if (res == 1.0) correct++;
+        // until here; copy memcpy only once: at the end for accuracy
 
         cudaFree(activations);
         cudaFree(derivatives_z);
     }
+    cerr << tot/1000 << "TOTAL DURATION ms";
     auto end = chrono::high_resolution_clock::now();
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
 }
@@ -177,7 +179,7 @@ void Network::backprop(float* in, float* out) {
     set_to<<<OUTPUT_NEURONS, 1>>> (delta, 0);
     cudaDeviceSynchronize();
 
-    set_delta<<<OUTPUT_NEURONS,1>>> (delta, activations, dev_elems, out, &dev_params->cost);
+    set_delta<<<OUTPUT_NEURONS,1>>> (delta, &activations[elems], out, &dev_params->cost);
 
     for (int l = L - 1; l >= 1; l--) {
         layers[l]->backprop(delta, activations, derivatives_z, dev_elems);

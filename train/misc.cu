@@ -1,63 +1,52 @@
 #include "includes.h"
 
 // sigmoid function and its derivative
-__device__ float sigmoid(float x) {
+inline __device__ float sigmoid(float x) {
     return 1.0 / (1.0 + expf(-x));
 }
-__device__ float sigmoid_prime(float x) {
+
+inline __device__ float sigmoid_prime(float x) {
     return (sigmoid(x)*(1-sigmoid(x)));
 }
 
-__device__ float relu(float x){
+inline __device__ float relu(float x){
     return max(x, 0.0f);
 }
 
-__device__ float relu_prime(float x){
+inline __device__ float relu_prime(float x){
     if (x > 0) return 1.0f;
     return 0.0f;
 }
 
-__device__ float softmax(float x, float sum_of_exp) {
+inline __device__ float softmax(float x, float sum_of_exp) {
     return expf(x)/sum_of_exp;
 }
 
-__device__ float softmax_prime(float x, float sum_of_exp) {
+inline __device__ float softmax_prime(float x, float sum_of_exp) {
     return (softmax(x, sum_of_exp)*(1-softmax(x, sum_of_exp)));
 }
 
-__device__ float cross_entropy_prime(float out_net, float out_cor) {
+inline __device__ float cross_entropy_prime(float out_net, float out_cor) {
     return (out_net-out_cor);
 }
 
-__device__ float activation_function(float x, int activation_func, float sum_of_exp) {
-    switch (activation_func) {
-        case SIGMOID:
-            return sigmoid(x);
-        case RELU:
-            return relu(x);
-        case SOFTMAX:
-            return softmax(x, sum_of_exp);
-    }
-    return 0;
+inline __device__ float activation_function(float x, int activation_func, float sum_of_exp) {
+    if (activation_func == SIGMOID) return sigmoid(x);
+    else if (activation_func == RELU) return relu(x);
+    else if (activation_func == SOFTMAX) return softmax(x, sum_of_exp);
+    else return 0;
 }
 
-__device__ float activation_function_prime(float x, int activation_func, float sum_of_exp) {
-    switch (activation_func) {
-        case SIGMOID:
-            return sigmoid_prime(x);
-        case RELU:
-            return relu_prime(x);
-        case SOFTMAX:
-            return softmax_prime(x, sum_of_exp);
-    }
-    return 0;
+inline __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp) {
+    if (activation_func == SIGMOID) return sigmoid_prime(x);
+    else if (activation_func == RELU) return relu_prime(x);
+    else if (activation_func == SOFTMAX) return softmax_prime(x, sum_of_exp);
+    else return 0;
 }
 
-__device__ float cost_function_prime(float out_net, float out_cor, int cost_function) {
-    switch (cost_function) {
-        case CROSSENTROPY:
-            return cross_entropy_prime(out_net, out_cor);
-    }
+inline __device__ float cost_function_prime(float out_net, float out_cor, int cost_function) {
+    if (cost_function == CROSSENTROPY) return cross_entropy_prime(out_net, out_cor);
+    else return 0;
 }
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data) {
@@ -75,7 +64,7 @@ int get_data_index(int map, int y, int x, layer_data &data) {
             + x;
 }
 
-__device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in) {
+inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in) {
     return neuron*data_n_in+previous_neuron;
 }
 
@@ -167,29 +156,22 @@ void clear_data(vector<pair<float*,float*>> & data) {
     }
 }
 
-__global__ void calc_z (float* a, float* weights, float* biases, float* z, int* data_n_in, int* offset) {
+__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* activation_func, float* sum_of_exp) {
+    int neuron = blockIdx.x;
+
+    new_a[neuron] = activation_function(z[ + neuron], *activation_func, *sum_of_exp);
+    new_dz[neuron] = activation_function_prime(z[neuron], *activation_func, *sum_of_exp);
+}
+
+__global__ void set_delta (float* delta, float* activations, float* out, int* cost_func) {
+    int neuron = blockIdx.x;
+    delta[neuron] = cost_function_prime(activations[neuron], out[neuron], *cost_func);
+}
+
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
-    if (previous_neuron == 0) atomicAdd(&z[(*offset)+neuron], biases[neuron]);
-    atomicAdd(&z[(*offset)+neuron], weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]);
-}
-
-__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* offset, int* activation_func, float* sum_of_exp) {
-    int neuron = blockIdx.x;
-
-    new_a[(*offset)+neuron] = activation_function(z[(*offset) + neuron], *activation_func, *sum_of_exp);
-    new_dz[(*offset)+neuron] = activation_function_prime(z[(*offset) + neuron], *activation_func, *sum_of_exp);
-}
-
-__global__ void set_delta (float* delta, float* activations, int* offset, float* out, int* cost_func) {
-    int neuron = blockIdx.x;
-    delta[neuron] = cost_function_prime(activations[neuron+(*offset)], out[neuron], *cost_func);
-}
-
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x, int *offset) {
-    int neuron = blockIdx.x;
-    int previous_neuron = threadIdx.x;
-    atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[(*offset)-(*data_n_in_x)+previous_neuron]);
+    atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[previous_neuron]);
     atomicAdd(&dev_new_delta[previous_neuron], dev_delta[neuron] * dev_weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)]);
 }
 
@@ -232,25 +214,30 @@ __global__ void add (float *vec_a, float *vec_b) {
     vec_a[index] += vec_b[index];
 }
 
-__global__ void mult (float *vec_a, float *vec_b, int *offset_b) {
+__global__ void mult (float *vec_a, float *vec_b) {
+    // TODO: here
+    int bid = blockIdx.x; // previous neuron
+    int tid = threadIdx.x;
+    int index = tid*gridDim.x+bid;
+    // neuron*data_n_in + previous_neuron
+    vec_a[index] *= vec_b[bid];
+}
+// weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]
+
+__global__ void calc_exp (float* res, float* vec, int* max_id) {
     int index = blockIdx.x;
-    vec_a[index] *= vec_b[index+(*offset_b)];
+    res[index] = expf(vec[index]-vec[*max_id]);
 }
 
-__global__ void calc_exp (float* res, float* vec, int* offset, int* max_id) {
+__global__ void find_max (float* vec, int* id, int* size) {
     int index = blockIdx.x;
-    res[index] = expf(vec[index+(*offset)]-vec[*max_id+(*offset)]);
-}
-
-__global__ void find_max (float* vec, int* offset, int* id, int* size) {
-    int index = blockIdx.x+(*offset);
     (*id) = 0;
     for (int i = 0; i < (*size); i++) {
         if (vec[index+i] > vec[index+(*id)]) (*id) = i;
     }
 }
 
-__device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
+inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
     if (block_size > 32) {
         if (ind < block_size - 32 && ind < 32) sum[ind] += sum[ind + 32];
     }
@@ -277,7 +264,7 @@ __global__ void reduce(float* input, float* res, int* size, int* block_size_ptr)
     int tid = threadIdx.x;
     int bid = blockIdx.x;
     int add = block_size;
-    sum[tid] = input[bid * block_size + tid];
+    sum[tid] = input[bid * block_size + tid]; // TODO: this can use like a lambda or whatever; this is the only thing that actually needs to be changed
     while (tid + add < *size) {
         sum[tid] += input[bid * block_size + tid + add];
         add += block_size;
@@ -302,5 +289,5 @@ __global__ void reduce(float* input, float* res, int* size, int* block_size_ptr)
     }
 
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
-    if (tid == 0) res[bid] = sum[tid];
+    if (tid == 0) res[bid] += sum[tid];
 }
