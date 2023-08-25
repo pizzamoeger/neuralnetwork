@@ -43,63 +43,29 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     cudaFree(dev_stddev);
 }
 
-void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &dev_z) {
+void fully_connected_layer::feedforward(float* dev_a, float* dev_dz, float* dev_z) {
     // TODO: potentially use inline functions?
-    auto start = chrono::high_resolution_clock::now();
-    add<<<data.n_out.x,1>>>(&dev_z[data.elems], dev_biases);
-    cudaDeviceSynchronize();
-    auto end = chrono::high_resolution_clock::now();
-    double dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "add biases\n";
 
-    float* weights_times_a;
-    cudaMalloc((void**) &weights_times_a, data.n_out.x*data.n_in.x*sizeof(float));
-    start = chrono::high_resolution_clock::now();
-    //set_to<<<data.n_out.x*data.n_in.x,1>>>(weights_times_a, 0);
+    reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_z[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases);
     cudaDeviceSynchronize();
-    //add<<<data.n_out.x*data.n_in.x,1>>>(weights_times_a, dev_weights, zero_pointer, zero_pointer);
-    cudaMemcpy(weights_times_a, dev_weights, data.n_out.x*data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
-    cudaDeviceSynchronize();
-    end = chrono::high_resolution_clock::now();
-    dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "mallox weights\n";
-    start = chrono::high_resolution_clock::now();
-
-    mult<<<data.n_in.x, data.n_out.x>>>(weights_times_a, &dev_a[data.elems-data.n_in.x]);
-    cudaDeviceSynchronize();
-    end = chrono::high_resolution_clock::now();
-    dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "mult weights\n";
-    start = chrono::high_resolution_clock::now();
-
-    //assert(data.n_in.x < (1<<10));
-    reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(weights_times_a, &dev_z[data.elems], &dev_data->n_in.x, &dev_data->n_in.x);
-    cudaDeviceSynchronize();
-    end = chrono::high_resolution_clock::now();
-    dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "calc z\n";
-    start = chrono::high_resolution_clock::now();
 
     if (data.activation_function == SOFTMAX) {
+        assert(false);
         float* exp_vec;
         float* sum_of_exp;
         cudaMalloc((void**) &exp_vec, data.n_out.x*sizeof(float));
         cudaMalloc((void**) &sum_of_exp, sizeof(float));
         set_to<<<1,1>>> (sum_of_exp, 0);
         cudaDeviceSynchronize();
-        end = chrono::high_resolution_clock::now();
-        dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-      //  cerr << dr << "set sum of exp\n";
-        start = chrono::high_resolution_clock::now();
         //assert(data.n_out.x < (1<<10));
 
         int *max_id;
         cudaMalloc((void**) &max_id, sizeof(int));
         find_max<<<1,1>>>(&dev_z[data.elems], max_id, &dev_data->n_out.x);
-        calc_exp<<<data.n_out.x, 1>>>(exp_vec, &dev_z[data.elems], max_id);
+        calc_exp<<<data.n_out.x, 1>>>(exp_vec, &dev_z[data.elems], max_id); // this could also be done in the reduce func
         cudaDeviceSynchronize();
 
-        reduce<<<1, data.n_out.x, data.n_out.x*sizeof(float)>>>(exp_vec, sum_of_exp, &dev_data->n_out.x, &dev_data->n_out.x);
+        reduce<<<1, data.n_out.x, data.n_out.x*sizeof(float)>>>(exp_vec, sum_of_exp, &dev_data->n_out.x, &dev_data->n_out.x, ADD_EXP);
         cudaDeviceSynchronize();
 
         calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_z[data.elems], &dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, sum_of_exp);
@@ -110,21 +76,13 @@ void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &d
         cudaFree(sum_of_exp);
         //cudaDeviceSynchronize();
     } else {
+        // TODO: i could calc a and dz in one call EXPECT for SOFTMAX but i only use SOFTMAX once or so so this should be fine ig
         calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_z[data.elems], &dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, f_zero_pointer);
         cudaDeviceSynchronize();
     }
-    end = chrono::high_resolution_clock::now();
-    dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "calc a and dz\n";
-    start = chrono::high_resolution_clock::now();
-
-    cudaFree(weights_times_a);
-    end = chrono::high_resolution_clock::now();
-    dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "free\n";
 }
 
-void fully_connected_layer::backprop(float * &delta, float* &activations, float* &derivative_z, int* elems) {
+void fully_connected_layer::backprop(float* delta, float* activations, float* derivative_z, int* elems) {
     float* dev_new_delta;
     cudaMalloc((void**) &dev_new_delta, data.n_in.x*sizeof(float));
     set_to<<<data.n_in.x,1>>>(dev_new_delta, 0);
@@ -442,10 +400,10 @@ void input_layer::init(layer_data data, layer_data data_previous) {
     (void) data_previous;
 }
 
-void input_layer::feedforward(float* &a, float* &dz, float* &dev_z) {}
+void input_layer::feedforward(float* a, float* dz, float* dev_z) {}
 
-void input_layer::backprop(float * &delta,
-                           float* &activations, float* &derivative_z, int* elems) {}
+void input_layer::backprop(float* delta,
+                           float* activations, float* derivative_z, int* elems) {}
 
 void input_layer::update(hyperparams* params) {}
 

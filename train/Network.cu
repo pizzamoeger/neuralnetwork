@@ -32,32 +32,21 @@ void Network::init(layer_data* layers, int L, hyperparams params) {
     }
 }
 
-pair<float*, float*> Network::feedforward(float* a) {
+pair<float*, float*> Network::feedforward(float* a/*, float* dev_activations, float* dev_derivatives_z*/) {
     float* dev_activations;
     float* dev_derivatives_z;
     float* dev_z;
-    int elems = 0;
-    for (int l = 0; l < L; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
+    int elems = layers[L-1]->data.elems+OUTPUT_NEURONS;
 
     cudaMalloc((void**) &dev_activations, elems*sizeof(float));
     cudaMalloc((void**) &dev_z, elems*sizeof(float));
     cudaMalloc((void**) &dev_derivatives_z, elems*sizeof(float));
-    set_to<<<elems,1>>>(dev_activations, 0);
-    set_to<<<elems,1>>>(dev_z, 0);
-    set_to<<<elems,1>>>(dev_derivatives_z, 0);
 
     cudaMemcpy(dev_activations, a, 28*28*sizeof(float), cudaMemcpyDeviceToDevice);
-    cudaMemcpy(dev_derivatives_z, a, 28*28*sizeof(float), cudaMemcpyDeviceToDevice);
 
-    //cudaProfilerStart();
-    auto start = chrono::high_resolution_clock::now();
     for (int l = 1; l < L; l++) {
         layers[l]->feedforward(dev_activations, dev_derivatives_z, dev_z);
     }
-    auto end = chrono::high_resolution_clock::now();
-    double dr = chrono::duration_cast<chrono::microseconds>(end - start).count();
-    //cerr << dr << "micros for ff\n";
-    //cudaProfilerStop();
 
     cudaFree(dev_z);
     return {dev_activations, dev_derivatives_z};
@@ -66,18 +55,24 @@ pair<float*, float*> Network::feedforward(float* a) {
 pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_data_size) {
     auto start = chrono::high_resolution_clock::now();
     int correct = 0;
-    int elems = 0;
-    int* dev_elems;
-    cudaMalloc((void**) &dev_elems, sizeof(int));
-    for (int l = 0; l < L-1; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
-    cudaMemcpy(dev_elems, &elems, sizeof(int), cudaMemcpyHostToDevice);
 
-    double tot = 0;
+    int elems = layers[L-1]->data.elems+OUTPUT_NEURONS;
+    /*float* activations;
+    float* derivatives_z;
+    float* dev_z;
+
+    cudaMalloc((void**) &activations, elems*sizeof(float));
+    cudaMalloc((void**) &dev_z, elems*sizeof(float));
+    cudaMalloc((void**) &derivatives_z, elems*sizeof(float));*/
 
     for (int k = 0; k < (int) test_data_size; k++) {
+        auto startFF = chrono::high_resolution_clock::now();
         auto ret = feedforward(test_data[k].first);
         auto activations = ret.first;
-        auto derivatives_z = ret.second;
+        auto dz = ret.second;
+        auto endFF = chrono::high_resolution_clock::now();
+        auto durFF = chrono::duration_cast<chrono::microseconds>(endFF - startFF).count();
+        //cerr << durFF << "\n";
 
         int* dev_id_max;
         cudaMalloc((void**) &dev_id_max, sizeof(int));
@@ -92,9 +87,8 @@ pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_
         // until here; copy memcpy only once: at the end for accuracy
 
         cudaFree(activations);
-        cudaFree(derivatives_z);
+        cudaFree(dz);
     }
-    cerr << tot/1000 << "TOTAL DURATION ms";
     auto end = chrono::high_resolution_clock::now();
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
 }

@@ -159,7 +159,7 @@ void clear_data(vector<pair<float*,float*>> & data) {
 __global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* activation_func, float* sum_of_exp) {
     int neuron = blockIdx.x;
 
-    new_a[neuron] = activation_function(z[ + neuron], *activation_func, *sum_of_exp);
+    new_a[neuron] = activation_function(z[neuron], *activation_func, *sum_of_exp);
     new_dz[neuron] = activation_function_prime(z[neuron], *activation_func, *sum_of_exp);
 }
 
@@ -215,14 +215,11 @@ __global__ void add (float *vec_a, float *vec_b) {
 }
 
 __global__ void mult (float *vec_a, float *vec_b) {
-    // TODO: here
-    int bid = blockIdx.x; // previous neuron
+    int bid = blockIdx.x;
     int tid = threadIdx.x;
     int index = tid*gridDim.x+bid;
-    // neuron*data_n_in + previous_neuron
     vec_a[index] *= vec_b[bid];
 }
-// weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in)] * a[(*offset)-(*data_n_in)+previous_neuron]
 
 __global__ void calc_exp (float* res, float* vec, int* max_id) {
     int index = blockIdx.x;
@@ -258,15 +255,29 @@ inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_
     }
 }
 
-__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr) {
+__device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n, float* add_once) {
+    float ret = 0;
+    switch (calc) {
+        case CALC_Z:
+            ret = inpt[bid*size+tid]*mult_n[tid];
+            if (tid == 0) ret += add_once[bid];
+            break;
+        case ADD_EXP:
+            ret = inpt[bid*size+tid];
+            break;
+    }
+    return ret;
+}
+
+__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr, int calc, float* mult_n, float* add_once) {
     const int block_size = *block_size_ptr;
     extern __shared__ float sum[];
     int tid = threadIdx.x;
     int bid = blockIdx.x;
     int add = block_size;
-    sum[tid] = input[bid * block_size + tid]; // TODO: this can use like a lambda or whatever; this is the only thing that actually needs to be changed
+    sum[tid] = calc_input(calc, bid, tid, *size, input, mult_n, add_once);
     while (tid + add < *size) {
-        sum[tid] += input[bid * block_size + tid + add];
+        sum[tid] += calc_input(calc, bid, tid+add, *size, input, mult_n, add_once);
         add += block_size;
     }
     __syncthreads();
@@ -289,5 +300,5 @@ __global__ void reduce(float* input, float* res, int* size, int* block_size_ptr)
     }
 
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
-    if (tid == 0) res[bid] += sum[tid];
+    if (tid == 0) res[bid] = sum[tid];
 }

@@ -37,6 +37,12 @@ enum {
     MSE
 };
 
+enum {
+    CALC_Z,
+    CALC_DZ,
+    ADD_EXP
+};
+
 #define OUTPUT_NEURONS 10
 #define INPUT_NEURONS 28*28
 
@@ -44,7 +50,7 @@ __constant__ int zero = 0;
 extern int* zero_pointer;
 extern float* f_zero_pointer;
 
-#define inline __noinline__ // TODO: decide if we should use this or not-> if not change if statements in activationfunc,... to switch
+//#define inline __noinline__ // TODO: decide if we should use this or not-> if not change if statements in activationfunc,... to switch
 
 inline __device__ float activation_function(float x, int activation_func, float sum_of_exp);
 inline __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp);
@@ -81,8 +87,8 @@ struct layer {
     layer_data data;
     layer_data* dev_data;
     virtual void init(layer_data data, layer_data data_previous) = 0;
-    virtual void feedforward(float* &a, float* &dz, float* &dev_z) = 0;
-    virtual void backprop(float* &delta, float* &activations, float* &derivative_z, int* elems) = 0;
+    virtual void feedforward(float* a, float* dz, float* z) = 0;
+    virtual void backprop(float* delta, float* activations, float* derivative_z, int* elems) = 0;
     virtual void update(hyperparams* params) = 0;
     virtual void save(string file) = 0;
     virtual void clear() = 0;
@@ -103,9 +109,9 @@ struct fully_connected_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(float* &a, float* &dz, float* &z);
+    void feedforward(float* a, float* dz, float* z);
 
-    void backprop(float* & delta, float* &activations, float* &derivative_z, int* elems);
+    void backprop(float* delta, float* activations, float* derivative_z, int* elems);
 
     void update(hyperparams* params);
 
@@ -172,9 +178,9 @@ struct input_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(float* &a, float* &dz, float* &dev_z);
+    void feedforward(float* a, float* dz, float* z);
 
-    void backprop(float* &delta, float* &activations, float* &derivative_z, int* elems);
+    void backprop(float* delta, float* activations, float* derivative_z, int* elems);
 
     void update(hyperparams* params);
 
@@ -195,7 +201,7 @@ struct Network {
 
     void init (layer_data* layers, int L, hyperparams params);
 
-    pair<float*, float*> feedforward(float* a);
+    pair<float*, float*> feedforward(float* a/*, float* activations, float* dz, float* z*/);
 
     void SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data);
 
@@ -216,7 +222,7 @@ int get_convolutional_weights_index(int previous_map, int map, int y, int x, lay
 int get_data_index(int map, int y, int x, layer_data &data);
 inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
-__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* af, float* sum_of_exp);
+__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* af, float* sum_of_exp );
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func);
 __global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x);  // TODO: faster with https://cuvilib.com/Reduction.pdf
 __global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
@@ -230,10 +236,8 @@ __global__ void mult (float *vec_a, float *vec_b); // vec_a[i] *= vec_b[i+offset
 __global__ void calc_exp (float* res, float* vec, int* max_id); // sum += exp(vec[i+offset])
 __global__ void find_max (float* vec, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
 
-// TODO: remove offsets because i don't need them idk i am stupid
-
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
-__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr);
+__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr, int calc_input, float* mult_n = NULL, float* add_once = NULL);
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*
  * Suppose for example, that the input data has exactly 32 elements - the number of threads in a warp. In such scenario a single warp can be assigned to perform the reduction. Given that warp executes in a perfect sync, many __syncthreads() instructions can be removed - when compared to a block-level reduction.
