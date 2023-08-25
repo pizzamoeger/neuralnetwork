@@ -31,17 +31,29 @@ inline __device__ float cross_entropy_prime(float out_net, float out_cor) {
 }
 
 inline __device__ float activation_function(float x, int activation_func, float sum_of_exp) {
-    if (activation_func == SIGMOID) return sigmoid(x);
-    else if (activation_func == RELU) return relu(x);
-    else if (activation_func == SOFTMAX) return softmax(x, sum_of_exp);
-    else return 0;
+    switch (activation_func) {
+        case SIGMOID:
+            return sigmoid(x);
+        case RELU:
+            return relu(x);
+        case SOFTMAX:
+            return softmax(x, sum_of_exp);
+        default:
+            return 0;
+    }
 }
 
 inline __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp) {
-    if (activation_func == SIGMOID) return sigmoid_prime(x);
-    else if (activation_func == RELU) return relu_prime(x);
-    else if (activation_func == SOFTMAX) return softmax_prime(x, sum_of_exp);
-    else return 0;
+    switch (activation_func) {
+        case SIGMOID:
+            return sigmoid_prime(x);
+        case RELU:
+            return relu_prime(x);
+        case SOFTMAX:
+            return softmax_prime(x, sum_of_exp);
+        default:
+            return 0;
+    }
 }
 
 inline __device__ float cost_function_prime(float out_net, float out_cor, int cost_function) {
@@ -265,21 +277,33 @@ inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_
     }
 }
 
-__device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n, float* add_once) {
-    float ret = 0;
+inline __device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n, float* add_once) {
     switch (calc) {
-        case CALC_Z:
-            ret = inpt[bid*size+tid]*mult_n[tid];
+        case CALC_Z: {
+            float ret = inpt[bid * size + tid] * mult_n[tid];
             if (tid == 0) ret += add_once[bid];
-            break;
+            return ret;
+        }
         case ADD_EXP:
-            ret = inpt[bid*size+tid];
-            break;
+            return inpt[bid*size+tid];
+        default:
+            return 0;
     }
-    return ret;
 }
 
-__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr, int calc, float* mult_n, float* add_once) {
+inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, int *activation_func, float *sum_of_exp) {
+    switch (calc) {
+        case CALC_Z:
+            while(*activation_func == SOFTMAX);
+            res_2[bid] = activation_function_prime(res_1[bid], *activation_func, 0);
+            res_1[bid] = activation_function(res_1[bid], *activation_func, 0);
+            break;
+        case ADD_EXP:
+            break;
+    }
+}
+
+__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_n, float* add_once, float* res_2, int* activation_func, float* sum_of_exp) {
     const int block_size = *block_size_ptr;
     extern __shared__ float sum[];
     int tid = threadIdx.x;
@@ -310,5 +334,8 @@ __global__ void reduce(float* input, float* res, int* size, int* block_size_ptr,
     }
 
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
-    if (tid == 0) res[bid] = sum[tid];
+    if (tid == 0) {
+        res_1[bid] = sum[tid];
+        calc_res(calc, bid, res_1, res_2, activation_func, sum_of_exp);
+    }
 }

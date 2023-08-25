@@ -44,13 +44,12 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 }
 
 void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
-    // TODO: potentially use inline functions?
-
-    reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases);
-    cudaDeviceSynchronize();
-
+/*
     if (data.activation_function == SOFTMAX) {
-        assert(false);
+        // TODO: make this smart
+        reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases);
+        cudaDeviceSynchronize();
+
         float* exp_vec;
         float* sum_of_exp;
         cudaMalloc((void**) &exp_vec, data.n_out.x*sizeof(float));
@@ -75,11 +74,10 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
         cudaFree(exp_vec);
         cudaFree(sum_of_exp);
         //cudaDeviceSynchronize();
-    } else {
-        // TODO: i could calc a and dz in one call EXPECT for SOFTMAX but i only use SOFTMAX once or so so this should be fine ig
-        calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, f_zero_pointer);
+    } else {*/
+        reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function);
         cudaDeviceSynchronize();
-    }
+    //}
 }
 
 void fully_connected_layer::backprop(float* delta, float* activations, float* derivative_z, int* elems) {

@@ -50,8 +50,6 @@ __constant__ int zero = 0;
 extern int* zero_pointer;
 extern float* f_zero_pointer;
 
-//#define inline __noinline__ // TODO: decide if we should use this or not-> if not change if statements in activationfunc,... to switch
-
 inline __device__ float activation_function(float x, int activation_func, float sum_of_exp);
 inline __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp);
 
@@ -238,7 +236,10 @@ __global__ void calc_exp (float* res, float* vec, int* max_id); // sum += exp(ve
 __global__ void find_max (float* vec, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
-__global__ void reduce(float* input, float* res, int* size, int* block_size_ptr, int calc_input, float* mult_n = NULL, float* add_once = NULL);
+__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_n = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, float* sum_of_exp = NULL);
+
+// TODO: blöchli wege inline froge
+
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*
  * Suppose for example, that the input data has exactly 32 elements - the number of threads in a warp. In such scenario a single warp can be assigned to perform the reduction. Given that warp executes in a perfect sync, many __syncthreads() instructions can be removed - when compared to a block-level reduction.
