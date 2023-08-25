@@ -87,7 +87,7 @@ struct layer {
     layer_data data;
     layer_data* dev_data;
     virtual void init(layer_data data, layer_data data_previous) = 0;
-    virtual void feedforward(float* a, float* dz, float* z) = 0;
+    virtual void feedforward(float* a, float* dz) = 0;
     virtual void backprop(float* delta, float* activations, float* derivative_z, int* elems) = 0;
     virtual void update(hyperparams* params) = 0;
     virtual void save(string file) = 0;
@@ -109,7 +109,7 @@ struct fully_connected_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(float* a, float* dz, float* z);
+    void feedforward(float* a, float* dz);
 
     void backprop(float* delta, float* activations, float* derivative_z, int* elems);
 
@@ -178,7 +178,7 @@ struct input_layer : public layer {
 
     void init (layer_data data, layer_data data_previous);
 
-    void feedforward(float* a, float* dz, float* z);
+    void feedforward(float* a, float* dz);
 
     void backprop(float* delta, float* activations, float* derivative_z, int* elems);
 
@@ -201,7 +201,7 @@ struct Network {
 
     void init (layer_data* layers, int L, hyperparams params);
 
-    pair<float*, float*> feedforward(float* a/*, float* activations, float* dz, float* z*/);
+    void feedforward(float* a, float* activations, float* dz);
 
     void SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data);
 
@@ -222,12 +222,13 @@ int get_convolutional_weights_index(int previous_map, int map, int y, int x, lay
 int get_data_index(int map, int y, int x, layer_data &data);
 inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
-__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* af, float* sum_of_exp );
+__global__ void calc_a_and_dz (float* new_a, float* new_dz, int* af, float* sum_of_exp );
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func);
 __global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x);  // TODO: faster with https://cuvilib.com/Reduction.pdf
 __global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
 __global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params);
 __global__ void update_weights (float* weights, float* weights_vel, hyperparams* params);
+__global__ void eval (float* correct, float* output, int* counter, int* size);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value
 __global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev

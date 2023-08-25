@@ -32,63 +32,42 @@ void Network::init(layer_data* layers, int L, hyperparams params) {
     }
 }
 
-pair<float*, float*> Network::feedforward(float* a/*, float* dev_activations, float* dev_derivatives_z*/) {
-    float* dev_activations;
-    float* dev_derivatives_z;
-    float* dev_z;
-    int elems = layers[L-1]->data.elems+OUTPUT_NEURONS;
+void Network::feedforward(float* a, float* dev_activations, float* dev_derivatives_z) {
 
-    cudaMalloc((void**) &dev_activations, elems*sizeof(float));
-    cudaMalloc((void**) &dev_z, elems*sizeof(float));
-    cudaMalloc((void**) &dev_derivatives_z, elems*sizeof(float));
-
-    cudaMemcpy(dev_activations, a, 28*28*sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(dev_activations, a, INPUT_NEURONS*sizeof(float), cudaMemcpyDeviceToDevice);
 
     for (int l = 1; l < L; l++) {
-        layers[l]->feedforward(dev_activations, dev_derivatives_z, dev_z);
+        layers[l]->feedforward(dev_activations, dev_derivatives_z);
     }
 
-    cudaFree(dev_z);
-    return {dev_activations, dev_derivatives_z};
 }
 
 pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_data_size) {
     auto start = chrono::high_resolution_clock::now();
-    int correct = 0;
+
+    int* dev_correct;
+    cudaMalloc((void**) &dev_correct, sizeof(int));
+    cudaMemcpy(dev_correct, zero_pointer, sizeof(int), cudaMemcpyDeviceToDevice);
 
     int elems = layers[L-1]->data.elems+OUTPUT_NEURONS;
-    /*float* activations;
+    float* activations;
     float* derivatives_z;
-    float* dev_z;
 
     cudaMalloc((void**) &activations, elems*sizeof(float));
-    cudaMalloc((void**) &dev_z, elems*sizeof(float));
-    cudaMalloc((void**) &derivatives_z, elems*sizeof(float));*/
+    cudaMalloc((void**) &derivatives_z, elems*sizeof(float));
 
     for (int k = 0; k < (int) test_data_size; k++) {
-        auto startFF = chrono::high_resolution_clock::now();
-        auto ret = feedforward(test_data[k].first);
-        auto activations = ret.first;
-        auto dz = ret.second;
-        auto endFF = chrono::high_resolution_clock::now();
-        auto durFF = chrono::duration_cast<chrono::microseconds>(endFF - startFF).count();
-        //cerr << durFF << "\n";
-
-        int* dev_id_max;
-        cudaMalloc((void**) &dev_id_max, sizeof(int));
-        find_max<<<1,1>>> (&activations[layers[L-1]->data.elems], dev_id_max, &layers[L-1]->dev_data->n_out.x);
-
-        // TODO: this can be done on device
-        int id_max;
-        cudaMemcpy(&id_max, dev_id_max, sizeof(int), cudaMemcpyDeviceToHost);
-        float res;
-        cudaMemcpy(&res, &test_data[k].second[id_max], sizeof(float), cudaMemcpyDeviceToHost);
-        if (res == 1.0) correct++;
-        // until here; copy memcpy only once: at the end for accuracy
-
-        cudaFree(activations);
-        cudaFree(dz);
+        feedforward(test_data[k].first, activations, derivatives_z);
+        cudaDeviceSynchronize();
+        eval<<<1,1>>>(test_data[k].second, &activations[layers[L-1]->data.elems], dev_correct, &layers[L-1]->dev_data->n_out.x);
     }
+    cudaDeviceSynchronize();
+
+    int correct;
+    cudaMemcpy(&correct, dev_correct, sizeof(int), cudaMemcpyDeviceToHost);
+    cudaFree(derivatives_z);
+    cudaFree(activations);
+    cudaFree(dev_correct);
     auto end = chrono::high_resolution_clock::now();
     return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
 }
@@ -157,11 +136,16 @@ void Network::update_mini_batch(vector<pair<float*,float*>> mini_batch) {
 void Network::backprop(float* in, float* out) {
     // feedfoward
 
-    pair<float*, float*> ret = feedforward(in);
-    float* activations = ret.first;
-    float* derivatives_z = ret.second;
+    int elems = layers[L-1]->data.elems+OUTPUT_NEURONS;
 
-    int elems = 0;
+    float* activations;
+    float* derivatives_z;
+
+    cudaMalloc((void**) &activations, elems*sizeof(float));
+    cudaMalloc((void**) &derivatives_z, elems*sizeof(float));
+    feedforward(in, activations, derivatives_z);
+
+    elems = 0;
     for (int l = 0; l < L-1; l++) elems += layers[l]->data.n_out.x*layers[l]->data.n_out.y*layers[l]->data.n_out.feature_maps;
     int* dev_elems;
     cudaMalloc((void**) &dev_elems, sizeof(int));

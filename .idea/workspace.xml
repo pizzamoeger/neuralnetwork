@@ -24,7 +24,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" afterPath="$PROJECT_DIR$/neuralnetwork" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
@@ -281,7 +280,7 @@
       <workItem from="1692862252459" duration="4695000" />
       <workItem from="1692868345943" duration="757000" />
       <workItem from="1692900688315" duration="6292000" />
-      <workItem from="1692951910898" duration="2896000" />
+      <workItem from="1692951910898" duration="4755000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -591,7 +590,15 @@
       <option name="project" value="LOCAL" />
       <updated>1692902225132</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="speed up in feedforward">
+      <option name="closed" value="true" />
+      <created>1692954871905</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1692954871905</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -627,7 +634,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="learning rate reduction" />
     <MESSAGE value="improved numberreader for linux" />
     <MESSAGE value="python compiled" />
     <MESSAGE value="organization" />
@@ -652,19 +658,20 @@
     <MESSAGE value="commit for checkout" />
     <MESSAGE value="fixed softmax overflow" />
     <MESSAGE value="removed offsets because it can be done nicer" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed offsets because it can be done nicer" />
+    <MESSAGE value="speed up in feedforward" />
+    <option name="LAST_COMMIT_MESSAGE" value="speed up in feedforward" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/train/Network.cu</url>
-          <line>135</line>
+          <line>115</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/train/Network.cu</url>
-          <line>47</line>
+          <line>39</line>
           <option name="timeStamp" value="27" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">

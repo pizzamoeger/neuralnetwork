@@ -156,11 +156,11 @@ void clear_data(vector<pair<float*,float*>> & data) {
     }
 }
 
-__global__ void calc_a_and_dz (float* z, float* new_a, float* new_dz, int* activation_func, float* sum_of_exp) {
+__global__ void calc_a_and_dz (float* new_a, float* new_dz, int* activation_func, float* sum_of_exp) {
     int neuron = blockIdx.x;
 
-    new_a[neuron] = activation_function(z[neuron], *activation_func, *sum_of_exp);
-    new_dz[neuron] = activation_function_prime(z[neuron], *activation_func, *sum_of_exp);
+    new_dz[neuron] = activation_function_prime(new_a[neuron], *activation_func, *sum_of_exp);
+    new_a[neuron] = activation_function(new_a[neuron], *activation_func, *sum_of_exp);
 }
 
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func) {
@@ -194,6 +194,16 @@ __global__ void update_weights (float* weights, float* weights_vel, hyperparams*
     int weight = blockIdx.x;
     weights[weight] = (1 - params->fully_connected_weights_learning_rate * params->L2_regularization_term
                         / params->training_data_size) * weights[weight] + weights_vel[weight];
+}
+
+__global__ void eval (float* correct, float* output, int* counter, int* size) {
+    int index = 0;
+
+    for (int i = 0; i < (*size); i++) {
+        if (output[i] > output[index]) index = i;
+    }
+
+    if (correct[index] == 1) (*counter)++;
 }
 
 __global__ void set_to (float *vec, float value) {

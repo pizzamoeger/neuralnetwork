@@ -43,10 +43,10 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     cudaFree(dev_stddev);
 }
 
-void fully_connected_layer::feedforward(float* dev_a, float* dev_dz, float* dev_z) {
+void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
     // TODO: potentially use inline functions?
 
-    reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_z[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases);
+    reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases);
     cudaDeviceSynchronize();
 
     if (data.activation_function == SOFTMAX) {
@@ -61,14 +61,14 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz, float* dev_
 
         int *max_id;
         cudaMalloc((void**) &max_id, sizeof(int));
-        find_max<<<1,1>>>(&dev_z[data.elems], max_id, &dev_data->n_out.x);
-        calc_exp<<<data.n_out.x, 1>>>(exp_vec, &dev_z[data.elems], max_id); // this could also be done in the reduce func
+        find_max<<<1,1>>>(&dev_a[data.elems], max_id, &dev_data->n_out.x);
+        calc_exp<<<data.n_out.x, 1>>>(exp_vec, &dev_a[data.elems], max_id); // this could also be done in the reduce func
         cudaDeviceSynchronize();
 
         reduce<<<1, data.n_out.x, data.n_out.x*sizeof(float)>>>(exp_vec, sum_of_exp, &dev_data->n_out.x, &dev_data->n_out.x, ADD_EXP);
         cudaDeviceSynchronize();
 
-        calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_z[data.elems], &dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, sum_of_exp);
+        calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, sum_of_exp);
         cudaDeviceSynchronize();
 
         cudaFree(max_id);
@@ -77,7 +77,7 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz, float* dev_
         //cudaDeviceSynchronize();
     } else {
         // TODO: i could calc a and dz in one call EXPECT for SOFTMAX but i only use SOFTMAX once or so so this should be fine ig
-        calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_z[data.elems], &dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, f_zero_pointer);
+        calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, f_zero_pointer);
         cudaDeviceSynchronize();
     }
 }
@@ -400,7 +400,7 @@ void input_layer::init(layer_data data, layer_data data_previous) {
     (void) data_previous;
 }
 
-void input_layer::feedforward(float* a, float* dz, float* dev_z) {}
+void input_layer::feedforward(float* a, float* dz) {}
 
 void input_layer::backprop(float* delta,
                            float* activations, float* derivative_z, int* elems) {}
