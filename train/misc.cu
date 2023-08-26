@@ -309,6 +309,9 @@ __global__ void reduce(float* input, float* res_1, int* size, int* block_size_pt
     int tid = threadIdx.x;
     int bid = blockIdx.x;
     int add = block_size;
+
+    if (tid >= block_size) return;
+
     sum[tid] = calc_input(calc, bid, tid, *size, input, mult_n, add_once);
     while (tid + add < *size) {
         sum[tid] += calc_input(calc, bid, tid+add, *size, input, mult_n, add_once);
