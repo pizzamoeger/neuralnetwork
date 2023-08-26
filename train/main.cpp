@@ -29,7 +29,8 @@ int main(int argc, char** argv) {
     layer_data fully_connected2;
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activation_function = RELU;
-    fully_connected2.n_out = {30, 1, 1};
+    // FIND-TAG-ARCHITECTURE
+    fully_connected2.n_out = {1020, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
@@ -71,9 +72,9 @@ int main(int argc, char** argv) {
     params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // FIND-TAG-EPOCHS
-    cerr << "epochs: "; cin >> params.epochs;
+    // cerr << "epochs: "; cin >> params.epochs;
     // params.epochs = 150;
-    // params.epochs = 5;
+    params.epochs = 0;
 
     net.init(layers, L, crossEntropyPrime);
     net.SGD(training_data, test_data, params);
@@ -86,12 +87,12 @@ int main(int argc, char** argv) {
     cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
-    // cout << (float)correctTest / params.test_data_size << "\n";
+    cout << evtst.second << "\n";
 
     // FIND-TAG-STORING
-    cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    // cerr << "Where should the network be stored? "; string filename; cin >> filename;
     // string filename = argv[1];
-    net.save(filename);
+    // net.save(filename);
 
     clear_data(test_data);
     clear_data(training_data);
