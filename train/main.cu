@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activation_function = RELU;
     // FIND-TAG-ARCHITECTURE
-    fully_connected2.n_out = {1020, 1, 1};
+    fully_connected2.n_out = {885, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;

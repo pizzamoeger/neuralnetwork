@@ -2,7 +2,7 @@ runs_per_size=10
 start_size=5
 end_size=1024
 step_size=5
-file_name="compare/GPU.txt"
+file_name="compare/GPU_double.txt"
 
 echo "" > $file_name
 

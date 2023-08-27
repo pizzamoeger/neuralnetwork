@@ -45,6 +45,7 @@ enum {
 
 #define OUTPUT_NEURONS 10
 #define INPUT_NEURONS 28*28
+#define float double
 
 __constant__ int zero = 0;
 extern int* zero_pointer;
