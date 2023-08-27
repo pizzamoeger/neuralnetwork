@@ -21,11 +21,14 @@
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare/CPU.txt" beforeDir="false" afterPath="$PROJECT_DIR$/compare/CPU.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare/plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" afterPath="$PROJECT_DIR$/neuralnetwork" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/timeToSizeData.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/timeToSizeData.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,11 +109,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.plot">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -306,6 +304,9 @@
       <workItem from="1693044732200" duration="1818000" />
       <workItem from="1693050404737" duration="11450000" />
       <workItem from="1693089458759" duration="12000" />
+      <workItem from="1693092559281" duration="500000" />
+      <workItem from="1693116686095" duration="86000" />
+      <workItem from="1693117120573" duration="37000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -654,7 +655,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="cuda" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
