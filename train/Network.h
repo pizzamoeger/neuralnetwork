@@ -39,13 +39,12 @@ enum {
 
 enum {
     CALC_Z,
-    CALC_DZ,
+    CALC_ND,
     ADD_EXP
 };
 
 #define OUTPUT_NEURONS 10
 #define INPUT_NEURONS 28*28
-#define float double
 
 __constant__ int zero = 0;
 extern int* zero_pointer;
@@ -85,9 +84,11 @@ struct layer_data {
 struct layer {
     layer_data data;
     layer_data* dev_data;
-    virtual void init(layer_data data, layer_data data_previous) = 0;
+    float* delta;
+    float* new_delta;
+    virtual void init(layer_data data, layer_data data_previous, float* new_delta) = 0;
     virtual void feedforward(float* a, float* dz) = 0;
-    virtual void backprop(float* delta, float* activations, float* derivative_z, int* elems) = 0;
+    virtual void backprop(float* activations, float* derivative_z) = 0;
     virtual void update(hyperparams* params) = 0;
     virtual void save(string file) = 0;
     virtual void clear() = 0;
@@ -106,11 +107,11 @@ struct fully_connected_layer : public layer {
     float* dev_weights_vel;
     float* dev_weights_updt;
 
-    void init (layer_data data, layer_data data_previous);
+    void init (layer_data data, layer_data data_previous, float* new_delta);
 
     void feedforward(float* a, float* dz);
 
-    void backprop(float* delta, float* activations, float* derivative_z, int* elems);
+    void backprop(float* activations, float* derivative_z);
 
     void update(hyperparams* params);
 
@@ -175,11 +176,11 @@ struct input_layer : public layer {
     //layer_data data;
     // no biases or velocities
 
-    void init (layer_data data, layer_data data_previous);
+    void init (layer_data data, layer_data data_previous, float* new_delta);
 
     void feedforward(float* a, float* dz);
 
-    void backprop(float* delta, float* activations, float* derivative_z, int* elems);
+    void backprop(float* activations, float* derivative_z);
 
     void update(hyperparams* params);
 
@@ -191,6 +192,9 @@ struct input_layer : public layer {
 struct Network {
     // number of layers
     int L;
+
+    float* activations;
+    float* derivatives_z;
 
     // layers
     unique_ptr<layer> *layers;
@@ -221,12 +225,9 @@ int get_convolutional_weights_index(int previous_map, int map, int y, int x, lay
 int get_data_index(int map, int y, int x, layer_data &data);
 inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
-__global__ void calc_a_and_dz (float* new_a, float* new_dz, int* af, float* sum_of_exp );
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func);
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x);  // TODO: faster with https://cuvilib.com/Reduction.pdf
-__global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params);
-__global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params);
-__global__ void update_weights (float* weights, float* weights_vel, hyperparams* params);
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x);
+__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params);
 __global__ void eval (float* correct, float* output, int* counter, int* size);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value
@@ -237,7 +238,7 @@ __global__ void calc_exp (float* res, float* vec, int* max_id); // sum += exp(ve
 __global__ void find_max (float* vec, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
-__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_n = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, float* sum_of_exp = NULL);
+__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_1 = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, float* sum_of_exp = NULL);
 
 // TODO: blöchli wege inline froge
 

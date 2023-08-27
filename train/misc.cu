@@ -168,44 +168,40 @@ void clear_data(vector<pair<float*,float*>> & data) {
     }
 }
 
-__global__ void calc_a_and_dz (float* new_a, float* new_dz, int* activation_func, float* sum_of_exp) {
-    int neuron = blockIdx.x;
-
-    new_dz[neuron] = activation_function_prime(new_a[neuron], *activation_func, *sum_of_exp);
-    new_a[neuron] = activation_function(new_a[neuron], *activation_func, *sum_of_exp);
-}
-
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func) {
     int neuron = blockIdx.x;
     delta[neuron] = cost_function_prime(activations[neuron], out[neuron], *cost_func);
 }
 
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_new_delta, float* dev_weights, int* data_n_in_x) {
+__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
-    //atomicAdd(&dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)], dev_delta[neuron] * dev_activations[previous_neuron]);
-    //atomicAdd(&dev_new_delta[previous_neuron], dev_delta[neuron] * dev_weights[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)]);
+    dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)] += dev_delta[neuron] * dev_activations[previous_neuron];
+    if (previous_neuron == 0) dev_biases_updt[neuron] += dev_delta[neuron];
 }
 
-__global__ void update_bias_vel (float* biases_vel, float* biases_updt, hyperparams* params) {
+__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params) {
     int neuron = blockIdx.x;
-    biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
-                             (params->fully_connected_biases_learning_rate / params->mini_batch_size) *
-                             biases_updt[neuron];
-}
+    int previous_neuron = threadIdx.x;
+    int weight = neuron*blockDim.x+previous_neuron;
 
-__global__ void update_weights_vel (float* weights_vel, float* weights_updt, hyperparams* params) {
-    int weight = blockIdx.x;
+    if (previous_neuron == 0) {
+        biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
+                                 (params->fully_connected_biases_learning_rate / params->mini_batch_size) *
+                                 biases_updt[neuron];
+        biases[neuron] += biases_vel[neuron];
+        biases_updt[neuron] = 0;
+    }
+
     weights_vel[weight] =
             params->momentum_coefficient * weights_updt[weight] -
             (params->fully_connected_weights_learning_rate / params->mini_batch_size) *
             weights_updt[weight];
-}
 
-__global__ void update_weights (float* weights, float* weights_vel, hyperparams* params) {
-    int weight = blockIdx.x;
     weights[weight] = (1 - params->fully_connected_weights_learning_rate * params->L2_regularization_term
-                        / params->training_data_size) * weights[weight] + weights_vel[weight];
+                           / params->training_data_size) * weights[weight] + weights_vel[weight];
+
+    weights_updt[weight] = 0;
 }
 
 __global__ void eval (float* correct, float* output, int* counter, int* size) {
@@ -277,11 +273,14 @@ inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_
     }
 }
 
-inline __device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n, float* add_once) {
+inline __device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n) {
     switch (calc) {
         case CALC_Z: {
             float ret = inpt[bid * size + tid] * mult_n[tid];
-            if (tid == 0) ret += add_once[bid];
+            return ret;
+        }
+        case CALC_ND: {
+            float ret = inpt[tid * size + bid] * mult_n[tid];
             return ret;
         }
         case ADD_EXP:
@@ -291,30 +290,34 @@ inline __device__ float calc_input(int calc, int bid, int tid, int size, float* 
     }
 }
 
-inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, int *activation_func, float *sum_of_exp) {
+inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, int *activation_func, float *sum_of_exp, float* add_once) {
     switch (calc) {
         case CALC_Z:
             while(*activation_func == SOFTMAX);
-            res_2[bid] = activation_function_prime(res_1[bid], *activation_func, 0);
-            res_1[bid] = activation_function(res_1[bid], *activation_func, 0);
+            res_2[bid] = activation_function_prime(res_1[bid]+add_once[bid], *activation_func, 0);
+            res_1[bid] = activation_function(res_1[bid]+add_once[bid], *activation_func, 0);
             break;
-        case ADD_EXP:
+        case CALC_ND:
+            res_1[bid] = res_1[bid]*add_once[bid];
+        default:
             break;
     }
 }
 
-__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_n, float* add_once, float* res_2, int* activation_func, float* sum_of_exp) {
+__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_1, float* vec_2, float* res_2, int* activation_func, float* sum_of_exp) {
     const int block_size = *block_size_ptr;
     extern __shared__ float sum[];
     int tid = threadIdx.x;
     int bid = blockIdx.x;
     int add = block_size;
+    int s = *size;
+    if (calc == CALC_ND) s = gridDim.x;
 
     if (tid >= block_size) return;
 
-    sum[tid] = calc_input(calc, bid, tid, *size, input, mult_n, add_once);
+    sum[tid] = calc_input(calc, bid, tid, s , input, mult_1);
     while (tid + add < *size) {
-        sum[tid] += calc_input(calc, bid, tid+add, *size, input, mult_n, add_once);
+        sum[tid] += calc_input(calc, bid, tid+add, s, input, mult_1);
         add += block_size;
     }
     __syncthreads();
@@ -339,6 +342,6 @@ __global__ void reduce(float* input, float* res_1, int* size, int* block_size_pt
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
     if (tid == 0) {
         res_1[bid] = sum[tid];
-        calc_res(calc, bid, res_1, res_2, activation_func, sum_of_exp);
+        calc_res(calc, bid, res_1, res_2, activation_func, sum_of_exp, vec_2);
     }
 }

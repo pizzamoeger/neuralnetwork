@@ -3,11 +3,14 @@
 random_device rd;
 default_random_engine generator(rd());
 
-void fully_connected_layer::init(layer_data data, layer_data data_previous) {
+void fully_connected_layer::init(layer_data data, layer_data data_previous, float* new_delta) {
 
     data.n_in = {data_previous.n_out.feature_maps * data_previous.n_out.y * data_previous.n_out.x, 1, 1};
     data.elems = data.n_in.x+data_previous.elems;
     this->data = data;
+
+    cudaMalloc((void**) &delta, data.n_out.x*sizeof(float));
+    this->new_delta = new_delta;
 
     cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
     cudaMalloc((void**) &this->dev_data_previous, sizeof(layer_data));
@@ -81,43 +84,16 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
     //}
 }
 
-void fully_connected_layer::backprop(float* delta, float* activations, float* derivative_z, int* elems) {
-    float* dev_new_delta;
-    cudaMalloc((void**) &dev_new_delta, data.n_in.x*sizeof(float));
-    set_to<<<data.n_in.x,1>>>(dev_new_delta, 0);
+void fully_connected_layer::backprop(float* activations, float* derivative_z) {
 
-    if (!data.last_layer) {
-        mult<<<data.n_out.x,1>>>(delta, &derivative_z[data.elems]);
-    }
-
+    backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, &activations[data.elems-data.n_in.x], dev_biases_updt, &dev_data->n_in.x);
+    reduce<<<data.n_in.x, (1<<10), data.n_out.x*sizeof(float)>>>(dev_weights, new_delta, &dev_data->n_out.x, &dev_data->n_out.x, CALC_ND, delta, &derivative_z[data.elems-data.n_in.x]);
     cudaDeviceSynchronize();
-
-    add<<<data.n_out.x,1>>>(dev_biases_updt, delta);
-    cudaDeviceSynchronize();
-
-    backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, &activations[data.elems-data.n_in.x], dev_new_delta, dev_weights, &dev_data->n_in.x);
-
-    cudaDeviceSynchronize();
-
-    cudaFree(delta);
-    cudaMalloc((void**) &delta, data.n_in.x*sizeof(float));
-    cudaMemcpy(delta, dev_new_delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
-    cudaFree(dev_new_delta);
 }
 
 void fully_connected_layer::update(hyperparams* dev_params) {
     // update velocities
-    update_bias_vel<<<data.n_out.x,1>>>(dev_biases_vel, dev_biases_updt, dev_params);
-    update_weights_vel<<<data.n_out.x*data.n_in.x,1>>>(dev_weights_vel, dev_weights_updt, dev_params);
-    cudaDeviceSynchronize();
-
-    // update weights and biases
-    add<<<data.n_out.x,1>>>(dev_biases, dev_biases_vel);
-    update_weights<<<data.n_out.x*data.n_in.x,1>>>(dev_weights, dev_weights_vel, dev_params);
-    cudaDeviceSynchronize();
-
-    set_to<<<data.n_out.x,1>>>(dev_biases_updt, 0);
-    set_to<<<data.n_out.x*data.n_in.x,1>>>(dev_weights_updt, 0);
+    ::update<<<data.n_out.x, data.n_in.x>>> (dev_biases_vel, dev_weights_vel, dev_weights_updt, dev_biases_updt, dev_weights, dev_biases, dev_params);
     cudaDeviceSynchronize();
 }
 
@@ -156,6 +132,7 @@ void fully_connected_layer::save(string filename) {
 }
 
 void fully_connected_layer::clear() {
+    cudaFree(delta);
     cudaFree(dev_weights);
     cudaFree(dev_weights_vel);
     cudaFree(dev_weights_updt);
@@ -393,16 +370,16 @@ void max_pooling_layer::save(string filename) {
 
 void max_pooling_layer::clear() {}
 */
-void input_layer::init(layer_data data, layer_data data_previous) {
+void input_layer::init(layer_data data, layer_data data_previous, float* new_delta) {
     data.elems = 0;
     this->data = data;
+    cudaMalloc((void**) &delta, data.n_out.feature_maps*data.n_out.y*data.n_out.x*sizeof(float));
     (void) data_previous;
 }
 
 void input_layer::feedforward(float* a, float* dz) {}
 
-void input_layer::backprop(float* delta,
-                           float* activations, float* derivative_z, int* elems) {}
+void input_layer::backprop(float* activations, float* derivative_z) {}
 
 void input_layer::update(hyperparams* params) {}
 
@@ -415,4 +392,6 @@ void input_layer::save(string filename) {
     file.close();
 }
 
-void input_layer::clear() {}
+void input_layer::clear() {
+    cudaFree(delta);
+}
