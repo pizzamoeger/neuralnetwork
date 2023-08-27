@@ -53,9 +53,9 @@ extern float* f_zero_pointer;
 inline __device__ float activation_function(float x, int activation_func, float sum_of_exp);
 inline __device__ float activation_function_prime(float x, int activation_func, float sum_of_exp);
 
-pair<vector<pair<float*,float*>>, int> load_data(string filename); // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
+std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string filename); // TODO : watch this https://www.youtube.com/watch?v=m7E9piHcfr4 to make this faster
 hyperparams get_params();
-void clear_data(vector<pair<float*,float*>> & data);
+void clear_data(std::vector<std::pair<float*,float*>> & data);
 
 struct network_data {
     int x;
@@ -90,7 +90,7 @@ struct layer {
     virtual void feedforward(float* a, float* dz) = 0;
     virtual void backprop(float* activations, float* derivative_z) = 0;
     virtual void update(hyperparams* params) = 0;
-    virtual void save(string file) = 0;
+    virtual void save(std::string file) = 0;
     virtual void clear() = 0;
 };
 
@@ -115,7 +115,7 @@ struct fully_connected_layer : public layer {
 
     void update(hyperparams* params);
 
-    void save(string filename);
+    void save(std::string filename);
 
     void clear();
 };
@@ -184,7 +184,7 @@ struct input_layer : public layer {
 
     void update(hyperparams* params);
 
-    void save(string filename);
+    void save(std::string filename);
 
     void clear();
 };
@@ -197,7 +197,7 @@ struct Network {
     float* derivatives_z;
 
     // layers
-    unique_ptr<layer> *layers;
+    std::unique_ptr<layer> *layers;
 
     hyperparams params;
     hyperparams* dev_params;
@@ -206,19 +206,19 @@ struct Network {
 
     void feedforward(float* a, float* activations, float* dz);
 
-    void SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data);
+    void SGD(std::vector<std::pair<float*,float*>> training_data, std::vector<std::pair<float*,float*>> test_data);
 
-    void update_mini_batch(vector<pair<float*,float*>> mini_batch);
+    void update_mini_batch(std::vector<std::pair<float*,float*>> mini_batch);
 
     void backprop(float* in, float* out);
 
-    void save(string filename);
+    void save(std::string filename);
 
-    void load(string filename);
+    void load(std::string filename);
 
     void clear();
 
-    pair<int,int> evaluate(vector<pair<float*,float*>> test_data, int test_data_size);
+    std::pair<int,int> evaluate(std::vector<std::pair<float*,float*>> test_data, int test_data_size);
 };
 
 int get_convolutional_weights_index(int previous_map, int map, int y, int x, layer_data &data);
@@ -232,15 +232,9 @@ __global__ void eval (float* correct, float* output, int* counter, int* size);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value
 __global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev
-__global__ void add (float *vec_a, float *vec_b); // vec_a += vec_b
-__global__ void mult (float *vec_a, float *vec_b); // vec_a[i] *= vec_b[i+offset_b]
-__global__ void calc_exp (float* res, float* vec, int* max_id); // sum += exp(vec[i+offset])
-__global__ void find_max (float* vec, int* id, int* size); // id is the id of the max elem in vec  // TODO: faster with https://cuvilib.com/Reduction.pdf
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
 __global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_1 = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, float* sum_of_exp = NULL);
-
-// TODO: blöchli wege inline froge
 
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*

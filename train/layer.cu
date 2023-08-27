@@ -1,7 +1,7 @@
 #include "includes.h"
 
-random_device rd;
-default_random_engine generator(rd());
+std::random_device rd;
+std::default_random_engine generator(rd());
 
 void fully_connected_layer::init(layer_data data, layer_data data_previous, float* new_delta) {
 
@@ -85,7 +85,7 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
 }
 
 void fully_connected_layer::backprop(float* activations, float* derivative_z) {
-
+    // TODO: this could be made faster but also uglier
     backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, &activations[data.elems-data.n_in.x], dev_biases_updt, &dev_data->n_in.x);
     reduce<<<data.n_in.x, (1<<10), data.n_out.x*sizeof(float)>>>(dev_weights, new_delta, &dev_data->n_out.x, &dev_data->n_out.x, CALC_ND, delta, &derivative_z[data.elems-data.n_in.x]);
     cudaDeviceSynchronize();
@@ -97,8 +97,8 @@ void fully_connected_layer::update(hyperparams* dev_params) {
     cudaDeviceSynchronize();
 }
 
-void fully_connected_layer::save(string filename) {
-    ofstream file(filename, std::ios_base::app);
+void fully_connected_layer::save(std::string filename) {
+    std::ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_FULLY_CONNECTED << "//";
     file << data.activation_function << "//";
@@ -383,8 +383,8 @@ void input_layer::backprop(float* activations, float* derivative_z) {}
 
 void input_layer::update(hyperparams* params) {}
 
-void input_layer::save(string filename) {
-    ofstream file(filename, std::ios_base::app);
+void input_layer::save(std::string filename) {
+    std::ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_INPUT << "//";
     file << data.n_out.x << " " << data.n_out.y << "\n";

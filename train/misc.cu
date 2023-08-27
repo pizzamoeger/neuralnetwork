@@ -81,10 +81,10 @@ inline __device__ int get_fully_connected_weight_index_dev (int neuron, int prev
 }
 
 // load data
-pair<vector<pair<float*,float*>>, int> load_data(string filename) {
+std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
-    ifstream file;
-    string line;
+    std::ifstream file;
+    std::string line;
 
     file.open(filename);
 
@@ -98,10 +98,10 @@ pair<vector<pair<float*,float*>>, int> load_data(string filename) {
     file.seekg(0); // Move cursor back to beginning
 
     int lineIndex = 0;
-    vector<pair<float*,float*>> data (dataPoints, {nullptr, nullptr});
+    std::vector<std::pair<float*,float*>> data (dataPoints, {nullptr, nullptr});
 
     while (getline(file, line)) {
-        stringstream ss(line);
+        std::stringstream ss(line);
         float* data_in = new float [INPUT_NEURONS];
         float* data_out = new float [OUTPUT_NEURONS];
 
@@ -111,7 +111,7 @@ pair<vector<pair<float*,float*>>, int> load_data(string filename) {
         int label = -1;
         int i = 0;
         while (ss.good()) {
-            string substr;
+            std::string substr;
             getline(ss, substr, ' ');
             if (label == -1) {
                 label = stoi(substr);
@@ -137,7 +137,7 @@ pair<vector<pair<float*,float*>>, int> load_data(string filename) {
         delete [] data_out;
     }
 
-    cerr << dataPoints << " data loaded from " + filename + "\n";
+    std::cerr << dataPoints << " data loaded from " + filename + "\n";
     file.close();
     return {data, dataPoints};
 }
@@ -161,7 +161,7 @@ hyperparams get_params() {
     return params;
 }
 
-void clear_data(vector<pair<float*,float*>> & data) {
+void clear_data(std::vector<std::pair<float*,float*>> & data) {
     for (int data_point = 0; data_point < (int)data.size(); data_point++) {
         cudaFree(data[data_point].first);
         cudaFree(data[data_point].second);
@@ -225,31 +225,6 @@ __global__ void set_to_random (float *vec, float *stddev) {
     curandState state;
     curand_init(clock64(), index, 0, &state);
     vec[index] = curand_normal(&state)*(*stddev);
-}
-
-__global__ void add (float *vec_a, float *vec_b) {
-    int index = blockIdx.x;
-    vec_a[index] += vec_b[index];
-}
-
-__global__ void mult (float *vec_a, float *vec_b) {
-    int bid = blockIdx.x;
-    int tid = threadIdx.x;
-    int index = tid*gridDim.x+bid;
-    vec_a[index] *= vec_b[bid];
-}
-
-__global__ void calc_exp (float* res, float* vec, int* max_id) {
-    int index = blockIdx.x;
-    res[index] = expf(vec[index]-vec[*max_id]);
-}
-
-__global__ void find_max (float* vec, int* id, int* size) {
-    int index = blockIdx.x;
-    (*id) = 0;
-    for (int i = 0; i < (*size); i++) {
-        if (vec[index+i] > vec[index+(*id)]) (*id) = i;
-    }
 }
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {

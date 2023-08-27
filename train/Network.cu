@@ -6,14 +6,14 @@ void Network::init(layer_data* layers, int L, hyperparams params) {
     this->params = params;
     cudaMalloc((void**) &dev_params, sizeof(hyperparams));
     cudaMemcpy(dev_params, &params, sizeof(hyperparams), cudaMemcpyHostToDevice);
-    this->layers = new unique_ptr<layer>[L];
+    this->layers = new std::unique_ptr<layer>[L];
 
     // initialize layers
     for (int l = 0; l < L; l++) {
-        unique_ptr<layer> new_layer = nullptr;
+        std::unique_ptr<layer> new_layer = nullptr;
         switch (layers[l].type) {
             case LAYER_NUM_INPUT:
-                new_layer = make_unique<input_layer>();
+                new_layer = std::make_unique<input_layer>();
                 break;
             case LAYER_NUM_CONVOLUTIONAL:
                 //new_layer = make_unique<convolutional_layer>();
@@ -22,7 +22,7 @@ void Network::init(layer_data* layers, int L, hyperparams params) {
                 //new_layer = make_unique<max_pooling_layer>();
                 break;
             case LAYER_NUM_FULLY_CONNECTED:
-                new_layer = make_unique<fully_connected_layer>();
+                new_layer = std::make_unique<fully_connected_layer>();
                 break;
         }
         layer_data previous_data;
@@ -52,8 +52,8 @@ void Network::feedforward(float* a, float* dev_activations, float* dev_derivativ
 
 }
 
-pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_data_size) {
-    auto start = chrono::high_resolution_clock::now();
+std::pair<int,int> Network::evaluate(std::vector<std::pair<float*,float*>> test_data, int test_data_size) {
+    auto start = std::chrono::high_resolution_clock::now();
 
     int* dev_correct;
     cudaMalloc((void**) &dev_correct, sizeof(int));
@@ -62,6 +62,7 @@ pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_
     for (int k = 0; k < (int) test_data_size; k++) {
         feedforward(test_data[k].first, activations, derivatives_z);
         cudaDeviceSynchronize();
+        // TODO: this could be made faster but not really necessary, as it's only 10 -> is already fast
         eval<<<1,1>>>(test_data[k].second, &activations[layers[L-1]->data.elems], dev_correct, &layers[L-1]->dev_data->n_out.x);
     }
     cudaDeviceSynchronize();
@@ -69,29 +70,29 @@ pair<int,int> Network::evaluate(vector<pair<float*,float*>> test_data, int test_
     int correct;
     cudaMemcpy(&correct, dev_correct, sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(dev_correct);
-    auto end = chrono::high_resolution_clock::now();
-    return {correct, chrono::duration_cast<chrono::milliseconds>(end - start).count()};
+    auto end = std::chrono::high_resolution_clock::now();
+    return {correct, std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()};
 }
 
-void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,float*>> test_data) {
+void Network::SGD(std::vector<std::pair<float*,float*>> training_data, std::vector<std::pair<float*,float*>> test_data) {
 
     auto ev = evaluate(test_data, params.test_data_size);
     auto correct = ev.first;
     auto durationEvaluate = ev.second;
-    cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
+    std::cerr << "0 Accuracy: " << (float) correct / params.test_data_size << " evaluated in " << durationEvaluate << "ms\n";
 
     for (int i = 0; i < params.epochs; i++) {
         // time the epoch
-        auto start = chrono::high_resolution_clock::now();
+        auto start = std::chrono::high_resolution_clock::now();
 
-        cerr << i+1 << " ";
+        std::cerr << i+1 << " ";
 
         // obtain a time-based seed
-        unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-        shuffle(training_data.begin(), training_data.end(), default_random_engine(seed));
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        shuffle(training_data.begin(), training_data.end(), std::default_random_engine(seed));
 
         // create mini batches and update them
-        vector<pair<float*,float*>> mini_batch (params.mini_batch_size, {nullptr, nullptr});
+        std::vector<std::pair<float*,float*>> mini_batch (params.mini_batch_size, {nullptr, nullptr});
         for (int j = 0; j < params.training_data_size / params.mini_batch_size; j++) {
             for (int k = 0; k < params.mini_batch_size; k++) {
                 mini_batch[k].first = training_data[j * params.mini_batch_size + k].first;
@@ -101,15 +102,15 @@ void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,
         }
 
         // end the timer
-        auto end = chrono::high_resolution_clock::now();
-        auto durationTrain = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+        auto end = std::chrono::high_resolution_clock::now();
+        auto durationTrain = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
         // evaluate the network
         ev = evaluate(test_data, params.test_data_size);
         correct = ev.first;
         durationEvaluate = ev.second;
 
-        cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
+        std::cerr << "Accuracy: " << (float) correct / params.test_data_size << ", trained in " << durationTrain << "ms, evaluated in " << durationEvaluate << "ms\n";
 
         // reduce learning rate
 	    if (i < 100) {
@@ -122,7 +123,7 @@ void Network::SGD(vector<pair<float*,float*>> training_data, vector<pair<float*,
     }
 }
 
-void Network::update_mini_batch(vector<pair<float*,float*>> mini_batch) {
+void Network::update_mini_batch(std::vector<std::pair<float*,float*>> mini_batch) {
 
     for (int num = 0; num < params.mini_batch_size; num++) {
         backprop(mini_batch[num].first, mini_batch[num].second);
@@ -143,8 +144,8 @@ void Network::backprop(float* in, float* out) {
     }
 }
 
-void Network::save(string filename) {
-    ofstream file(filename);
+void Network::save(std::string filename) {
+    std::ofstream file(filename);
     file << L << "\n";
     file.close();
 

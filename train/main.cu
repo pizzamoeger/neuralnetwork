@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activation_function = RELU;
     // FIND-TAG-ARCHITECTURE
-    fully_connected2.n_out = {30, 1, 1};
+    fully_connected2.n_out = {500, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
@@ -53,10 +53,10 @@ int main(int argc, char** argv) {
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");
-    vector<pair<float*, float*>> test_data = tst.first;
+    std::vector<std::pair<float*, float*>> test_data = tst.first;
     int test_data_size = tst.second;
     auto trn = load_data("mnist_train_normalized.data");
-    vector<pair<float*, float*>>  training_data = trn.first;
+    std::vector<std::pair<float*, float*>>  training_data = trn.first;
     int training_data_size = trn.second;
 
     auto params = get_params();
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // FIND-TAG-EPOCHS
-    cerr << "epochs: "; cin >> params.epochs;
+    std::cerr << "epochs: "; std::cin >> params.epochs;
     // params.epochs = 150;
     // params.epochs = 0;
 
@@ -91,14 +91,14 @@ int main(int argc, char** argv) {
     auto evtrn = net.evaluate(training_data, training_data_size);
     int correct_train = evtrn.first;
 
-    cerr << "accuracy in training data: " << (float) correct_train / params.training_data_size << "\n";
-    cerr << "general accuracy: " << (float) correct_test / params.test_data_size << "\n";
+    std::cerr << "accuracy in training data: " << (float) correct_train / params.training_data_size << "\n";
+    std::cerr << "general accuracy: " << (float) correct_test / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
     // cout << evtst.second << "\n";
 
     // FIND-TAG-STORING
-    cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    std::cerr << "Where should the network be stored? "; std::string filename; std::cin >> filename;
     // string filename = argv[1];
     net.save(filename);
 

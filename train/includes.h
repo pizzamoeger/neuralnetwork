@@ -15,7 +15,6 @@
 #include <curand.h>
 #include <curand_kernel.h>
 #include <cuda_profiler_api.h>
-using namespace std;
 #include "Network.h"
 
 #endif
