@@ -6,8 +6,8 @@ default_random_engine generator(rd());
 void fully_connected_layer::init(layer_data data, layer_data data_previous) {
 
     data.n_in = {data_previous.n_out.feature_maps * data_previous.n_out.y * data_previous.n_out.x, 1, 1};
+    data.elems = data.n_in.x+data_previous.elems;
     this->data = data;
-    this->data_previous = data_previous;
 
     cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
     cudaMalloc((void**) &this->dev_data_previous, sizeof(layer_data));
@@ -18,32 +18,76 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous) {
     cudaMalloc((void**) &dev_weights, data.n_out.x*data.n_in.x*sizeof(float));
     cudaMalloc((void**) &dev_weights_vel, data.n_out.x*data.n_in.x*sizeof(float));
     cudaMalloc((void**) &dev_weights_updt, data.n_out.x*data.n_in.x*sizeof(float));
-    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, &this->dev_data->n_in.x);
+
+    // weights init: https://www.analyticsvidhya.com/blog/2021/05/how-to-initialize-weights-in-neural-networks/
+    // https://wandb.ai/sauravmaheshkar/initialization/reports/A-Gentle-Introduction-To-Weight-Initialization-for-Neural-Networks--Vmlldzo2ODExMTg
+    // https://stats.stackexchange.com/questions/373136/softmax-weights-initialization
+    float stddev;
+    if (data.activation_function == RELU) stddev = sqrt(2.0/data.n_in.x); // He-et-al
+    else stddev = sqrt(2.0/data.n_in.x+data.n_in.x); // Xavier
+    float* dev_stddev;
+    cudaMalloc((void**) &dev_stddev, sizeof(float));
+    cudaMemcpy(dev_stddev, &stddev, sizeof(float), cudaMemcpyHostToDevice);
+    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, dev_stddev);
     set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_vel, 0);
     set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_updt, 0);
 
     cudaMalloc((void**) &dev_biases, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &dev_biases_vel, data.n_out.x*sizeof(float));
     cudaMalloc((void**) &dev_biases_updt, data.n_out.x*sizeof(float));
-    set_to_random<<<data.n_out.x, 1>>>(dev_biases, &this->dev_data->n_in.x);
+    // biases init: https://medium.com/@glenmeyerowitz/bias-initialization-in-a-neural-network-2e5d26fed0f0
+    set_to<<<data.n_out.x, 1>>>(dev_biases, 0.01);
     set_to<<<data.n_out.x,1>>>(dev_biases_vel, 0);
     set_to<<<data.n_out.x,1>>>(dev_biases_updt, 0);
+
+    cudaFree(dev_stddev);
 }
 
-void fully_connected_layer::feedforward(float* &dev_a, float* &dev_dz, float* &dev_z, int* dev_elems) {
-    addWeights<<<data.n_out.x, data.n_in.x>>>(dev_a, dev_weights, dev_z, &dev_data->n_in.x, dev_elems);
+void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
+/*
+    if (data.activation_function == SOFTMAX) {
+        // TODO: make this smart
+        reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases);
+        cudaDeviceSynchronize();
+
+        float* exp_vec;
+        float* sum_of_exp;
+        cudaMalloc((void**) &exp_vec, data.n_out.x*sizeof(float));
+        cudaMalloc((void**) &sum_of_exp, sizeof(float));
+        set_to<<<1,1>>> (sum_of_exp, 0);
+        cudaDeviceSynchronize();
+        //assert(data.n_out.x < (1<<10));
+
+        int *max_id;
+        cudaMalloc((void**) &max_id, sizeof(int));
+        find_max<<<1,1>>>(&dev_a[data.elems], max_id, &dev_data->n_out.x);
+        calc_exp<<<data.n_out.x, 1>>>(exp_vec, &dev_a[data.elems], max_id); // this could also be done in the reduce func
+        cudaDeviceSynchronize();
+
+        reduce<<<1, data.n_out.x, data.n_out.x*sizeof(float)>>>(exp_vec, sum_of_exp, &dev_data->n_out.x, &dev_data->n_out.x, ADD_EXP);
+        cudaDeviceSynchronize();
+
+        calc_a_and_dz<<<data.n_out.x, 1>>>(&dev_a[data.elems], &dev_dz[data.elems], &dev_data->activation_function, sum_of_exp);
+        cudaDeviceSynchronize();
+
+        cudaFree(max_id);
+        cudaFree(exp_vec);
+        cudaFree(sum_of_exp);
+        //cudaDeviceSynchronize();
+    } else {*/
+        //reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function
+        reduce<<<data.n_out.x, (1<<10), data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function);
     cudaDeviceSynchronize();
-    getNewA<<<data.n_out.x,1>>> (dev_z, dev_biases, dev_a, dev_dz, dev_elems);
-    cudaDeviceSynchronize();
+    //}
 }
 
-void fully_connected_layer::backprop(float * &delta, float* &activations, float* &derivative_z, int* elems) {
+void fully_connected_layer::backprop(float* delta, float* activations, float* derivative_z, int* elems) {
     float* dev_new_delta;
     cudaMalloc((void**) &dev_new_delta, data.n_in.x*sizeof(float));
     set_to<<<data.n_in.x,1>>>(dev_new_delta, 0);
 
     if (!data.last_layer) {
-        mult<<<data.n_out.x,1>>>(delta, derivative_z, elems);
+        mult<<<data.n_out.x,1>>>(delta, &derivative_z[data.elems]);
     }
 
     cudaDeviceSynchronize();
@@ -51,13 +95,13 @@ void fully_connected_layer::backprop(float * &delta, float* &activations, float*
     add<<<data.n_out.x,1>>>(dev_biases_updt, delta);
     cudaDeviceSynchronize();
 
-    backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, activations, dev_new_delta, dev_weights, &dev_data->n_in.x, elems);
+    backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, &activations[data.elems-data.n_in.x], dev_new_delta, dev_weights, &dev_data->n_in.x);
 
     cudaDeviceSynchronize();
 
     cudaFree(delta);
     cudaMalloc((void**) &delta, data.n_in.x*sizeof(float));
-    cudaMemcpy(dev_new_delta, delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(delta, dev_new_delta, data.n_in.x*sizeof(float), cudaMemcpyDeviceToDevice);
     cudaFree(dev_new_delta);
 }
 
@@ -81,6 +125,7 @@ void fully_connected_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_FULLY_CONNECTED << "//";
+    file << data.activation_function << "//";
     file << data.n_out.x << "//";
 
     float* biases = new float [data.n_out.x];
@@ -90,7 +135,7 @@ void fully_connected_layer::save(string filename) {
     file << "//";
 
     float* biases_vel = new float [data.n_out.x];
-    cudaMemcpy(biases_vel, dev_biases, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(biases_vel, dev_biases_vel, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
     for (int bias_vel = 0; bias_vel < data.n_out.x; bias_vel++) file << biases_vel[bias_vel] << " ";
     delete[] biases_vel;
     file << "//";
@@ -179,8 +224,8 @@ void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float*
                     }
                 }
                 z[get_data_index(map, y, x, data)] += biases[map];
-                new_a[get_data_index(map, y, x, data)] = data.activationFunct(z[get_data_index(map, y, x, data)]);
-                new_dz[get_data_index(map, y, x, data)] = data.activationFunctPrime(z[get_data_index(map, y, x, data)]);
+                new_a[get_data_index(map, y, x, data)] = activation_function(z[get_data_index(map, y, x, data)], data.activation_function);
+                new_dz[get_data_index(map, y, x, data)] = activation_function_prime(z[get_data_index(map, y, x, data)], data.activation_function);
             }
         }
     }
@@ -257,6 +302,7 @@ void convolutional_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 
     file << LAYER_NUM_CONVOLUTIONAL << "//";
+    file << data.activation_function << "//";
     file << data.stride_length << " " << data.receptive_field_length << " " << data.n_out.feature_maps << "//";
 
     for (int bias = 0; bias < data.n_out.feature_maps; bias++) file << biases[bias] << " ";
@@ -348,14 +394,15 @@ void max_pooling_layer::save(string filename) {
 void max_pooling_layer::clear() {}
 */
 void input_layer::init(layer_data data, layer_data data_previous) {
+    data.elems = 0;
     this->data = data;
     (void) data_previous;
 }
 
-void input_layer::feedforward(float* &a, float* &dz, float* &dev_z, int* elems) {}
+void input_layer::feedforward(float* a, float* dz) {}
 
-void input_layer::backprop(float * &delta,
-                           float* &activations, float* &derivative_z, int* elems) {}
+void input_layer::backprop(float* delta,
+                           float* activations, float* derivative_z, int* elems) {}
 
 void input_layer::update(hyperparams* params) {}
 
