@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activation_function = RELU;
     // FIND-TAG-ARCHITECTURE
-    fully_connected2.n_out = {1020, 1, 1};
+    fully_connected2.n_out = {30, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
@@ -39,14 +39,14 @@ int main(int argc, char** argv) {
     outt.n_out = {10, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 6;
+    int L = 4;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
-    layers[2] = maxpool;
-    layers[3] = fully_connected1;
-    layers[4] = fully_connected2;
-    layers[5] = outt;
+    layers[1] = maxpool;
+    layers[1] = fully_connected2;
+    layers[2] = fully_connected2;
+    layers[3] = outt;
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
     cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
-    cout << evtst.second << "\n";
+    std::cout << durationTest << "\n";
 
     // FIND-TAG-STORING
     // cerr << "Where should the network be stored? "; string filename; cin >> filename;
