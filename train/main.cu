@@ -11,7 +11,8 @@ int main(int argc, char** argv) {
 
     layer_data input;
     input.type = LAYER_NUM_INPUT;
-    input.n_out = {28, 28, 1};
+    //input.n_out = {28, 28, 1};
+    input.n_out = {NEURONS, 1, 1};
 
     layer_data convolutional;
     convolutional.type = LAYER_NUM_CONVOLUTIONAL;
@@ -39,17 +40,19 @@ int main(int argc, char** argv) {
     outt.type = LAYER_NUM_FULLY_CONNECTED;
     outt.activation_function = RELU;
     outt.last_layer = true;
-    outt.n_out = {OUTPUT_NEURONS, 1, 1};
+    //outt.n_out = {OUTPUT_NEURONS, 1, 1};
+    outt.n_out = {NEURONS, 1, 1};
+
 
     // FIND-TAG-LAYERS
-    int L = 4;
+    int L = 2;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
     layers[1] = maxpool;
     layers[1] = fully_connected2;
-    layers[2] = fully_connected2;
-    layers[3] = outt;
+    layers[1] = fully_connected2;
+    layers[1] = outt;
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");

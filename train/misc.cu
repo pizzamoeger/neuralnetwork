@@ -83,7 +83,7 @@ inline __device__ int get_fully_connected_weight_index_dev (int neuron, int prev
 // load data
 std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
-    std::ifstream file;
+    /*std::ifstream file;
     std::string line;
 
     file.open(filename);
@@ -92,24 +92,31 @@ std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string file
     int dataPoints = 0;
     while (getline(file, line)) {
         dataPoints++;
-    }
+    }*/
+    int dataPoints = 10000;
 
-    file.clear(); // Reset stream state
-    file.seekg(0); // Move cursor back to beginning
+    //file.clear(); // Reset stream state
+    //file.seekg(0); // Move cursor back to beginning
 
     int lineIndex = 0;
     std::vector<std::pair<float*,float*>> data (dataPoints, {nullptr, nullptr});
 
-    while (getline(file, line)) {
-        std::stringstream ss(line);
-        float* data_in = new float [INPUT_NEURONS];
-        float* data_out = new float [OUTPUT_NEURONS];
+    //while (getline(file, line)) {
+        //std::stringstream ss(line);
+    for (int abc = 0; abc < dataPoints; abc++) {
+        //float* data_in = new float [INPUT_NEURONS];
+        //float* data_out = new float [OUTPUT_NEURONS];
 
-        for (int i = 0; i < INPUT_NEURONS; i++) data_in[i] = 0;
-        for (int i = 0; i < OUTPUT_NEURONS; i++) data_out[i] = 0;
+        //for (int i = 0; i < INPUT_NEURONS; i++) data_in[i] = 0;
+        //for (int i = 0; i < OUTPUT_NEURONS; i++) data_out[i] = 0;
+        float* data_in = new float [NEURONS];
+        float* data_out = new float [NEURONS];
+
+        for (int i = 0; i < NEURONS; i++) data_in[i] = i*3/(i+1/2);
+        for (int i = 0; i < NEURONS; i++) data_out[i] = 0;
 
         int label = -1;
-        int i = 0;
+        /*int i = 0;
         while (ss.good()) {
             std::string substr;
             getline(ss, substr, ' ');
@@ -120,8 +127,10 @@ std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string file
                 data_in[i] = atof(substr.c_str());
                 i++;
             }
-        }
+        }*/
+        label = 0; // TODO remove
         data_out[label] = 1;
+
 
         float* dev_data_in;
         float* dev_data_out;
@@ -138,7 +147,7 @@ std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string file
     }
 
     std::cerr << dataPoints << " data loaded from " + filename + "\n";
-    file.close();
+    //file.close();
     return {data, dataPoints};
 }
 

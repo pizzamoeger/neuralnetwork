@@ -26,14 +26,14 @@ def plot_graph(filename, label, color1, color2, STOP):
 
 #plt.ylim([0, 1500])
 
-"""
-plot_graph("GPU.txt", "Parallel Reduction (floats)", "#FF0000", "#FF6e6e", 110)
-plot_graph("GPU_double.txt", "Parallel Reduction (doubles)", "#0b5394", "#6fa8dc", 110)
-plot_graph("CPU.txt", "CPU adding (floats)", "#2d8108", "#7ebc63", 110)
-plot_graph("GPU_AtmoicAdd.txt", "AtomicAdd (floats)", "#f1c232", "#ffe599", 110)
-"""
-plot_graph("a.txt", "Parallel Reduction (doubles)", "#0b5394", "#6fa8dc", 400)
 
+#plot_graph("GPU.txt", "Parallel Reduction (floats)", "#FF0000", "#FF6e6e", 300)
+#plot_graph("GPU_double.txt", "Parallel Reduction (doubles)", "#0b5394", "#6fa8dc", 300)
+plot_graph("CPU.txt", "CPU adding (floats) one hidden layer", "#2d8108", "#7ebc63", 110)
+#plot_graph("GPU_AtmoicAdd.txt", "AtomicAdd (floats)", "#f1c232", "#ffe599", 110)
+
+#plot_graph("GPU_two_hidden.txt", "Parallel Reduction (doubles)", "#6fa8dc", "#6fa8dc", 300)
+plot_graph("CPU_two_hidden.txt", "CPU adding (floats) two hidden layers", "#7ebc63", "#7ebc63", 110)
 
 plt.title("time for eval of test_data as a function of size of hidden layer diagram")
 plt.xlabel('neurons in the hidden layer')

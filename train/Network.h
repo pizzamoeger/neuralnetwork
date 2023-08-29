@@ -46,6 +46,9 @@ enum {
 #define OUTPUT_NEURONS 10
 #define INPUT_NEURONS 28*28
 
+// FIND-TAG-N
+    #define NEURONS 510
+
 __constant__ int zero = 0;
 extern int* zero_pointer;
 extern float* f_zero_pointer;

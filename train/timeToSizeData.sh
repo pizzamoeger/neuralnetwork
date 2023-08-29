@@ -1,8 +1,8 @@
 runs_per_size=10
 start_size=5
-end_size=300
+end_size=512
 step_size=5
-file_name="compare/a.txt"
+file_name="compare/GPU_n_squared.txt"
 
 > $file_name
 
@@ -25,8 +25,8 @@ EOF
 for ((i=start_size; i<end_size; i+=step_size))
 do
 
-  sed -i -e '/\/\/ FIND-TAG-ARCHITECTURE/{n; r /dev/stdin' -e 'd;}' train/main.cu <<EOF
-    fully_connected2.n_out = {$i, 1, 1};
+  sed -i -e '/\/\/ FIND-TAG-N/{n; r /dev/stdin' -e 'd;}' train/Network.h <<EOF
+    #define NEURONS $i
 EOF
 
   make
