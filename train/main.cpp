@@ -8,7 +8,8 @@ int main(int argc, char** argv) {
 
     layer_data input;
     input.type = LAYER_NUM_INPUT;
-    input.n_out = {28, 28, 1};
+    //input.n_out = {28, 28, 1};
+    input.n_out = {NEURONS, 1, 1};
 
     layer_data convolutional;
     convolutional.type = LAYER_NUM_CONVOLUTIONAL;
@@ -36,17 +37,19 @@ int main(int argc, char** argv) {
     outt.type = LAYER_NUM_FULLY_CONNECTED;
     outt.activation_function = RELU;
     outt.last_layer = true;
-    outt.n_out = {10, 1, 1};
+    //outt.n_out = {OUTPUT_NEURONS, 1, 1};
+    outt.n_out = {NEURONS, 1, 1};
+
 
     // FIND-TAG-LAYERS
-    int L = 4;
+    int L = 2;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
     layers[1] = maxpool;
     layers[1] = fully_connected2;
-    layers[2] = fully_connected2;
-    layers[3] = outt;
+    layers[1] = fully_connected2;
+    layers[1] = outt;
 
     // train network
     auto [test_data, test_data_size] = load_data("mnist_test_normalized.data");
@@ -61,7 +64,7 @@ int main(int argc, char** argv) {
         params.L2_regularization_term = atof(argv[5]);
         params.momentum_coefficient = atof(argv[6]);
     }
-    params.test_data_size  = test_data_size;
+    params.test_data_size = test_data_size;
     params.training_data_size = training_data_size;
 
     // initialize params learning rate reduction
@@ -72,9 +75,9 @@ int main(int argc, char** argv) {
     params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // FIND-TAG-EPOCHS
-    // cerr << "epochs: "; cin >> params.epochs;
+    cerr << "epochs: "; cin >> params.epochs;
     // params.epochs = 150;
-    params.epochs = 0;
+    // params.epochs = 0;
 
     net.init(layers, L, crossEntropyPrime);
     net.SGD(training_data, test_data, params);
@@ -83,16 +86,16 @@ int main(int argc, char** argv) {
     auto [correctTest, durationTest] = net.evaluate(test_data, test_data_size);
     auto [correctTrain, durationTrain] = net.evaluate(training_data, training_data_size);
 
-    cerr << "accuracy in training data: " << (float)correctTrain / params.training_data_size << "\n";
-    cerr << "general accuracy: " << (float)correctTest / params.test_data_size << "\n";
+    std::cerr << "accuracy in training data: " << (float) correctTrain / params.training_data_size << "\n";
+    std::cerr << "general accuracy: " << (float) correctTest / params.test_data_size << "\n";
 
     // FIND-TAG-OUTPUT
-    std::cout << durationTest << "\n";
+    // cout << evtst.second << "\n";
 
     // FIND-TAG-STORING
-    // cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    cerr << "Where should the network be stored? "; string filename; cin >> filename;
     // string filename = argv[1];
-    // net.save(filename);
+    net.save(filename);
 
     clear_data(test_data);
     clear_data(training_data);

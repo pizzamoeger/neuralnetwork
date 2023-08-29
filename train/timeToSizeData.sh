@@ -1,10 +1,10 @@
 runs_per_size=10
 start_size=5
-end_size=220
+end_size=512
 step_size=5
-file_name="compare/CPU_two_hidden.txt"
+file_name="compare/CPU_n_squared.txt"
 
-echo "" > $file_name
+> $file_name
 
 sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp <<EOF
     // cerr << "Where should the network be stored? "; string filename; cin >> filename;
@@ -25,8 +25,8 @@ EOF
 for ((i=start_size; i<end_size; i+=step_size))
 do
 
-  sed -i -e '/\/\/ FIND-TAG-ARCHITECTURE/{n; r /dev/stdin' -e 'd;}' train/main.cpp <<EOF
-    fully_connected2.n_out = {$i, 1, 1};
+  sed -i -e '/\/\/ FIND-TAG-N/{n; r /dev/stdin' -e 'd;}' train/Network.h <<EOF
+    #define NEURONS $i
 EOF
 
   make
@@ -48,13 +48,17 @@ sed -i -e '/\/\/ FIND-TAG-ARCHITECTURE/{n; r /dev/stdin' -e 'd;}' train/main.cpp
 EOF
 
 sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp <<EOF
-    // cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    cerr << "Where should the network be stored? "; string filename; cin >> filename;
     // string filename = argv[1];
-    // net.save(filename);
+    net.save(filename);
 EOF
 
 sed -i -e '/\/\/ FIND-TAG-EPOCHS/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp <<EOF
-    // cerr << "epochs: "; cin >> params.epochs;
+    cerr << "epochs: "; cin >> params.epochs;
     // params.epochs = 150;
-    params.epochs = 0;
+    // params.epochs = 0;
+EOF
+
+sed -i -e '/\/\/ FIND-TAG-OUTPUT/{n; r /dev/stdin' -e 'd;}' train/main.cpp <<EOF
+    // cout << evtst.second << "\n";
 EOF

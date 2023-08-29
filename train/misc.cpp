@@ -45,32 +45,33 @@ float crossEntropyPrime(float output_activation, float y) {
 // load data
 pair<data_point*, int> load_data(string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
-    ifstream file;
-    string line;
+    //ifstream file;
+    //string line;
 
-    file.open(filename);
+    //file.open(filename);
 
     // how many lines there are in the file
-    int dataPoints = 0;
-    while (getline(file, line)) {
+    int dataPoints = 10000;
+    /*while (getline(file, line)) {
         dataPoints++;
     }
     file.close();
 
-    file.open(filename);
+    file.open(filename);*/
 
     data_point *data = new data_point[dataPoints];
     int lineIndex = 0;
 
-    while (getline(file, line)) {
-        stringstream ss(line);
+    //while (getline(file, line)) {
+      //  stringstream ss(line);
+for (int abc = 0; abc < dataPoints; abc++) {
 
-        for (int i = 0; i < 10; i++) data[lineIndex].second[i] = 0;
-        for (int i = 0; i < 28 * 28; i++) data[lineIndex].first[i] = 0;
+        for (int i = 0; i < NEURONS; i++) data[lineIndex].second[i] = 0;
+        for (int i = 0; i < NEURONS; i++) data[lineIndex].first[i] = i*2/(i+2);
 
         int label = -1;
         int i = 0;
-        while (ss.good()) {
+        /*while (ss.good()) {
             string substr;
             getline(ss, substr, ' ');
             if (label == -1) {
@@ -80,12 +81,13 @@ pair<data_point*, int> load_data(string filename) {
                 data[lineIndex].first[i] = atof(substr.c_str());
                 i++;
             }
-        }
+        }*/
+        label = i;
         data[lineIndex].second[label] = 1;
         lineIndex++;
     }
     cerr << dataPoints << " data loaded from " + filename + "\n";
-    file.close();
+    //file.close();
     return {data, dataPoints};
 }
 

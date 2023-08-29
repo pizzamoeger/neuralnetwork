@@ -34,8 +34,10 @@ float reluPrime(float x);
 float activationFunction(float x, int activationFunction);
 float activationFunctionPrime(float x, int activationFunction);
 
-typedef float input_type[28*28];
-typedef float output_type[10];
+// FIND-TAG-N
+    #define NEURONS 510
+typedef float input_type[NEURONS];
+typedef float output_type[NEURONS];
 typedef pair<input_type, output_type> data_point;
 
 float crossEntropyPrime(float output_activation, float y);

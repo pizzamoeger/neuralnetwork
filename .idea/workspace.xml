@@ -19,18 +19,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="bug fixes in general">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="added n squared GPU data">
+      <changelist_data name="pizzamoeger" email="osshannahsophie@gmail.com" date="1693341687000" />
+      <change afterPath="$PROJECT_DIR$/compare/GPU_n_squared.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/compare/plot.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" afterPath="$PROJECT_DIR$/neuralnetwork" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/cnn" beforeDir="false" afterPath="$PROJECT_DIR$/train/cnn" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/fully_connected" beforeDir="false" afterPath="$PROJECT_DIR$/train/fully_connected" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/layer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/runNetworks.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/runNetworks.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/timeToSizeData.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/timeToSizeData.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,11 +107,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.neuralnetwork">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -256,6 +251,9 @@
       <workItem from="1692110144918" duration="150000" />
       <workItem from="1692112315481" duration="112000" />
       <workItem from="1692197975092" duration="7809000" />
+      <workItem from="1693342507065" duration="27000" />
+      <workItem from="1693342609939" duration="250000" />
+      <workItem from="1693368982467" duration="4000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -572,6 +570,7 @@
     <MESSAGE value="bug fixes in activation functions" />
     <MESSAGE value="improved bash scripts" />
     <MESSAGE value="fixed the python tester" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed the python tester" />
+    <MESSAGE value="added n squared GPU data" />
+    <option name="LAST_COMMIT_MESSAGE" value="added n squared GPU data" />
   </component>
 </project>
