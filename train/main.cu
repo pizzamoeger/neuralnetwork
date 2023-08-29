@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activation_function = RELU;
     // FIND-TAG-ARCHITECTURE
-    fully_connected2.n_out = {500, 1, 1};
+    fully_connected2.n_out = {30, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
@@ -42,14 +42,14 @@ int main(int argc, char** argv) {
     outt.n_out = {OUTPUT_NEURONS, 1, 1};
 
     // FIND-TAG-LAYERS
-    int L = 3;
+    int L = 4;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
     layers[1] = maxpool;
-    layers[1] = fully_connected1;
     layers[1] = fully_connected2;
-    layers[2] = outt;
+    layers[2] = fully_connected2;
+    layers[3] = outt;
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // FIND-TAG-EPOCHS
-    std::cerr << "epochs: "; std::cin >> params.epochs;
+    cerr << "epochs: "; cin >> params.epochs;
     // params.epochs = 150;
     // params.epochs = 0;
 
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
     // cout << evtst.second << "\n";
 
     // FIND-TAG-STORING
-    std::cerr << "Where should the network be stored? "; std::string filename; std::cin >> filename;
+    cerr << "Where should the network be stored? "; string filename; cin >> filename;
     // string filename = argv[1];
     net.save(filename);
 

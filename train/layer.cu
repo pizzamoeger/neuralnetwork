@@ -27,7 +27,7 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous, floa
     // https://stats.stackexchange.com/questions/373136/softmax-weights-initialization
     float stddev;
     if (data.activation_function == RELU) stddev = sqrt(2.0/data.n_in.x); // He-et-al
-    else stddev = sqrt(2.0/data.n_in.x+data.n_in.x); // Xavier
+    else stddev = sqrt(2.0/data.n_in.x+data.n_out.x); // Xavier
     float* dev_stddev;
     cudaMalloc((void**) &dev_stddev, sizeof(float));
     cudaMemcpy(dev_stddev, &stddev, sizeof(float), cudaMemcpyHostToDevice);
@@ -148,49 +148,62 @@ void fully_connected_layer::clear() {
     data.n_in = data_previous.n_out;
     data.n_out.x = (data.n_in.x - data.receptive_field_length + 1) / data.stride_length;
     data.n_out.y = (data.n_in.y - data.receptive_field_length + 1) / data.stride_length;
-
+    data.elems = data.n_in.x+data_previous.elems;
     this->data = data;
-    this->data_previous = data_previous;
 
     weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length;
 
-    normal_distribution<float> distribution(0.0, 1.0 / sqrt(data.receptive_field_length * data.receptive_field_length));
+    cudaMalloc((void**) &delta, data.n_out.x*sizeof(float));
+    this->new_delta = new_delta;
 
-    biases = new float[data.n_out.feature_maps];
-    biasesVelocity = new float[data.n_out.feature_maps];
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-        biases[map] = distribution(generator);
-        biasesVelocity[map] = 0;
-    }
+    cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
+    cudaMalloc((void**) &this->dev_data_previous, sizeof(layer_data));
 
-    weights = new float[weights_size];
-    weightsVelocity = new float[weights_size];
-    for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
-        for (int map = 0; map < data.n_out.feature_maps; map++) {
-            for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
-                for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
-                    weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] = distribution(generator);
-                    weightsVelocity[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] = 0;
-                }
-            }
-        }
-    }
+    cudaMemcpy(this->dev_data, &data, sizeof(layer_data), cudaMemcpyHostToDevice);
+    cudaMemcpy(this->dev_data_previous, &data_previous, sizeof(layer_data), cudaMemcpyHostToDevice);
 
-    updateB = new float[data.n_out.feature_maps];
-    updateW = new float[weights_size];
-    for (int bias = 0; bias < data.n_out.feature_maps; bias++) updateB[bias] = 0;
-    for (int weight = 0; weight < weights_size; weight++) updateW[weight] = 0;
+    cudaMalloc((void**) &dev_weights, weights_size*sizeof(float));
+    cudaMalloc((void**) &dev_weights_vel, weights_size*sizeof(float));
+    cudaMalloc((void**) &dev_weights_updt, weights_size*sizeof(float));
+
+    // weights init: https://www.analyticsvidhya.com/blog/2021/05/how-to-initialize-weights-in-neural-networks/
+    // https://wandb.ai/sauravmaheshkar/initialization/reports/A-Gentle-Introduction-To-Weight-Initialization-for-Neural-Networks--Vmlldzo2ODExMTg
+    // https://stats.stackexchange.com/questions/373136/softmax-weights-initialization
+    float stddev;
+    // TODO is this actually cprrect
+    if (data.activation_function == RELU) stddev = sqrt(2.0/(data.n_in.x*data.n_in.y*data.n_in.feature_maps)); // He-et-al
+    else stddev = sqrt(2.0/(data.n_in.x*data.n_in.y*data.n_in.feature_maps+(data.n_out.x*data.n_out.y*data.n_out.feature_maps)); // Xavier
+
+    float* dev_stddev;
+    cudaMalloc((void**) &dev_stddev, sizeof(float));
+    cudaMemcpy(dev_stddev, &stddev, sizeof(float), cudaMemcpyHostToDevice);
+    set_to_random<<<weights_size, 1>>>(dev_weights, dev_stddev);
+    set_to<<<weights_size, 1>>>(dev_weights_vel, 0);
+    set_to<<<weights_size, 1>>>(dev_weights_updt, 0);
+
+    cudaMalloc((void**) &dev_biases, data.n_out.feature_maps*sizeof(float));
+    cudaMalloc((void**) &dev_biases_vel, data.n_out.feature_maps*sizeof(float));
+    cudaMalloc((void**) &dev_biases_updt, data.n_out.feature_maps*sizeof(float));
+    // biases init: https://medium.com/@glenmeyerowitz/bias-initialization-in-a-neural-network-2e5d26fed0f0
+    set_to<<<data.n_out.feature_maps, 1>>>(dev_biases, 0.01);
+    set_to<<<data.n_out.feature_maps,1>>>(dev_biases_vel, 0);
+    set_to<<<data.n_out.feature_maps,1>>>(dev_biases_updt, 0);
+
+    cudaFree(dev_stddev);
 }
 
-void convolutional_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
-    (void) dz;
+// TODO: up until here clayer is in cuda
+void convolutional_layer::feedforward(float* dev_a, float* dev_dz) {
+    dim3
+    reduce<<<data.n_out.x, (1<<10), data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function);
+    cudaDeviceSynchronize();
 
     float* z = new float [data.n_out.feature_maps * data.n_out.y * data.n_out.x];
     for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) z[i] = 0;
 
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
         for (int y = 0; y < data.n_out.y; y++) {
             for (int x = 0; x < data.n_out.x; x++) {
+    for (int map = 0; map < data.n_out.feature_maps; map++) {
                 for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
                     for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
                         for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {

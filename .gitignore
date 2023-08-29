@@ -1,8 +1,10 @@
 *.data
 cmake-build-debug
 cmake-build-release
-networks
-params
+networks/*.out
+networks/*.txt
+params/*.out
+params/*.txt
 Testing
 venv
 .cmake

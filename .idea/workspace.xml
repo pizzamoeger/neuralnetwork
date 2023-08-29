@@ -22,13 +22,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/includes.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/includes.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare/plot.png" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compare/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" afterPath="$PROJECT_DIR$/neuralnetwork" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/timeToSizeData.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/timeToSizeData.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,6 +77,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
@@ -108,12 +110,7 @@
       <recent name="$PROJECT_DIR$/bf" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.neuralnetwork">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Python.plot">
     <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -313,7 +310,9 @@
       <workItem from="1693116686095" duration="86000" />
       <workItem from="1693117120573" duration="2361000" />
       <workItem from="1693120318437" duration="9321000" />
-      <workItem from="1693134766962" duration="1399000" />
+      <workItem from="1693134766962" duration="4002000" />
+      <workItem from="1693313067324" duration="909000" />
+      <workItem from="1693316432038" duration="4597000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -679,7 +678,15 @@
       <option name="project" value="LOCAL" />
       <updated>1693130363434</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="added std::">
+      <option name="closed" value="true" />
+      <created>1693136268050</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1693136268050</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -715,7 +722,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="removed stuff that requires g++ features" />
     <MESSAGE value="removed c++ speficic features" />
     <MESSAGE value="bug fix" />
     <MESSAGE value="__device__ functions" />
@@ -740,7 +746,8 @@
     <MESSAGE value="resetted to AtmoicAdd for time comparison" />
     <MESSAGE value="AtomicAdd data added" />
     <MESSAGE value="backprop in fully connected faster" />
-    <option name="LAST_COMMIT_MESSAGE" value="backprop in fully connected faster" />
+    <MESSAGE value="added std::" />
+    <option name="LAST_COMMIT_MESSAGE" value="added std::" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
