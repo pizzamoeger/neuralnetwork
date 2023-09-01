@@ -29,11 +29,11 @@ def plot_graph(filename, label, color1, color2, STOP):
 
 #plot_graph("GPU.txt", "Parallel Reduction (floats)", "#FF0000", "#FF6e6e", 300)
 #plot_graph("GPU_double.txt", "Parallel Reduction (doubles)", "#0b5394", "#6fa8dc", 300)
-plot_graph("CPU.txt", "CPU adding (floats) one hidden layer", "#2d8108", "#7ebc63", 110)
+#plot_graph("CPU.txt", "CPU adding (floats) one hidden layer", "#2d8108", "#7ebc63", 110)
 #plot_graph("GPU_AtmoicAdd.txt", "AtomicAdd (floats)", "#f1c232", "#ffe599", 110)
 
-#plot_graph("GPU_two_hidden.txt", "Parallel Reduction (doubles)", "#6fa8dc", "#6fa8dc", 300)
-plot_graph("CPU_two_hidden.txt", "CPU adding (floats) two hidden layers", "#7ebc63", "#7ebc63", 110)
+plot_graph("GPU_n_squared.txt", "Parallel Reduction (doubles)", "#6fa8dc", "#6fa8dc", 512)
+plot_graph("CPU_n_squared.txt", "CPU adding (floats) two hidden layers", "#7ebc63", "#7ebc63", 512)
 
 plt.title("time for eval of test_data as a function of size of hidden layer diagram")
 plt.xlabel('neurons in the hidden layer')

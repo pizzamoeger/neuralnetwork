@@ -18,7 +18,7 @@ EOF
 # output the accuracy with cout
 
 sed -i -e '/\/\/ FIND-TAG-OUTPUT/{n; r /dev/stdin' -e 'd;}' main.cpp <<EOF
-    cout << (float)correctTest / params.test_data_size << "\n";
+    std::cout << (float)correctTest / params.test_data_size << "\n";
 EOF
 
 # no storing
@@ -71,7 +71,7 @@ EOF
 # set epochs back to reading them from input
 
 sed -i -e '/\/\/ FIND-TAG-EPOCHS/{n; r /dev/stdin' -e 'N;N;d;}' main.cpp <<EOF
-    cerr << "epochs: "; cin >> params.epochs;
+    std::cerr << "epochs: "; std::cin >> params.epochs;
     // params.epochs = 150;
     // params.epochs = 5;
 EOF
@@ -85,7 +85,7 @@ EOF
 # storing as reading from input
 
 sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' main.cpp <<EOF
-    cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    std::cerr << "Where should the network be stored? "; std::string filename; std::cin >> filename;
     // string filename = argv[1];
     net.save(filename);
 EOF

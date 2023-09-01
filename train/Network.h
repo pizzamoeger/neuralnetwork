@@ -47,7 +47,7 @@ enum {
 #define INPUT_NEURONS 28*28
 
 // FIND-TAG-N
-    #define NEURONS 510
+#define NEURONS 510
 
 __constant__ int zero = 0;
 extern int* zero_pointer;
@@ -123,37 +123,34 @@ struct fully_connected_layer : public layer {
     void clear();
 };
 
-/*struct convolutional_layer : public layer {
+struct convolutional_layer : public layer {
 
-    layer_data data_previous;
-
-    // biases[i] is bias of ith neuron.
-    float* biases;
-    float* biasesVelocity;
-
-    // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    float* weights;
-    float* weightsVelocity;
-
-    // what needs to be updated
-    float* updateB;
-    float* updateW;
-
+    layer_data* dev_data_previous;
     int weights_size;
 
-    void init (layer_data data, layer_data data_previous);
+    // biases[i] is bias of ith neuron.
+    float* dev_biases;
+    float* dev_biases_vel;
+    float* dev_biases_updt;
 
-    void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
+    // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
+    float* dev_weights;
+    float* dev_weights_vel;
+    float* dev_weights_updt;
 
-    void backprop(float* &delta, float* &activations, float* &derivative_z, float* &new_delta);
+    void init (layer_data data, layer_data data_previous, float* new_delta);
 
-    void update(hyperparams params);
+    void feedforward(float* a, float* dz);
 
-    void save(string filename);
+    void backprop(float* activations, float* derivative_z){};
+
+    void update(hyperparams* params){};
+
+    void save(std::string filename){};
 
     void clear();
 };
-
+/*
 struct max_pooling_layer : public layer {
 
     //layer_data data;
@@ -237,7 +234,7 @@ __global__ void set_to (float *vec, float value); // initialize the elements to 
 __global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
-__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_1 = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, float* sum_of_exp = NULL);
+__global__ void reduce(float* input, float* res_1, network_data* size, int calc, float* mult_1 = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, int* stride_length = NULL);
 
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*

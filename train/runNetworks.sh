@@ -11,7 +11,7 @@ EOF
 
 sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp <<EOF
     // cerr << "Where should the network be stored? "; string filename; cin >> filename;
-    string filename = argv[1];
+    std::string filename = argv[1];
     net.save(filename);
 EOF
 
@@ -20,7 +20,7 @@ make
 # set epochs back to reading them from input
 
 sed -i -e '/\/\/ FIND-TAG-EPOCHS/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp <<EOF
-    cerr << "epochs: "; cin >> params.epochs;
+    std::cerr << "epochs: "; std::cin >> params.epochs;
     // params.epochs = 150;
     // params.epochs = 5;
 EOF
@@ -28,7 +28,7 @@ EOF
 # storing as reading from input
 
 sed -i -e '/\/\/ FIND-TAG-STORING/{n; r /dev/stdin' -e 'N;N;d;}' train/main.cpp <<EOF
-    cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    std::cerr << "Where should the network be stored? "; std::string filename; std::cin >> filename;
     // string filename = argv[1];
     net.save(filename);
 EOF

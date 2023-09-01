@@ -16,7 +16,7 @@ void Network::init(layer_data* layers, int L, hyperparams params) {
                 new_layer = std::make_unique<input_layer>();
                 break;
             case LAYER_NUM_CONVOLUTIONAL:
-                //new_layer = make_unique<convolutional_layer>();
+                new_layer = std::make_unique<convolutional_layer>();
                 break;
             case LAYER_NUM_MAX_POOLING:
                 //new_layer = make_unique<max_pooling_layer>();

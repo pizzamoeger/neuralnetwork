@@ -11,15 +11,15 @@ int main(int argc, char** argv) {
 
     layer_data input;
     input.type = LAYER_NUM_INPUT;
-    //input.n_out = {28, 28, 1};
-    input.n_out = {NEURONS, 1, 1};
+    input.n_out = {28, 28, 1};
+    //input.n_out = {NEURONS, 1, 1};
 
     layer_data convolutional;
     convolutional.type = LAYER_NUM_CONVOLUTIONAL;
     convolutional.stride_length = 1;
-    convolutional.receptive_field_length = 5;
+    convolutional.receptive_field_length = 7;
     convolutional.activation_function = RELU;
-    convolutional.n_out = {-1,-1, 3};
+    convolutional.n_out = {-1,-1, 2};
 
     layer_data maxpool;
     maxpool.type = 2;
@@ -34,25 +34,25 @@ int main(int argc, char** argv) {
     fully_connected2.type = LAYER_NUM_FULLY_CONNECTED;
     fully_connected2.activation_function = RELU;
     // FIND-TAG-ARCHITECTURE
-    fully_connected2.n_out = {30, 1, 1};
+    fully_connected2.n_out = {50, 1, 1};
 
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
     outt.activation_function = RELU;
     outt.last_layer = true;
-    //outt.n_out = {OUTPUT_NEURONS, 1, 1};
-    outt.n_out = {NEURONS, 1, 1};
+    outt.n_out = {OUTPUT_NEURONS, 1, 1};
+    //outt.n_out = {NEURONS, 1, 1};
 
 
     // FIND-TAG-LAYERS
-    int L = 2;
+    int L = 4;
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
-    layers[1] = maxpool;
-    layers[1] = fully_connected2;
-    layers[1] = fully_connected2;
-    layers[1] = outt;
+    layers[2] = maxpool;
+    layers[2] = fully_connected2;
+    layers[2] = fully_connected2;
+    layers[3] = outt;
 
     // train network
     auto tst = load_data("mnist_test_normalized.data");
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     params.convWRed = params.convolutional_weights_learning_rate*99/10000;
 
     // FIND-TAG-EPOCHS
-    cerr << "epochs: "; cin >> params.epochs;
+    std::cerr << "epochs: "; std::cin >> params.epochs;
     // params.epochs = 150;
     // params.epochs = 0;
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     // cout << evtst.second << "\n";
 
     // FIND-TAG-STORING
-    cerr << "Where should the network be stored? "; string filename; cin >> filename;
+    std::cerr << "Where should the network be stored? "; std::string filename; std::cin >> filename;
     // string filename = argv[1];
     net.save(filename);
 

@@ -83,7 +83,7 @@ inline __device__ int get_fully_connected_weight_index_dev (int neuron, int prev
 // load data
 std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string filename) {
     // loads data from csv file of form label, pixel1, pixel2, pixel3, ..., pixel784
-    /*std::ifstream file;
+    std::ifstream file;
     std::string line;
 
     file.open(filename);
@@ -92,31 +92,24 @@ std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string file
     int dataPoints = 0;
     while (getline(file, line)) {
         dataPoints++;
-    }*/
-    int dataPoints = 10000;
+    }
 
-    //file.clear(); // Reset stream state
-    //file.seekg(0); // Move cursor back to beginning
+    file.clear(); // Reset stream state
+    file.seekg(0); // Move cursor back to beginning
 
     int lineIndex = 0;
     std::vector<std::pair<float*,float*>> data (dataPoints, {nullptr, nullptr});
 
-    //while (getline(file, line)) {
-        //std::stringstream ss(line);
-    for (int abc = 0; abc < dataPoints; abc++) {
-        //float* data_in = new float [INPUT_NEURONS];
-        //float* data_out = new float [OUTPUT_NEURONS];
+    while (getline(file, line)) {
+        std::stringstream ss(line);
+        float* data_in = new float [INPUT_NEURONS];
+        float* data_out = new float [OUTPUT_NEURONS];
 
-        //for (int i = 0; i < INPUT_NEURONS; i++) data_in[i] = 0;
-        //for (int i = 0; i < OUTPUT_NEURONS; i++) data_out[i] = 0;
-        float* data_in = new float [NEURONS];
-        float* data_out = new float [NEURONS];
-
-        for (int i = 0; i < NEURONS; i++) data_in[i] = i*3/(i+1/2);
-        for (int i = 0; i < NEURONS; i++) data_out[i] = 0;
+        for (int i = 0; i < INPUT_NEURONS; i++) data_in[i] = 0;
+        for (int i = 0; i < OUTPUT_NEURONS; i++) data_out[i] = 0;
 
         int label = -1;
-        /*int i = 0;
+        int i = 0;
         while (ss.good()) {
             std::string substr;
             getline(ss, substr, ' ');
@@ -127,8 +120,7 @@ std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string file
                 data_in[i] = atof(substr.c_str());
                 i++;
             }
-        }*/
-        label = 0; // TODO remove
+        }
         data_out[label] = 1;
 
 
@@ -147,7 +139,7 @@ std::pair<std::vector<std::pair<float*,float*>>, int> load_data(std::string file
     }
 
     std::cerr << dataPoints << " data loaded from " + filename + "\n";
-    //file.close();
+    file.close();
     return {data, dataPoints};
 }
 
@@ -234,6 +226,7 @@ __global__ void set_to_random (float *vec, float *stddev) {
     curandState state;
     curand_init(clock64(), index, 0, &state);
     vec[index] = curand_normal(&state)*(*stddev);
+    //printf("weightss: %f, %d\n", vec[index], index);
 }
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
@@ -278,8 +271,8 @@ inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, i
     switch (calc) {
         case CALC_Z:
             while(*activation_func == SOFTMAX);
-            res_2[bid] = activation_function_prime(res_1[bid]+add_once[bid], *activation_func, 0);
-            res_1[bid] = activation_function(res_1[bid]+add_once[bid], *activation_func, 0);
+            res_2[bid] = activation_function_prime(res_1[bid], *activation_func, 0);
+            res_1[bid] = activation_function(res_1[bid], *activation_func, 0);
             break;
         case CALC_ND:
             res_1[bid] = res_1[bid]*add_once[bid];
@@ -288,20 +281,28 @@ inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, i
     }
 }
 
-__global__ void reduce(float* input, float* res_1, int* size, int* block_size_ptr, int calc, float* mult_1, float* vec_2, float* res_2, int* activation_func, float* sum_of_exp) {
-    const int block_size = *block_size_ptr;
+__global__ void reduce(float* input, float* res_1, network_data* size_tot, int calc, float* mult_1, float* vec_2, float* res_2, int* activation_func, int* stride_length) {
+    const int block_size = blockDim.x*blockDim.y*blockDim.z;
     extern __shared__ float sum[];
-    int tid = threadIdx.x;
-    int bid = blockIdx.x;
-    int add = block_size;
-    int s = *size;
+    int tid = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
+    int bid = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
+
+    int add = 0;
+    int s = size_tot->x*size_tot->y*size_tot->feature_maps;
     if (calc == CALC_ND) s = gridDim.x;
 
-    if (tid >= block_size) return;
+    sum[tid] = 0;
+    while (tid + add < size_tot->x*size_tot->y*size_tot->feature_maps) {
+        if (stride_length != NULL) {
+            // TODO: make this nicer
+            int tid_a = threadIdx.z*size_tot->x*size_tot->y
+                    + (blockIdx.y*(*stride_length)+threadIdx.y)*size_tot->x
+                    + (blockIdx.x*(*stride_length)+threadIdx.x);
 
-    sum[tid] = calc_input(calc, bid, tid, s , input, mult_1);
-    while (tid + add < *size) {
-        sum[tid] += calc_input(calc, bid, tid+add, s, input, mult_1);
+            sum[tid] += mult_1[tid_a]*input[blockIdx.z*block_size + tid];
+            // idk make this better too
+            break;
+        } else sum[tid] += calc_input(calc, bid, tid+add, s, input, mult_1);
         add += block_size;
     }
     __syncthreads();
@@ -325,7 +326,10 @@ __global__ void reduce(float* input, float* res_1, int* size, int* block_size_pt
 
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
     if (tid == 0) {
-        res_1[bid] = sum[tid];
-        calc_res(calc, bid, res_1, res_2, activation_func, sum_of_exp, vec_2);
+        int bid_a = bid;
+        if (stride_length != NULL) bid_a = blockIdx.z;
+        if (calc == CALC_Z) res_1[bid] = sum[tid]+vec_2[bid_a];
+        else res_1[bid] = sum[tid];
+        calc_res(calc, bid, res_1, res_2, activation_func, NULL, vec_2);
     }
 }
