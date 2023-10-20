@@ -234,7 +234,9 @@ __global__ void set_to (float *vec, float value); // initialize the elements to 
 __global__ void set_to_random (float *vec, float* stddev); // initialize the elements to random value with mean 0 and given stddev
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
-__global__ void reduce(float* input, float* res_1, network_data* size, int calc, float* mult_1 = NULL, float* add_once = NULL, float* res_2 = NULL, int* activation_func = NULL, int* stride_length = NULL);
+inline __device__ void reduce(int tid, int block_size, float* sum);
+__global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in, float* a, float* biases, float* new_dz, int* activation_function, int* stride_length = NULL);
+__global__ void dev_backprop_ff(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in);
 
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*

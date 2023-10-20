@@ -226,6 +226,7 @@ __global__ void set_to_random (float *vec, float *stddev) {
     curandState state;
     curand_init(clock64(), index, 0, &state);
     vec[index] = curand_normal(&state)*(*stddev);
+    vec[index] = index/200;
     //printf("weightss: %f, %d\n", vec[index], index);
 }
 
@@ -281,31 +282,7 @@ inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, i
     }
 }
 
-__global__ void reduce(float* input, float* res_1, network_data* size_tot, int calc, float* mult_1, float* vec_2, float* res_2, int* activation_func, int* stride_length) {
-    const int block_size = blockDim.x*blockDim.y*blockDim.z;
-    extern __shared__ float sum[];
-    int tid = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
-    int bid = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
-
-    int add = 0;
-    int s = size_tot->x*size_tot->y*size_tot->feature_maps;
-    if (calc == CALC_ND) s = gridDim.x;
-
-    sum[tid] = 0;
-    while (tid + add < size_tot->x*size_tot->y*size_tot->feature_maps) {
-        if (stride_length != NULL) {
-            // TODO: make this nicer
-            int tid_a = threadIdx.z*size_tot->x*size_tot->y
-                    + (blockIdx.y*(*stride_length)+threadIdx.y)*size_tot->x
-                    + (blockIdx.x*(*stride_length)+threadIdx.x);
-
-            sum[tid] += mult_1[tid_a]*input[blockIdx.z*block_size + tid];
-            // idk make this better too
-            break;
-        } else sum[tid] += calc_input(calc, bid, tid+add, s, input, mult_1);
-        add += block_size;
-    }
-    __syncthreads();
+inline __device__ void reduce(int tid, int block_size, float* sum) {
 
     if (block_size > 512) {
         if (tid < block_size - 512) sum[tid] += sum[tid + 512];
@@ -325,11 +302,53 @@ __global__ void reduce(float* input, float* res_1, network_data* size_tot, int c
     }
 
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
-    if (tid == 0) {
-        int bid_a = bid;
-        if (stride_length != NULL) bid_a = blockIdx.z;
-        if (calc == CALC_Z) res_1[bid] = sum[tid]+vec_2[bid_a];
-        else res_1[bid] = sum[tid];
-        calc_res(calc, bid, res_1, res_2, activation_func, NULL, vec_2);
+
+}
+
+__global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in, float* a, float* biases, float* new_dz, int* activation_func, int* stride_length) {
+    int previous_neuron = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
+    int neuron = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
+
+    extern __shared__ float sum[];
+
+    // assumes n is <= max block size
+    int n = n_in->x*n_in->y*n_in->feature_maps;
+    if (stride_length != NULL) {
+        int previous_neuron_a = threadIdx.z*n_in->x*n_in->y
+                          + (blockIdx.y*(*stride_length)+threadIdx.y)*n_in->x
+                          + (blockIdx.x*(*stride_length)+threadIdx.x);
+        //printf("%i\n", previous_neuron_a);
+        int n_w = blockDim.x*blockDim.y*blockDim.z;
+        sum[previous_neuron] = weights[blockIdx.z*n_w + previous_neuron]*a[previous_neuron_a];
+    } // convolutional
+    else sum[previous_neuron] = weights[neuron*n + previous_neuron]*a[previous_neuron]; // fully connected
+
+    __syncthreads();
+
+    reduce(previous_neuron, n, sum);
+
+    if (previous_neuron == 0) {
+        int neuron_b = neuron;
+        if (stride_length != NULL) neuron_b = blockIdx.z;
+        sum[previous_neuron] += biases[neuron_b];
+        new_dz[neuron] = activation_function_prime(sum[previous_neuron], *activation_func, 0);
+        new_a[neuron] = activation_function(sum[previous_neuron], *activation_func, 0);
+    }
+}
+
+__global__ void dev_backprop_ff(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in) {
+    extern __shared__ float sum[];
+
+    int neuron = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
+    int previous_neuron = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
+
+    int n = blockDim.x*blockDim.y*blockDim.z;
+    sum[neuron] = delta[neuron]*weights[neuron*n + previous_neuron];
+    __syncthreads();
+
+    reduce(neuron, n, sum);
+
+    if (neuron == 0) {
+        new_delta[previous_neuron] = sum[neuron]*dz[previous_neuron];
     }
 }

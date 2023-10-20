@@ -79,7 +79,7 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
         //cudaDeviceSynchronize();
     } else {*/
         //reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in.x, &dev_data->n_in.x, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function
-        reduce<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function);
+        dev_feedforward<<<data.n_out.x, data.n_in.x, data.n_in.x*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function);
     cudaDeviceSynchronize();
     //}
 }
@@ -87,7 +87,7 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
 void fully_connected_layer::backprop(float* activations, float* derivative_z) {
     // TODO: this could be made faster but also uglier
     backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, &activations[data.elems-data.n_in.x], dev_biases_updt, &dev_data->n_in.x);
-    reduce<<<data.n_in.x, data.n_out.x, data.n_out.x*sizeof(float)>>>(dev_weights, new_delta,&dev_data->n_out, CALC_ND, delta, &derivative_z[data.elems-data.n_in.x]);
+    dev_backprop_ff<<<data.n_in.x, data.n_out.x, data.n_out.x*sizeof(float)>>>(delta, &derivative_z[data.elems-data.n_in.x], new_delta, dev_weights, &dev_data->n_in);
     cudaDeviceSynchronize();
 }
 
@@ -198,33 +198,10 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
 void convolutional_layer::feedforward(float* dev_a, float* dev_dz) {
     dim3 blocks(data.n_out.x, data.n_out.y, data.n_out.feature_maps);
     dim3 threads(data.receptive_field_length, data.receptive_field_length, data.n_in.feature_maps);
-    reduce<<<blocks, threads, data.receptive_field_length*data.receptive_field_length*data.n_in.feature_maps*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in, CALC_Z, &dev_a[data.elems-data.n_in.x], dev_biases, &dev_dz[data.elems], &dev_data->activation_function, &dev_data->stride_length);
+    int previous_elems = data.elems - (data.n_in.x*data.n_in.y*data.n_in.feature_maps);
+    dev_feedforward<<<blocks, threads, data.receptive_field_length*data.receptive_field_length*data.n_in.feature_maps*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in, &dev_a[previous_elems], dev_biases, &dev_dz[data.elems], &dev_data->activation_function, &dev_data->stride_length);
     cudaDeviceSynchronize();
-/*
-    float* z = new float [data.n_out.feature_maps * data.n_out.y * data.n_out.x];
-    for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) z[i] = 0;
-
-        for (int y = 0; y < data.n_out.y; y++) {
-            for (int x = 0; x < data.n_out.x; x++) {
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-                for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
-                    for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
-                        for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
-                            z[get_data_index(map, y, x, data)] +=
-                                    weights[blockIdx.z*block_size + tid(previous_map, map, kernel_y, kernel_x, data)] *
-                                    a[get_data_index(previous_map, y * data.stride_length + kernel_y, x * data.stride_length + kernel_x, data_previous)];
-                        }
-                    }
-                }
-                z[get_data_index(map, y, x, data)] += biases[map];
-                new_a[get_data_index(map, y, x, data)] = activation_function(z[get_data_index(map, y, x, data)], data.activation_function);
-                new_dz[get_data_index(map, y, x, data)] = activation_function_prime(z[get_data_index(map, y, x, data)], data.activation_function);
-            }
-        }
-    }
-
-    delete[] z;
-*/}
+}
 /*
 void convolutional_layer::backprop(float * &delta,
                                    float* &activations,

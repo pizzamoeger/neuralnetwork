@@ -23,16 +23,9 @@
   <component name="ChangeListManager">
     <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compare/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compare/plot.svg" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/compileParams.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/compileParams.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/runNetworks.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/runNetworks.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/timeToSizeData.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/timeToSizeData.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -390,6 +383,8 @@
       <workItem from="1693581728745" duration="4833000" />
       <workItem from="1693587463180" duration="58000" />
       <workItem from="1693587658235" duration="2333000" />
+      <workItem from="1696341338396" duration="7196000" />
+      <workItem from="1697814645581" duration="3000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -794,7 +789,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="cuda" />
                       </list>
                     </value>
                   </entry>
@@ -856,6 +851,16 @@
           <url>file://$PROJECT_DIR$/train/Network.cu</url>
           <line>100</line>
           <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/layer.cu</url>
+          <line>200</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/misc.cu</url>
+          <line>324</line>
+          <option name="timeStamp" value="39" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
