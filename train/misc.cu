@@ -226,28 +226,28 @@ __global__ void set_to_random (float *vec, float *stddev) {
     curandState state;
     curand_init(clock64(), index, 0, &state);
     vec[index] = curand_normal(&state)*(*stddev);
-    vec[index] = index/200;
+    //vec[index] = index/200;
     //printf("weightss: %f, %d\n", vec[index], index);
 }
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
-    if (block_size > 32) {
-        if (ind < block_size - 32 && ind < 32) sum[ind] += sum[ind + 32];
+    if (ind < block_size - 32 && ind < 32) {
+        sum[ind] += sum[ind + 32];
     }
-    if (block_size > 16) {
-        if (ind < block_size - 16 && ind < 16) sum[ind] += sum[ind + 16];
+    if (ind < block_size - 16 && ind < 16) {
+        sum[ind] += sum[ind + 16];
     }
-    if (block_size > 8) {
-        if (ind < block_size - 8 && ind < 8) sum[ind] += sum[ind + 8];
+    if (ind < block_size - 8 && ind < 8) {
+        sum[ind] += sum[ind + 8];
     }
-    if (block_size > 4) {
-        if (ind < block_size - 4 && ind < 4) sum[ind] += sum[ind + 4];
+    if (ind < block_size - 4 && ind < 4) {
+        sum[ind] += sum[ind + 4];
     }
-    if (block_size > 2) {
-        if (ind < block_size - 2 && ind < 2) sum[ind] += sum[ind + 2];
+    if (ind < block_size - 2 && ind < 2) {
+        sum[ind] += sum[ind + 2];
     }
-    if (block_size > 1) {
-        if (ind < block_size - 1 && ind < 1) sum[ind] += sum[ind + 1];
+    if (ind < block_size - 1 && ind < 1) {
+        sum[ind] += sum[ind + 1];
     }
 }
 
@@ -282,22 +282,22 @@ inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, i
     }
 }
 
-inline __device__ void reduce(int tid, int block_size, float* sum) {
+inline __device__ void reduce(int tid, int block_size, volatile float* sum) {
 
-    if (block_size > 512) {
-        if (tid < block_size - 512) sum[tid] += sum[tid + 512];
+    if (tid < block_size - 512) {
+        sum[tid] += sum[tid + 512];
         __syncthreads();
     }
-    if (block_size > 256) {
-        if (tid < block_size - 256 && tid < 256) sum[tid] += sum[tid + 256];
+    if (tid < block_size - 256 && tid < 256) {
+        sum[tid] += sum[tid + 256];
         __syncthreads();
     }
-    if (block_size > 128) {
-        if (tid < block_size - 128 && tid < 128) sum[tid] += sum[tid + 128];
+    if (tid < block_size - 128 && tid < 128) {
+        sum[tid] += sum[tid + 128];
         __syncthreads();
     }
-    if (block_size > 64) {
-        if (tid < block_size - 64 && tid < 64) sum[tid] += sum[tid + 64];
+    if (tid < block_size - 64 && tid < 64) {
+        sum[tid] += sum[tid + 64];
         __syncthreads();
     }
 
@@ -318,8 +318,8 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
                           + (blockIdx.y*(*stride_length)+threadIdx.y)*n_in->x
                           + (blockIdx.x*(*stride_length)+threadIdx.x);
         //printf("%i\n", previous_neuron_a);
-        int n_w = blockDim.x*blockDim.y*blockDim.z;
-        sum[previous_neuron] = weights[blockIdx.z*n_w + previous_neuron]*a[previous_neuron_a];
+        n = blockDim.x*blockDim.y*blockDim.z;
+        sum[previous_neuron] = weights[blockIdx.z*n + previous_neuron]*a[previous_neuron_a];
     } // convolutional
     else sum[previous_neuron] = weights[neuron*n + previous_neuron]*a[previous_neuron]; // fully connected
 
