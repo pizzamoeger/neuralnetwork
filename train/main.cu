@@ -3,12 +3,17 @@ int* zero_pointer;
 float* f_zero_pointer;
 
 int main(int argc, char** argv) {
+
+    // zeros to use on GPU
     cudaGetSymbolAddress((void**) &zero_pointer, zero);
     cudaGetSymbolAddress((void**) &f_zero_pointer, zero);
+
+    // randomness
     srand(time(NULL));
 
     Network net;
 
+    // design the layers
     layer_data input;
     input.type = LAYER_NUM_INPUT;
     input.n_out = {28, 28, 1};
@@ -43,7 +48,7 @@ int main(int argc, char** argv) {
     outt.n_out = {OUTPUT_NEURONS, 1, 1};
     //outt.n_out = {NEURONS, 1, 1};
 
-
+    // design the network
     // FIND-TAG-LAYERS
     int L = 4;
     layer_data* layers = new layer_data[L];
@@ -54,7 +59,7 @@ int main(int argc, char** argv) {
     layers[2] = fully_connected2;
     layers[3] = outt;
 
-    // train network
+    // load data
     auto tst = load_data("mnist_test_normalized.data");
     std::vector<std::pair<float*, float*>> test_data = tst.first;
     int test_data_size = tst.second;
@@ -62,8 +67,11 @@ int main(int argc, char** argv) {
     std::vector<std::pair<float*, float*>>  training_data = trn.first;
     int training_data_size = trn.second;
 
+    // get hyperparams
     auto params = get_params();
+
     if (argc == 7) {
+        // read hyperparams from commandline arguments
         params.fully_connected_weights_learning_rate = atof(argv[1]);
         params.fully_connected_biases_learning_rate = atof(argv[2]);
         params.convolutional_weights_learning_rate = atof(argv[3]);
@@ -86,9 +94,11 @@ int main(int argc, char** argv) {
     // params.epochs = 150;
     // params.epochs = 0;
 
+    // train network
     net.init(layers, L, params);
     net.SGD(training_data, test_data);
 
+    // get accuracy of network
     auto evtst = net.evaluate(test_data, test_data_size);
     int correct_test = evtst.first;
     auto evtrn = net.evaluate(training_data, training_data_size);
@@ -100,11 +110,13 @@ int main(int argc, char** argv) {
     // FIND-TAG-OUTPUT
     // cout << evtst.second << "\n";
 
+    // save network
     // FIND-TAG-STORING
     std::cerr << "Where should the network be stored? "; std::string filename; std::cin >> filename;
     // string filename = argv[1];
     net.save(filename);
 
+    // free up memory
     clear_data(test_data);
     clear_data(training_data);
     net.clear();

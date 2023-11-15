@@ -85,9 +85,12 @@ void fully_connected_layer::feedforward(float* dev_a, float* dev_dz) {
 }
 
 void fully_connected_layer::backprop(float* activations, float* derivative_z) {
-    // TODO: this could be made faster but also uglier
-    backprop_logic<<<data.n_out.x,data.n_in.x>>>(dev_weights_updt, delta, &activations[data.elems-data.n_in.x], dev_biases_updt, &dev_data->n_in.x);
-    dev_backprop_ff<<<data.n_in.x, data.n_out.x, data.n_out.x*sizeof(float)>>>(delta, &derivative_z[data.elems-data.n_in.x], new_delta, dev_weights, &dev_data->n_in);
+    backprop_update_w_b_fc<<<data.n_out.x, data.n_in.x>>>(dev_weights_updt, delta,
+                                                          &activations[data.elems - data.n_in.x],
+                                                          dev_biases_updt, &dev_data->n_in.x);
+    dev_backprop<<<data.n_in.x, data.n_out.x, data.n_out.x * sizeof(float)>>>(delta,
+                                                                              &derivative_z[data.elems - data.n_in.x],
+                                                                              new_delta, dev_weights, &dev_data->n_in);
     cudaDeviceSynchronize();
 }
 
@@ -153,7 +156,7 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
 
     weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length;
 
-    cudaMalloc((void**) &delta, data.n_out.x*sizeof(float));
+    cudaMalloc((void**) &delta, data.n_out.x*data.n_out.y*data.n_out.feature_maps*sizeof(float)); // TODO SIZE?
     this->new_delta = new_delta;
 
     cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
@@ -194,7 +197,6 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
     cudaDeviceSynchronize();
 }
 
-// TODO: up until here clayer is in cuda
 void convolutional_layer::feedforward(float* dev_a, float* dev_dz) {
     dim3 blocks(data.n_out.x, data.n_out.y, data.n_out.feature_maps);
     dim3 threads(data.receptive_field_length, data.receptive_field_length, data.n_in.feature_maps);
@@ -202,72 +204,29 @@ void convolutional_layer::feedforward(float* dev_a, float* dev_dz) {
     dev_feedforward<<<blocks, threads, data.receptive_field_length*data.receptive_field_length*data.n_in.feature_maps*sizeof(float)>>>(dev_weights, &dev_a[data.elems], &dev_data->n_in, &dev_a[previous_elems], dev_biases, &dev_dz[data.elems], &dev_data->activation_function, &dev_data->stride_length);
     cudaDeviceSynchronize();
 }
+
+void convolutional_layer::backprop(float* activations, float* derivative_z) {
+    dim3 blocks(data.receptive_field_length, data.receptive_field_length, data.n_in.feature_maps*data.n_out.feature_maps);
+    dim3 threads(data.n_out.x, data.n_out.y);
+    backprop_update_w_b_conv<<<blocks, threads, data.n_out.x*data.n_out.y*sizeof(float)>>>(dev_weights_updt, delta,
+                                                          &activations[data.elems - data.n_in.x],
+                                                          dev_biases_updt, &dev_data->n_in, &dev_data->stride_length);
+
+    blocks = dim3(data.n_in.x, data.n_in.y, data.n_in.feature_maps);
+    threads = dim3(data.receptive_field_length, data.receptive_field_length, data.n_out.feature_maps);
+
+    dev_backprop<<<blocks, threads, data.n_out.x * data.n_out.y * data.n_out.feature_maps * sizeof(float)>>>(delta,
+                                                                              &derivative_z[data.elems - data.n_in.x],
+                                                                              new_delta, dev_weights, &dev_data->n_in, &dev_data->stride_length);
+
+    cudaDeviceSynchronize();
+}
+
+void convolutional_layer::update(hyperparams* dev_params) {
+    ::update<<<data.n_out.feature_maps, data.n_in.feature_maps*data.receptive_field_length*data.receptive_field_length>>> (dev_biases_vel, dev_weights_vel, dev_weights_updt, dev_biases_updt, dev_weights, dev_biases, dev_params, &dev_data->stride_length);
+    cudaDeviceSynchronize();
+}
 /*
-void convolutional_layer::backprop(float * &delta,
-                                   float* &activations,
-                                   float* &derivative_z, float * &new_delta) {
-
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-        for (int y = 0; y < data.n_out.y; y++) {
-            for (int x = 0; x < data.n_out.x; x++) delta[get_data_index(map, y, x, data)] *= derivative_z[get_data_index(map, y, x, data)];
-        }
-    }
-
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-        for (int y = 0; y < data.n_out.y; y++) {
-            for (int x = 0; x < data.n_out.x; x++) {
-                updateB[map] += delta[get_data_index(map, y, x, data)];
-                for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
-                    for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
-                        for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
-                            new_delta[get_data_index(previous_map, y * data.stride_length + kernel_y, x * data.stride_length +
-                                                                                      kernel_x, data_previous)] +=
-                                    delta[get_data_index(map, y, x, data)] * weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)];
-                            updateW[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] +=
-                                    activations[get_data_index(previous_map, y * data.stride_length + kernel_y,
-                                            x * data.stride_length + kernel_x, data)] * delta[get_data_index(map, y, x, data)];
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-void convolutional_layer::update(hyperparams params) {
-
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-        biasesVelocity[map] = params.momentum_coefficient * biasesVelocity[map] -
-                              (params.convolutional_biases_learning_rate / params.mini_batch_size) * updateB[map];
-        biases[map] += biasesVelocity[map];
-    }
-
-    for (int previous_map = 0; previous_map < data.n_in.feature_maps; previous_map++) {
-        for (int map = 0; map < data.n_out.feature_maps; map++) {
-            for (int kernel_y = 0; kernel_y < data.receptive_field_length; kernel_y++) {
-                for (int kernel_x = 0; kernel_x < data.receptive_field_length; kernel_x++) {
-                    weightsVelocity[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] =
-                            params.momentum_coefficient * weightsVelocity[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] -
-                            (params.convolutional_weights_learning_rate / params.mini_batch_size /
-                             (data.n_out.x * data.n_out.y) *
-                             data.stride_length * data.stride_length) * updateW[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)];
-                    weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] = (1 -
-                                                                      params.convolutional_weights_learning_rate /
-                                                                      (data.n_out.x * data.n_out.y) *
-                                                                      data.stride_length * data.stride_length *
-                                                                      params.L2_regularization_term /
-                                                                      params.training_data_size) *
-                                                                     weights[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)] +
-                                                                     weightsVelocity[get_convolutional_weights_index(previous_map, map, kernel_y, kernel_x, data)];
-                }
-            }
-        }
-    }
-
-    for (int i = 0; i < data.n_out.feature_maps; i++) updateB[i] = 0;
-    for (int i = 0; i < data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length; i++) updateW[i] = 0;
-}
-
 void convolutional_layer::save(string filename) {
     ofstream file(filename, std::ios_base::app);
 

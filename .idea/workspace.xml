@@ -25,6 +25,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/layer.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/layer.cu" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train/main.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/misc.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -79,7 +80,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/hannah/neuralnetwork/CMakeLists.txt&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/hannah/neuralnetwork&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -384,7 +385,19 @@
       <workItem from="1693587463180" duration="58000" />
       <workItem from="1693587658235" duration="2333000" />
       <workItem from="1696341338396" duration="7196000" />
-      <workItem from="1697814645581" duration="3000" />
+      <workItem from="1697814645581" duration="1071000" />
+      <workItem from="1697878849227" duration="3000" />
+      <workItem from="1698155827191" duration="20000" />
+      <workItem from="1698390680788" duration="439000" />
+      <workItem from="1698391376776" duration="280000" />
+      <workItem from="1698395543750" duration="5761000" />
+      <workItem from="1698421911726" duration="2947000" />
+      <workItem from="1698996626952" duration="24000" />
+      <workItem from="1699368403799" duration="1000" />
+      <workItem from="1699966774754" duration="608000" />
+      <workItem from="1700037169225" duration="26000" />
+      <workItem from="1700038176807" duration="1425000" />
+      <workItem from="1700051018604" duration="2349000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -413,14 +426,6 @@
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
       <updated>1687552587995</updated>
-    </task>
-    <task id="LOCAL-00005" summary="memory leaks fixxed">
-      <option name="closed" value="true" />
-      <created>1687632295300</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1687632295300</updated>
     </task>
     <task id="LOCAL-00006" summary="learning rate reduction">
       <option name="closed" value="true" />
@@ -766,7 +771,23 @@
       <option name="project" value="LOCAL" />
       <updated>1693337253587</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="WIP commit">
+      <option name="closed" value="true" />
+      <created>1697814769084</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1697814769084</updated>
+    </task>
+    <task id="LOCAL-00050" summary="bug fix and small parallel reduction optimization">
+      <option name="closed" value="true" />
+      <created>1698397767054</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1698397767054</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -802,8 +823,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug fix" />
-    <MESSAGE value="__device__ functions" />
     <MESSAGE value="segfault fix" />
     <MESSAGE value="bug" />
     <MESSAGE value="bug fixes in activation functions" />
@@ -827,7 +846,9 @@
     <MESSAGE value="backprop in fully connected faster" />
     <MESSAGE value="added std::" />
     <MESSAGE value="added CPU time data with two hidden layers" />
-    <option name="LAST_COMMIT_MESSAGE" value="added CPU time data with two hidden layers" />
+    <MESSAGE value="WIP commit" />
+    <MESSAGE value="bug fix and small parallel reduction optimization" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug fix and small parallel reduction optimization" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -853,13 +874,8 @@
           <option name="timeStamp" value="34" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/train/layer.cu</url>
-          <line>200</line>
-          <option name="timeStamp" value="37" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/train/misc.cu</url>
-          <line>324</line>
+          <line>303</line>
           <option name="timeStamp" value="39" />
         </line-breakpoint>
       </breakpoints>

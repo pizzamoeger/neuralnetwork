@@ -174,33 +174,43 @@ __global__ void set_delta (float* delta, float* activations, float* out, int* co
     delta[neuron] = cost_function_prime(activations[neuron], out[neuron], *cost_func);
 }
 
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x) {
+__global__ void backprop_update_w_b_fc (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     dev_weights_upt[get_fully_connected_weight_index_dev(neuron, previous_neuron, *data_n_in_x)] += dev_delta[neuron] * dev_activations[previous_neuron];
     if (previous_neuron == 0) dev_biases_updt[neuron] += dev_delta[neuron];
 }
 
-__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params) {
+__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params, int* stride_length) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     int weight = neuron*blockDim.x+previous_neuron;
 
     if (previous_neuron == 0) {
-        biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
+        if (stride_length == NULL) biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
                                  (params->fully_connected_biases_learning_rate / params->mini_batch_size) *
                                  biases_updt[neuron];
+        else biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
+                                  (params->convolutional_biases_learning_rate / params->mini_batch_size) *
+                                  biases_updt[neuron];
         biases[neuron] += biases_vel[neuron];
         biases_updt[neuron] = 0;
     }
 
-    weights_vel[weight] =
+    int n = params->training_data_size;
+    if (stride_length == NULL) weights_vel[weight] =
             params->momentum_coefficient * weights_updt[weight] -
             (params->fully_connected_weights_learning_rate / params->mini_batch_size) *
             weights_updt[weight];
+    else {
+        weights_vel[weight] = params->momentum_coefficient * weights_updt[weight] -
+                 (params->convolutional_weights_learning_rate / params->mini_batch_size) *
+                 weights_updt[weight];
+        // TODO n = sl*sl*n/n_out_x*n_out_y
+    }
 
     weights[weight] = (1 - params->fully_connected_weights_learning_rate * params->L2_regularization_term
-                           / params->training_data_size) * weights[weight] + weights_vel[weight];
+                           / n) * weights[weight] + weights_vel[weight];
 
     weights_updt[weight] = 0;
 }
@@ -248,37 +258,6 @@ inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_
     }
     if (ind < block_size - 1 && ind < 1) {
         sum[ind] += sum[ind + 1];
-    }
-}
-
-inline __device__ float calc_input(int calc, int bid, int tid, int size, float* inpt, float* mult_n) {
-    switch (calc) {
-        case CALC_Z: {
-            float ret = inpt[bid * size + tid] * mult_n[tid];
-            return ret;
-        }
-        case CALC_ND: {
-            float ret = inpt[tid * size + bid] * mult_n[tid];
-            return ret;
-        }
-        case ADD_EXP:
-            return inpt[bid*size+tid];
-        default:
-            return 0;
-    }
-}
-
-inline __device__ void calc_res(int calc, int bid, float* res_1, float* res_2, int *activation_func, float *sum_of_exp, float* add_once) {
-    switch (calc) {
-        case CALC_Z:
-            while(*activation_func == SOFTMAX);
-            res_2[bid] = activation_function_prime(res_1[bid], *activation_func, 0);
-            res_1[bid] = activation_function(res_1[bid], *activation_func, 0);
-            break;
-        case CALC_ND:
-            res_1[bid] = res_1[bid]*add_once[bid];
-        default:
-            break;
     }
 }
 
@@ -336,19 +315,54 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
     }
 }
 
-__global__ void dev_backprop_ff(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in) {
+__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in, int* stride_len) {
     extern __shared__ float sum[];
 
     int neuron = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
     int previous_neuron = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
 
     int n = blockDim.x*blockDim.y*blockDim.z;
-    sum[neuron] = delta[neuron]*weights[neuron*n + previous_neuron];
+
+    if (stride_len != NULL) {
+        // convolutional
+        sum[neuron] = delta[neuron]*weights[threadIdx.z*n + previous_neuron];
+        previous_neuron = blockIdx.z*n_in->x*n_in->y
+                       + (threadIdx.y*(*stride_len)+blockIdx.y)*n_in->x
+                       + (threadIdx.x*(*stride_len)+blockIdx.x);
+    } else sum[neuron] = delta[neuron]*weights[neuron*n + previous_neuron];
+
     __syncthreads();
 
     reduce(neuron, n, sum);
 
     if (neuron == 0) {
         new_delta[previous_neuron] = sum[neuron]*dz[previous_neuron];
+    }
+}
+
+__global__ void backprop_update_w_b_conv (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, network_data* n_in, int* stride_length) {
+    int map = blockIdx.z / n_in->feature_maps;
+    int prev_map = blockIdx.z % n_in->feature_maps;
+    int kernel_x = blockIdx.x;
+    int kernel_y = blockIdx.y;
+    int x = threadIdx.x;
+    int y = threadIdx.y;
+
+    int previous_neuron = prev_map*n_in->y*n_in->x + (y*(*stride_length)+kernel_y)*n_in->x + x*(*stride_length)+kernel_x;
+    int neuron = map*blockDim.y*blockDim.x + y*blockDim.x + x;
+    int tid = y * blockDim.x + x;
+
+    extern __shared__ float sum[];
+
+    int n = blockDim.y*blockDim.x; // how much to reduce
+    sum[tid] = dev_activations[previous_neuron] * dev_delta[neuron];
+
+    __syncthreads();
+
+    reduce(tid, n, sum);
+
+    if (tid == 0) {
+        dev_biases_updt[map] += dev_delta[map];
+        dev_weights_upt[map*n_in->x*n_in->y*n_in->feature_maps + previous_neuron] += sum[tid];
     }
 }

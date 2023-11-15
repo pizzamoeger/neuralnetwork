@@ -142,9 +142,9 @@ struct convolutional_layer : public layer {
 
     void feedforward(float* a, float* dz);
 
-    void backprop(float* activations, float* derivative_z){};
+    void backprop(float* activations, float* derivative_z);
 
-    void update(hyperparams* params){};
+    void update(hyperparams* params);
 
     void save(std::string filename){};
 
@@ -226,8 +226,7 @@ int get_data_index(int map, int y, int x, layer_data &data);
 inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func);
-__global__ void backprop_logic (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x);
-__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params);
+__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params, int* stride_length = NULL);
 __global__ void eval (float* correct, float* output, int* counter, int* size);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value
@@ -236,7 +235,9 @@ __global__ void set_to_random (float *vec, float* stddev); // initialize the ele
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size);
 inline __device__ void reduce(int tid, int block_size, volatile float* sum);
 __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in, float* a, float* biases, float* new_dz, int* activation_function, int* stride_length = NULL);
-__global__ void dev_backprop_ff(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in);
+__global__ void backprop_update_w_b_fc (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x);
+__global__ void backprop_update_w_b_conv (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, network_data* n_in, int* stride_len);
+__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in, int* stride_len = NULL);
 
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*
