@@ -315,25 +315,26 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
     }
 }
 
-__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in, int* stride_len) {
+__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* in, int* stride_len) {
     extern __shared__ float sum[];
 
     int neuron = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
     int previous_neuron = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
 
-    int n = blockDim.x*blockDim.y*blockDim.z;
+    int n_in = gridDim.x*gridDim.y*gridDim.z;
+    int n_out = blockDim.x*blockDim.y*blockDim.z;
 
     if (stride_len != NULL) {
         // convolutional
-        sum[neuron] = delta[neuron]*weights[threadIdx.z*n + previous_neuron];
-        previous_neuron = blockIdx.z*n_in->x*n_in->y
-                       + (threadIdx.y*(*stride_len)+blockIdx.y)*n_in->x
+        sum[neuron] = delta[neuron]*weights[threadIdx.z*n_in + previous_neuron];
+        previous_neuron = blockIdx.z*in->x*in->y
+                       + (threadIdx.y*(*stride_len)+blockIdx.y)*in->x
                        + (threadIdx.x*(*stride_len)+blockIdx.x);
-    } else sum[neuron] = delta[neuron]*weights[neuron*n + previous_neuron];
+    } else sum[neuron] = delta[neuron]*weights[neuron*n_in + previous_neuron];
 
     __syncthreads();
 
-    reduce(neuron, n, sum);
+    reduce(neuron, n_out, sum);
 
     if (neuron == 0) {
         new_delta[previous_neuron] = sum[neuron]*dz[previous_neuron];
