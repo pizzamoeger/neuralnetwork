@@ -237,7 +237,7 @@ inline __device__ void reduce(int tid, int block_size, volatile float* sum);
 __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in, float* a, float* biases, float* new_dz, int* activation_function, int* stride_length = NULL);
 __global__ void backprop_update_w_b_fc (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x);
 __global__ void backprop_update_w_b_conv (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, network_data* n_in, int* stride_len);
-__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n_in, int* stride_len = NULL);
+__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n, int* stride_len = NULL);
 
 // https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
 /*

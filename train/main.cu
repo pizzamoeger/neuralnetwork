@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     layers[0] = input;
     layers[1] = convolutional;
     layers[2] = maxpool;
-    layers[2] = fully_connected2;
+    layers[1] = fully_connected2;
     layers[2] = fully_connected2;
     layers[3] = outt;
 

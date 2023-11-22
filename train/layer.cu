@@ -1,8 +1,5 @@
 #include "includes.h"
 
-std::random_device rd;
-std::default_random_engine generator(rd());
-
 void fully_connected_layer::init(layer_data data, layer_data data_previous, float* new_delta) {
 
     data.n_in = {data_previous.n_out.feature_maps * data_previous.n_out.y * data_previous.n_out.x, 1, 1};
@@ -217,7 +214,7 @@ void convolutional_layer::backprop(float* activations, float* derivative_z) {
 
     dev_backprop<<<blocks, threads, data.n_out.x * data.n_out.y * data.n_out.feature_maps * sizeof(float)>>>(delta,
                                                                               &derivative_z[data.elems - data.n_in.x],
-                                                                              new_delta, dev_weights, &dev_data->n_in, &dev_data->stride_length);
+                                                                              new_delta, dev_weights, &dev_data->n_out, &dev_data->stride_length);
 
     cudaDeviceSynchronize();
 }

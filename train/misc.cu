@@ -154,7 +154,7 @@ hyperparams get_params() {
     params.convolutional_weights_learning_rate = 1.2*1.0075;
     params.convolutional_biases_learning_rate = 1.2*0.011;
 
-    params.L2_regularization_term = 0;
+    params.L2_regularization_term = 0.0018;
     params.momentum_coefficient = 0;
 
     params.cost = CROSSENTROPY;
@@ -186,33 +186,42 @@ __global__ void update (float* biases_vel, float* weights_vel, float* weights_up
     int previous_neuron = threadIdx.x;
     int weight = neuron*blockDim.x+previous_neuron;
 
+    // TODO something in here does something
+    // if i comment entire update out, everything works well
+    // also, the updates are correct (because i copy pasted them from my working code)
+
     if (previous_neuron == 0) {
-        if (stride_length == NULL) biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
+        if (stride_length != NULL) {
+            biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
+                                (params->convolutional_biases_learning_rate / params->mini_batch_size) *
+                                biases_updt[neuron];
+        } else {
+            biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
                                  (params->fully_connected_biases_learning_rate / params->mini_batch_size) *
                                  biases_updt[neuron];
-        else biases_vel[neuron] = params->momentum_coefficient * biases_vel[neuron] -
-                                  (params->convolutional_biases_learning_rate / params->mini_batch_size) *
-                                  biases_updt[neuron];
+        }
         biases[neuron] += biases_vel[neuron];
         biases_updt[neuron] = 0;
     }
 
-    int n = params->training_data_size;
-    if (stride_length == NULL) weights_vel[weight] =
-            params->momentum_coefficient * weights_updt[weight] -
-            (params->fully_connected_weights_learning_rate / params->mini_batch_size) *
+    int n = 1;
+    if (stride_length != NULL) {
+        weights_vel[weight] = params->momentum_coefficient * weights_vel[weight] -
+            (params->convolutional_weights_learning_rate / params->mini_batch_size) *
             weights_updt[weight];
-    else {
-        weights_vel[weight] = params->momentum_coefficient * weights_updt[weight] -
-                 (params->convolutional_weights_learning_rate / params->mini_batch_size) *
-                 weights_updt[weight];
+        n = params->training_data_size;
         // TODO n = sl*sl*n/n_out_x*n_out_y
+        // TODO weights[weight] = stuff
+    } else {
+        weights_vel[weight] = params->momentum_coefficient * weights_vel[weight] -
+                (params->fully_connected_weights_learning_rate / params->mini_batch_size) *
+                weights_updt[weight];
+        weights[weight] = (1 - params->fully_connected_weights_learning_rate * params->L2_regularization_term) * weights[weight] + weights_vel[weight];
     }
 
-    weights[weight] = (1 - params->fully_connected_weights_learning_rate * params->L2_regularization_term
-                           / n) * weights[weight] + weights_vel[weight];
-
     weights_updt[weight] = 0;
+    //printf("%f %i\n", weights[weight], weight);
+    //weights[weight] = weight/200;
 }
 
 __global__ void eval (float* correct, float* output, int* counter, int* size) {
@@ -236,7 +245,7 @@ __global__ void set_to_random (float *vec, float *stddev) {
     curandState state;
     curand_init(clock64(), index, 0, &state);
     vec[index] = curand_normal(&state)*(*stddev);
-    //vec[index] = index/200;
+    vec[index] = index/200;
     //printf("weightss: %f, %d\n", vec[index], index);
 }
 
@@ -262,23 +271,23 @@ inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_
 }
 
 inline __device__ void reduce(int tid, int block_size, volatile float* sum) {
-
+    // TODO see if faster if syncthreads outside and biases update in conv has an extra call or like this where syncthreads is outside of if
     if (tid < block_size - 512) {
         sum[tid] += sum[tid + 512];
-        __syncthreads();
     }
+    __syncthreads();
     if (tid < block_size - 256 && tid < 256) {
         sum[tid] += sum[tid + 256];
-        __syncthreads();
     }
+    __syncthreads();
     if (tid < block_size - 128 && tid < 128) {
         sum[tid] += sum[tid + 128];
-        __syncthreads();
     }
+    __syncthreads();
     if (tid < block_size - 64 && tid < 64) {
         sum[tid] += sum[tid + 64];
-        __syncthreads();
     }
+    __syncthreads();
 
     if (tid < 32) reduce_last_warp(sum, tid, block_size);
 
@@ -291,13 +300,12 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
     extern __shared__ float sum[];
 
     // assumes n is <= max block size
-    int n = n_in->x*n_in->y*n_in->feature_maps;
+    int n = blockDim.x*blockDim.y*blockDim.z;
     if (stride_length != NULL) {
         int previous_neuron_a = threadIdx.z*n_in->x*n_in->y
                           + (blockIdx.y*(*stride_length)+threadIdx.y)*n_in->x
                           + (blockIdx.x*(*stride_length)+threadIdx.x);
         //printf("%i\n", previous_neuron_a);
-        n = blockDim.x*blockDim.y*blockDim.z;
         sum[previous_neuron] = weights[blockIdx.z*n + previous_neuron]*a[previous_neuron_a];
     } // convolutional
     else sum[previous_neuron] = weights[neuron*n + previous_neuron]*a[previous_neuron]; // fully connected
@@ -315,10 +323,11 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
     }
 }
 
-__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* in, int* stride_len) {
+__global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n, int* stride_len) {
     extern __shared__ float sum[];
 
     int neuron = threadIdx.z*blockDim.x*blockDim.y + threadIdx.y*blockDim.x + threadIdx.x;
+    int tid = neuron;
     int previous_neuron = blockIdx.z*gridDim.x*gridDim.y + blockIdx.y*gridDim.x + blockIdx.x;
 
     int n_in = gridDim.x*gridDim.y*gridDim.z;
@@ -326,18 +335,26 @@ __global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* w
 
     if (stride_len != NULL) {
         // convolutional
-        sum[neuron] = delta[neuron]*weights[threadIdx.z*n_in + previous_neuron];
-        previous_neuron = blockIdx.z*in->x*in->y
-                       + (threadIdx.y*(*stride_len)+blockIdx.y)*in->x
-                       + (threadIdx.x*(*stride_len)+blockIdx.x);
-    } else sum[neuron] = delta[neuron]*weights[neuron*n_in + previous_neuron];
+        /*
+         * blocks = dim3(data.n_in.x, data.n_in.y, data.n_in.feature_maps);
+    threads = dim3(data.receptive_field_length, data.receptive_field_length, data.n_out.feature_maps);
+         * */
+        int x = blockIdx.x-threadIdx.x;
+        int y = blockIdx.y-threadIdx.y;
+        neuron = threadIdx.x*n->x*n->y + y/(*stride_len)*n->x + x/(*stride_len);
+        int weight = threadIdx.z*blockDim.x*blockDim.y*gridDim.z + blockIdx.z * blockDim.x*blockDim.y + threadIdx.y * blockDim.x + threadIdx.x;
+        if (x < 0 || y < 0 || x % *stride_len != 0 || y % *stride_len != 0) {
+            sum[tid] = 0;
+        }
+        else sum[tid] = delta[neuron]*weights[weight];
+    } else sum[tid] = delta[neuron]*weights[neuron*n_in + previous_neuron];
 
     __syncthreads();
 
-    reduce(neuron, n_out, sum);
+    reduce(tid, n_out, sum);
 
-    if (neuron == 0) {
-        new_delta[previous_neuron] = sum[neuron]*dz[previous_neuron];
+    if (tid == 0) {
+        new_delta[previous_neuron] = sum[tid]*dz[previous_neuron];
     }
 }
 
@@ -362,8 +379,19 @@ __global__ void backprop_update_w_b_conv (float* dev_weights_upt, float* dev_del
 
     reduce(tid, n, sum);
 
+
     if (tid == 0) {
-        dev_biases_updt[map] += dev_delta[map];
-        dev_weights_upt[map*n_in->x*n_in->y*n_in->feature_maps + previous_neuron] += sum[tid];
+        int weight = map * n_in->feature_maps * gridDim.y * gridDim.x + prev_map * gridDim.y * gridDim.x + kernel_y * gridDim.x + kernel_x;
+        dev_weights_upt[weight] += sum[tid];
+    }
+
+    if (prev_map != 0 || kernel_x != 0 || kernel_y != 0) return; // biases: only for each map
+
+    sum[tid] = dev_delta[neuron];
+    __syncthreads();
+
+    reduce(tid, n, sum);
+    if (tid == 0) {
+        dev_biases_updt[map] += sum[tid];
     }
 }
