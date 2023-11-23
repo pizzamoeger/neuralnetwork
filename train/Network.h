@@ -226,7 +226,7 @@ int get_data_index(int map, int y, int x, layer_data &data);
 inline __device__ int get_fully_connected_weight_index_dev (int neuron, int previous_neuron, int data_n_in);
 
 __global__ void set_delta (float* delta, float* activations, float* out, int* cost_func);
-__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params, int* stride_length = NULL);
+__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params, int* stride_length = NULL, network_data* n_out = NULL);
 __global__ void eval (float* correct, float* output, int* counter, int* size);
 
 __global__ void set_to (float *vec, float value); // initialize the elements to value

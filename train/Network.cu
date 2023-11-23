@@ -49,7 +49,6 @@ void Network::feedforward(float* a, float* dev_activations, float* dev_derivativ
     for (int l = 1; l < L; l++) {
         layers[l]->feedforward(dev_activations, dev_derivatives_z);
     }
-    // TODO here  weight_updt already messed something up
 }
 
 std::pair<int,int> Network::evaluate(std::vector<std::pair<float*,float*>> test_data, int test_data_size) {
@@ -89,7 +88,7 @@ void Network::SGD(std::vector<std::pair<float*,float*>> training_data, std::vect
 
         // obtain a time-based seed
         unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        //shuffle(training_data.begin(), training_data.end(), std::default_random_engine(seed));
+        shuffle(training_data.begin(), training_data.end(), std::default_random_engine(seed));
 
         // create mini batches and update them
         std::vector<std::pair<float*,float*>> mini_batch (params.mini_batch_size, {nullptr, nullptr});
@@ -132,7 +131,6 @@ void Network::update_mini_batch(std::vector<std::pair<float*,float*>> mini_batch
     // update velocities
     for (int i = 1; i < L; i++) layers[i]->update(dev_params);
 }
-int megacounter123 = 0;
 
 void Network::backprop(float* in, float* out) {
     // feedfoward
@@ -140,24 +138,10 @@ void Network::backprop(float* in, float* out) {
 
     // backpropagate
     set_delta<<<OUTPUT_NEURONS,1>>> (layers[L-1]->delta, &activations[layers[L-1]->data.elems], out, &dev_params->cost);
-    float* acti = new float [OUTPUT_NEURONS];
-    cudaMemcpy(acti, layers[L-1]->delta, OUTPUT_NEURONS*sizeof(float), cudaMemcpyDeviceToHost);
-    for (int i = 0; i < OUTPUT_NEURONS; i++) {
-        std::cerr << acti[i] << " ";
-    }
-    std::cerr << "\n";
 
     for (int l = L - 1; l >= 1; l--) {
         layers[l]->backprop(activations, derivatives_z);
-        float* delta = new float [layers[l-1]->data.n_out.x*layers[l-1]->data.n_out.y*layers[l-1]->data.n_out.feature_maps];
-        cudaMemcpy(delta, layers[l]->new_delta, layers[l-1]->data.n_out.x*layers[l-1]->data.n_out.y*layers[l-1]->data.n_out.feature_maps*sizeof(float), cudaMemcpyDeviceToHost);
-        for (int i = 0; i < layers[l-1]->data.n_out.x*layers[l-1]->data.n_out.y*layers[l-1]->data.n_out.feature_maps; i++) {
-            std::cerr << delta[i] << " ";
-        }
-        std::cerr << "\n";
     }
-    megacounter123++;
-   while (megacounter123 > 16);
 }
 
 void Network::save(std::string filename) {

@@ -148,7 +148,7 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
     data.n_in = data_previous.n_out;
     data.n_out.x = (data.n_in.x - data.receptive_field_length + 1) / data.stride_length;
     data.n_out.y = (data.n_in.y - data.receptive_field_length + 1) / data.stride_length;
-    data.elems = data.n_in.x+data_previous.elems;
+    data.elems = data.n_in.x*data.n_in.y*data.n_in.feature_maps+data_previous.elems;
     this->data = data;
 
     weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length;
@@ -165,12 +165,11 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
     cudaMalloc((void**) &dev_weights, weights_size*sizeof(float));
     cudaMalloc((void**) &dev_weights_vel, weights_size*sizeof(float));
     cudaMalloc((void**) &dev_weights_updt, weights_size*sizeof(float));
-
     // weights init: https://www.analyticsvidhya.com/blog/2021/05/how-to-initialize-weights-in-neural-networks/
     // https://wandb.ai/sauravmaheshkar/initialization/reports/A-Gentle-Introduction-To-Weight-Initialization-for-Neural-Networks--Vmlldzo2ODExMTg
     // https://stats.stackexchange.com/questions/373136/softmax-weights-initialization
     float stddev;
-    // TODO is this actually cprrect
+    // TODO He-et-al convolutional
     if (data.activation_function == RELU) stddev = sqrt(2.0/(data.n_in.x*data.n_in.y*data.n_in.feature_maps)); // He-et-al
     else stddev = sqrt(2.0/(data.n_in.x*data.n_in.y*data.n_in.feature_maps+(data.n_out.x*data.n_out.y*data.n_out.feature_maps))); // Xavier
 
@@ -220,7 +219,7 @@ void convolutional_layer::backprop(float* activations, float* derivative_z) {
 }
 
 void convolutional_layer::update(hyperparams* dev_params) {
-    ::update<<<data.n_out.feature_maps, data.n_in.feature_maps*data.receptive_field_length*data.receptive_field_length>>> (dev_biases_vel, dev_weights_vel, dev_weights_updt, dev_biases_updt, dev_weights, dev_biases, dev_params, &dev_data->stride_length);
+    ::update<<<data.n_out.feature_maps, data.n_in.feature_maps*data.receptive_field_length*data.receptive_field_length>>> (dev_biases_vel, dev_weights_vel, dev_weights_updt, dev_biases_updt, dev_weights, dev_biases, dev_params, &dev_data->stride_length, &dev_data->n_out);
     cudaDeviceSynchronize();
 }
 /*

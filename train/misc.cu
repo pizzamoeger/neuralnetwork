@@ -181,14 +181,10 @@ __global__ void backprop_update_w_b_fc (float* dev_weights_upt, float* dev_delta
     if (previous_neuron == 0) dev_biases_updt[neuron] += dev_delta[neuron];
 }
 
-__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params, int* stride_length) {
+__global__ void update (float* biases_vel, float* weights_vel, float* weights_updt, float* biases_updt, float* weights, float* biases, hyperparams* params, int* stride_length, network_data* n_out) {
     int neuron = blockIdx.x;
     int previous_neuron = threadIdx.x;
     int weight = neuron*blockDim.x+previous_neuron;
-
-    // TODO something in here does something
-    // if i comment entire update out, everything works well
-    // also, the updates are correct (because i copy pasted them from my working code)
 
     if (previous_neuron == 0) {
         if (stride_length != NULL) {
@@ -204,14 +200,16 @@ __global__ void update (float* biases_vel, float* weights_vel, float* weights_up
         biases_updt[neuron] = 0;
     }
 
-    int n = 1;
     if (stride_length != NULL) {
-        weights_vel[weight] = params->momentum_coefficient * weights_vel[weight] -
-            (params->convolutional_weights_learning_rate / params->mini_batch_size) *
-            weights_updt[weight];
-        n = params->training_data_size;
-        // TODO n = sl*sl*n/n_out_x*n_out_y
-        // TODO weights[weight] = stuff
+        weights_vel[weight] =
+                params->momentum_coefficient * weights_vel[weight] -
+                (params->convolutional_weights_learning_rate / params->mini_batch_size /
+                 (n_out->x * n_out->y) *
+                 *stride_length * *stride_length) * weights_updt[weight];
+
+        weights[weight] = (1 - params->convolutional_weights_learning_rate / (n_out->x * n_out->y) *
+                        *stride_length * *stride_length * params->L2_regularization_term) *
+                            weights[weight] + weights_vel[weight];
     } else {
         weights_vel[weight] = params->momentum_coefficient * weights_vel[weight] -
                 (params->fully_connected_weights_learning_rate / params->mini_batch_size) *
@@ -220,8 +218,7 @@ __global__ void update (float* biases_vel, float* weights_vel, float* weights_up
     }
 
     weights_updt[weight] = 0;
-    //printf("%f %i\n", weights[weight], weight);
-    //weights[weight] = weight/200;
+    // TODO ? __syncthreads();
 }
 
 __global__ void eval (float* correct, float* output, int* counter, int* size) {
@@ -241,12 +238,9 @@ __global__ void set_to (float *vec, float value) {
 
 __global__ void set_to_random (float *vec, float *stddev) {
     int index = blockIdx.x;
-
     curandState state;
     curand_init(clock64(), index, 0, &state);
     vec[index] = curand_normal(&state)*(*stddev);
-    vec[index] = index/200;
-    //printf("weightss: %f, %d\n", vec[index], index);
 }
 
 inline __device__ void reduce_last_warp(volatile float* sum, int ind, int block_size) {
@@ -305,7 +299,6 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
         int previous_neuron_a = threadIdx.z*n_in->x*n_in->y
                           + (blockIdx.y*(*stride_length)+threadIdx.y)*n_in->x
                           + (blockIdx.x*(*stride_length)+threadIdx.x);
-        //printf("%i\n", previous_neuron_a);
         sum[previous_neuron] = weights[blockIdx.z*n + previous_neuron]*a[previous_neuron_a];
     } // convolutional
     else sum[previous_neuron] = weights[neuron*n + previous_neuron]*a[previous_neuron]; // fully connected
@@ -335,10 +328,6 @@ __global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* w
 
     if (stride_len != NULL) {
         // convolutional
-        /*
-         * blocks = dim3(data.n_in.x, data.n_in.y, data.n_in.feature_maps);
-    threads = dim3(data.receptive_field_length, data.receptive_field_length, data.n_out.feature_maps);
-         * */
         int x = blockIdx.x-threadIdx.x;
         int y = blockIdx.y-threadIdx.y;
         neuron = threadIdx.x*n->x*n->y + y/(*stride_len)*n->x + x/(*stride_len);
@@ -378,7 +367,6 @@ __global__ void backprop_update_w_b_conv (float* dev_weights_upt, float* dev_del
     __syncthreads();
 
     reduce(tid, n, sum);
-
 
     if (tid == 0) {
         int weight = map * n_in->feature_maps * gridDim.y * gridDim.x + prev_map * gridDim.y * gridDim.x + kernel_y * gridDim.x + kernel_x;

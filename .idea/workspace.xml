@@ -405,7 +405,10 @@
       <workItem from="1700562578193" duration="2360000" />
       <workItem from="1700577241355" duration="7000" />
       <workItem from="1700665173495" duration="7572000" />
-      <workItem from="1700675182689" duration="3507000" />
+      <workItem from="1700675182689" duration="4340000" />
+      <workItem from="1700680753404" duration="6054000" />
+      <workItem from="1700721251670" duration="46000" />
+      <workItem from="1700721310025" duration="9147000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -434,14 +437,6 @@
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
       <updated>1687552587995</updated>
-    </task>
-    <task id="LOCAL-00006" summary="learning rate reduction">
-      <option name="closed" value="true" />
-      <created>1687633349362</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1687633349362</updated>
     </task>
     <task id="LOCAL-00007" summary="improved numberreader for linux">
       <option name="closed" value="true" />
@@ -795,7 +790,15 @@
       <option name="project" value="LOCAL" />
       <updated>1698397767054</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="WIP commit">
+      <option name="closed" value="true" />
+      <created>1700679476367</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1700679476368</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -854,9 +857,9 @@
     <MESSAGE value="backprop in fully connected faster" />
     <MESSAGE value="added std::" />
     <MESSAGE value="added CPU time data with two hidden layers" />
-    <MESSAGE value="WIP commit" />
     <MESSAGE value="bug fix and small parallel reduction optimization" />
-    <option name="LAST_COMMIT_MESSAGE" value="bug fix and small parallel reduction optimization" />
+    <MESSAGE value="WIP commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="WIP commit" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
