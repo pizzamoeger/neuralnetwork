@@ -218,7 +218,6 @@ __global__ void update (float* biases_vel, float* weights_vel, float* weights_up
     }
 
     weights_updt[weight] = 0;
-    // TODO ? __syncthreads();
 }
 
 __global__ void eval (float* correct, float* output, int* counter, int* size) {

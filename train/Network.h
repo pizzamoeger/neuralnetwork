@@ -22,7 +22,6 @@ struct hyperparams {
 enum {
     LAYER_NUM_FULLY_CONNECTED,
     LAYER_NUM_CONVOLUTIONAL,
-    LAYER_NUM_MAX_POOLING,
     LAYER_NUM_INPUT
 };
 
@@ -37,14 +36,11 @@ enum {
     MSE
 };
 
-enum {
-    CALC_Z,
-    CALC_ND,
-    ADD_EXP
-};
-
 #define OUTPUT_NEURONS 10
-#define INPUT_NEURONS 28*28
+#define INPUT_NEURONS_X 28
+#define INPUT_NEURONS_Y 28
+#define INPUT_NEURONS INPUT_NEURONS_X*INPUT_NEURONS_Y
+#define DEL '/'
 
 // FIND-TAG-N
 #define NEURONS 510
@@ -89,26 +85,29 @@ struct layer {
     layer_data* dev_data;
     float* delta;
     float* new_delta;
+
+    int weights_size;
+    int biases_size;
+
+    float* dev_biases;
+    float* dev_biases_vel;
+    float* dev_biases_updt;
+
+    float* dev_weights;
+    float* dev_weights_vel;
+    float* dev_weights_updt;
+
     virtual void init(layer_data data, layer_data data_previous, float* new_delta) = 0;
     virtual void feedforward(float* a, float* dz) = 0;
     virtual void backprop(float* activations, float* derivative_z) = 0;
     virtual void update(hyperparams* params) = 0;
     virtual void save(std::string file) = 0;
+    virtual void load(std::string line, layer_data* layer, float* &biases, float* &biases_vel, float* &weights, float* &weights_vel) = 0;
     virtual void clear() = 0;
 };
 
 struct fully_connected_layer : public layer {
     layer_data* dev_data_previous;
-
-    // biases[i] is bias of ith neuron.
-    float* dev_biases;
-    float* dev_biases_vel;
-    float* dev_biases_updt;
-
-    // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    float* dev_weights;
-    float* dev_weights_vel;
-    float* dev_weights_updt;
 
     void init (layer_data data, layer_data data_previous, float* new_delta);
 
@@ -120,23 +119,13 @@ struct fully_connected_layer : public layer {
 
     void save(std::string filename);
 
+    void load(std::string line, layer_data* layer, float* &biases, float* &biases_vel, float* &weights, float* &weights_vel);
+
     void clear();
 };
 
 struct convolutional_layer : public layer {
-
     layer_data* dev_data_previous;
-    int weights_size;
-
-    // biases[i] is bias of ith neuron.
-    float* dev_biases;
-    float* dev_biases_vel;
-    float* dev_biases_updt;
-
-    // weights[i][j] is weight of ith neuron to jth neuron in previous layer.
-    float* dev_weights;
-    float* dev_weights_vel;
-    float* dev_weights_updt;
 
     void init (layer_data data, layer_data data_previous, float* new_delta);
 
@@ -146,30 +135,12 @@ struct convolutional_layer : public layer {
 
     void update(hyperparams* params);
 
-    void save(std::string filename){};
+    void save(std::string filename);
+
+    void load(std::string line, layer_data* layer, float* &biases, float* &biases_vel, float* &weights, float* &weight_vel);
 
     void clear();
 };
-/*
-struct max_pooling_layer : public layer {
-
-    //layer_data data;
-    layer_data data_previous;
-
-    // no biases or velocities
-
-    void init (layer_data data, layer_data data_previous);
-
-    void feedforward(float* a, float* dz, float* &new_a, float* &new_dz);
-
-    void backprop(float* &delta, float* &activations, float* &derivative_z, float* &new_delta);
-
-    void update(hyperparams params);
-
-    void save(string filename);
-
-    void clear();
-};*/
 
 struct input_layer : public layer {
 
@@ -185,6 +156,8 @@ struct input_layer : public layer {
     void update(hyperparams* params);
 
     void save(std::string filename);
+
+    void load(std::string line, layer_data* layer, float* &biases, float* &biases_vel, float* &weights, float* &weights_vel);
 
     void clear();
 };

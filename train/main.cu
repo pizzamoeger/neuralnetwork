@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     // design the layers
     layer_data input;
     input.type = LAYER_NUM_INPUT;
-    input.n_out = {28, 28, 1};
+    input.n_out = {INPUT_NEURONS_X, INPUT_NEURONS_Y, 1};
     //input.n_out = {NEURONS, 1, 1};
 
     layer_data convolutional;
@@ -25,10 +25,6 @@ int main(int argc, char** argv) {
     convolutional.receptive_field_length = 7;
     convolutional.activation_function = RELU;
     convolutional.n_out = {-1,-1, 2};
-
-    layer_data maxpool;
-    maxpool.type = 2;
-    maxpool.summarized_region_length = 2;
 
     layer_data fully_connected1;
     fully_connected1.type = LAYER_NUM_FULLY_CONNECTED;
@@ -54,7 +50,6 @@ int main(int argc, char** argv) {
     layer_data* layers = new layer_data[L];
     layers[0] = input;
     layers[1] = convolutional;
-    layers[2] = maxpool;
     layers[2] = fully_connected2;
     layers[2] = fully_connected2;
     layers[3] = outt;
@@ -95,7 +90,15 @@ int main(int argc, char** argv) {
     // params.epochs = 0;
 
     // train network
-    net.init(layers, L, params);
+    std::cerr << "load network (1/0)?";
+    bool load; std::cin >> load;
+    if (load) {
+        std::string file;
+        std::cerr << "enter file where network is stored: ";
+        std::cin >> file;
+        net.load(file);
+        net.params = params;
+    } else net.init(layers, L, params);
     net.SGD(training_data, test_data);
 
     // get accuracy of network

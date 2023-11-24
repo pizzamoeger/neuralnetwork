@@ -18,9 +18,6 @@ void Network::init(layer_data* layers, int L, hyperparams params) {
             case LAYER_NUM_CONVOLUTIONAL:
                 new_layer = std::make_unique<convolutional_layer>();
                 break;
-            case LAYER_NUM_MAX_POOLING:
-                //new_layer = make_unique<max_pooling_layer>();
-                break;
             case LAYER_NUM_FULLY_CONNECTED:
                 new_layer = std::make_unique<fully_connected_layer>();
                 break;
@@ -150,6 +147,70 @@ void Network::save(std::string filename) {
     file.close();
 
     for (int l = 0; l < L; l++) layers[l]->save(filename);
+}
+
+void Network::load(std::string filename) {
+    std::ifstream file;
+
+    file.open(filename);
+    std::string line;
+    std::string str;
+    getline(file, line);
+    L = atoi(line.c_str());
+    layer_data* layers = new layer_data[L];
+    float** biases = new float* [L];
+    float** biases_vel = new float* [L];
+    float** weights = new float* [L];
+    float** weights_vel = new float* [L];
+
+    for (int l = 0; l < L; l++) {
+        getline(file, line); // get line
+        std::stringstream ss(line);
+        getline(ss, str, DEL); // get first string before DEL
+        std::unique_ptr<layer> new_layer = nullptr;
+
+        int type = atoi(str.c_str());
+        layers[l].type = type;
+
+        switch (layers[l].type) {
+            case LAYER_NUM_INPUT:
+                new_layer = std::make_unique<input_layer>();
+                break;
+            case LAYER_NUM_CONVOLUTIONAL:
+                new_layer = std::make_unique<convolutional_layer>();
+                break;
+            case LAYER_NUM_FULLY_CONNECTED:
+                new_layer = std::make_unique<fully_connected_layer>();
+                break;
+        }
+
+        new_layer->load(line, &layers[l], biases[l], biases_vel[l], weights[l], weights_vel[l]);
+
+    }
+
+    hyperparams params = get_params();
+    init(layers, L, params);
+
+    for (int l = 1; l < L; l++) {
+        // copy the loaded weights to layer
+        cudaMemcpy(this->layers[l]->dev_biases, biases[l], this->layers[l]->biases_size*sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(this->layers[l]->dev_biases_vel, biases_vel[l], this->layers[l]->biases_size*sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(this->layers[l]->dev_weights, weights[l], this->layers[l]->weights_size*sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(this->layers[l]->dev_weights_vel, weights_vel[l], this->layers[l]->weights_size*sizeof(float), cudaMemcpyHostToDevice);
+    }
+
+    // free memory
+    delete[] layers;
+    for (int l = 0; l < L; l++) {
+        delete[] biases[l];
+        delete[] biases_vel[l];
+        delete[] weights[l];
+        delete[] weights_vel[l];
+    }
+    delete[] biases;
+    delete[] biases_vel;
+    delete[] weights;
+    delete[] weights_vel;
 }
 
 void Network::clear() {

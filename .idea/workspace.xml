@@ -21,7 +21,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="">
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="loading &amp; storing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.cu" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.cu" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
@@ -409,6 +409,10 @@
       <workItem from="1700680753404" duration="6054000" />
       <workItem from="1700721251670" duration="46000" />
       <workItem from="1700721310025" duration="9147000" />
+      <workItem from="1700731646460" duration="714000" />
+      <workItem from="1700744298896" duration="2437000" />
+      <workItem from="1700766097293" duration="1933000" />
+      <workItem from="1700807110261" duration="6314000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -834,7 +838,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="segfault fix" />
     <MESSAGE value="bug" />
     <MESSAGE value="bug fixes in activation functions" />
     <MESSAGE value="improved bash scripts" />
@@ -859,9 +862,19 @@
     <MESSAGE value="added CPU time data with two hidden layers" />
     <MESSAGE value="bug fix and small parallel reduction optimization" />
     <MESSAGE value="WIP commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="WIP commit" />
+    <MESSAGE value="loading &amp; storing" />
+    <option name="LAST_COMMIT_MESSAGE" value="loading &amp; storing" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/Network.cu</url>
+          <line>200</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
         <watch expression="weights" language="ObjectiveC" />

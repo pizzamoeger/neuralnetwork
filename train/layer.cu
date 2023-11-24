@@ -9,15 +9,18 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous, floa
     cudaMalloc((void**) &delta, data.n_out.x*sizeof(float));
     this->new_delta = new_delta;
 
+    weights_size = data.n_out.x*data.n_in.x;
+    biases_size = data.n_out.x;
+
     cudaMalloc((void**) &this->dev_data, sizeof(layer_data));
     cudaMalloc((void**) &this->dev_data_previous, sizeof(layer_data));
 
     cudaMemcpy(this->dev_data, &data, sizeof(layer_data), cudaMemcpyHostToDevice);
     cudaMemcpy(this->dev_data_previous, &data_previous, sizeof(layer_data), cudaMemcpyHostToDevice);
 
-    cudaMalloc((void**) &dev_weights, data.n_out.x*data.n_in.x*sizeof(float));
-    cudaMalloc((void**) &dev_weights_vel, data.n_out.x*data.n_in.x*sizeof(float));
-    cudaMalloc((void**) &dev_weights_updt, data.n_out.x*data.n_in.x*sizeof(float));
+    cudaMalloc((void**) &dev_weights, weights_size*sizeof(float));
+    cudaMalloc((void**) &dev_weights_vel, weights_size*sizeof(float));
+    cudaMalloc((void**) &dev_weights_updt, weights_size*sizeof(float));
 
     // weights init: https://www.analyticsvidhya.com/blog/2021/05/how-to-initialize-weights-in-neural-networks/
     // https://wandb.ai/sauravmaheshkar/initialization/reports/A-Gentle-Introduction-To-Weight-Initialization-for-Neural-Networks--Vmlldzo2ODExMTg
@@ -28,17 +31,17 @@ void fully_connected_layer::init(layer_data data, layer_data data_previous, floa
     float* dev_stddev;
     cudaMalloc((void**) &dev_stddev, sizeof(float));
     cudaMemcpy(dev_stddev, &stddev, sizeof(float), cudaMemcpyHostToDevice);
-    set_to_random<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights, dev_stddev);
-    set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_vel, 0);
-    set_to<<<data.n_out.x * data.n_in.x, 1>>>(dev_weights_updt, 0);
+    set_to_random<<<weights_size, 1>>>(dev_weights, dev_stddev);
+    set_to<<<weights_size, 1>>>(dev_weights_vel, 0);
+    set_to<<<weights_size, 1>>>(dev_weights_updt, 0);
 
-    cudaMalloc((void**) &dev_biases, data.n_out.x*sizeof(float));
-    cudaMalloc((void**) &dev_biases_vel, data.n_out.x*sizeof(float));
-    cudaMalloc((void**) &dev_biases_updt, data.n_out.x*sizeof(float));
+    cudaMalloc((void**) &dev_biases, biases_size*sizeof(float));
+    cudaMalloc((void**) &dev_biases_vel, biases_size*sizeof(float));
+    cudaMalloc((void**) &dev_biases_updt, biases_size*sizeof(float));
     // biases init: https://medium.com/@glenmeyerowitz/bias-initialization-in-a-neural-network-2e5d26fed0f0
-    set_to<<<data.n_out.x, 1>>>(dev_biases, 0.01);
-    set_to<<<data.n_out.x,1>>>(dev_biases_vel, 0);
-    set_to<<<data.n_out.x,1>>>(dev_biases_updt, 0);
+    set_to<<<biases_size,1>>>(dev_biases, 0.01);
+    set_to<<<biases_size,1>>>(dev_biases_vel, 0);
+    set_to<<<biases_size,1>>>(dev_biases_updt, 0);
 
     cudaFree(dev_stddev);
 }
@@ -100,27 +103,29 @@ void fully_connected_layer::update(hyperparams* dev_params) {
 void fully_connected_layer::save(std::string filename) {
     std::ofstream file(filename, std::ios_base::app);
 
-    file << LAYER_NUM_FULLY_CONNECTED << "//";
-    file << data.activation_function << "//";
-    file << data.n_out.x << "//";
+    file << LAYER_NUM_FULLY_CONNECTED << DEL;
+    file << data.activation_function << DEL;
+    file << data.n_out.x << DEL;
+    file << biases_size << DEL;
+    file << weights_size << DEL;
 
     float* biases = new float [data.n_out.x];
     cudaMemcpy(biases, dev_biases, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
     for (int bias = 0; bias < data.n_out.x; bias++) file << biases[bias] << " ";
     delete[] biases;
-    file << "//";
+    file << DEL;
 
     float* biases_vel = new float [data.n_out.x];
     cudaMemcpy(biases_vel, dev_biases_vel, data.n_out.x*sizeof(float), cudaMemcpyDeviceToHost);
     for (int bias_vel = 0; bias_vel < data.n_out.x; bias_vel++) file << biases_vel[bias_vel] << " ";
     delete[] biases_vel;
-    file << "//";
+    file << DEL;
 
     float* weights = new float [data.n_out.x*data.n_in.x];
     cudaMemcpy(weights, dev_weights, data.n_out.x*data.n_in.x*sizeof(float), cudaMemcpyDeviceToHost);
     for (int weight = 0; weight < data.n_out.x*data.n_in.x; weight++) file << weights[weight] << " ";
     delete[] weights;
-    file << "//";
+    file << DEL;
 
     float* weights_vel = new float [data.n_out.x*data.n_in.x];
     cudaMemcpy(weights_vel, dev_weights_vel, data.n_out.x*data.n_in.x*sizeof(float), cudaMemcpyDeviceToHost);
@@ -129,6 +134,64 @@ void fully_connected_layer::save(std::string filename) {
     file << "\n";
 
     file.close();
+}
+
+void fully_connected_layer::load(std::string line, layer_data *layer, float* &biases, float* &biases_vel, float* &weights, float* &weights_vel) {
+    // TODO this could surely be written nicer
+    std::stringstream ss_line(line);
+    std::string str;
+    getline(ss_line, str, DEL); // type
+
+    getline(ss_line, str, DEL);
+    layer->activation_function = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    layer->n_out.x = atoi(str.c_str());
+    layer->n_out.y = 1;
+    layer->n_out.feature_maps = 1;
+
+    getline(ss_line, str, DEL);
+    int biases_size = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    int weights_size = atoi(str.c_str());
+
+    biases = new float[biases_size];
+    biases_vel = new float[biases_size];
+    weights = new float[weights_size];
+    weights_vel = new float[weights_size];
+
+    getline(ss_line, str, DEL);
+    std::stringstream ss_str(str);
+    for (int bias = 0; bias < biases_size; bias++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        biases[bias] = atof(val_str.c_str());
+    }
+
+    getline(ss_line, str, DEL);
+    ss_str = std::stringstream(str);
+    for (int bias = 0; bias < biases_size; bias++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        biases_vel[bias] = atof(val_str.c_str());
+    }
+
+    getline(ss_line, str, DEL);
+    ss_str = std::stringstream(str);
+    for (int weight = 0; weight < weights_size; weight++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        weights[weight] = atof(val_str.c_str());
+    }
+
+    getline(ss_line, str, DEL);
+    ss_str = std::stringstream(str);
+    for (int weight = 0; weight < weights_size; weight++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        weights_vel[weight] = atof(val_str.c_str());
+    }
 }
 
 void fully_connected_layer::clear() {
@@ -152,6 +215,7 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
     this->data = data;
 
     weights_size = data.n_in.feature_maps * data.n_out.feature_maps * data.receptive_field_length * data.receptive_field_length;
+    biases_size = data.n_out.feature_maps;
 
     cudaMalloc((void**) &delta, data.n_out.x*data.n_out.y*data.n_out.feature_maps*sizeof(float)); // TODO SIZE?
     this->new_delta = new_delta;
@@ -180,13 +244,13 @@ void convolutional_layer::init(layer_data data, layer_data data_previous, float*
     set_to<<<weights_size, 1>>>(dev_weights_vel, 0);
     set_to<<<weights_size, 1>>>(dev_weights_updt, 0);
 
-    cudaMalloc((void**) &dev_biases, data.n_out.feature_maps*sizeof(float));
-    cudaMalloc((void**) &dev_biases_vel, data.n_out.feature_maps*sizeof(float));
-    cudaMalloc((void**) &dev_biases_updt, data.n_out.feature_maps*sizeof(float));
+    cudaMalloc((void**) &dev_biases, biases_size*sizeof(float));
+    cudaMalloc((void**) &dev_biases_vel, biases_size*sizeof(float));
+    cudaMalloc((void**) &dev_biases_updt, biases_size*sizeof(float));
     // biases init: https://medium.com/@glenmeyerowitz/bias-initialization-in-a-neural-network-2e5d26fed0f0
-    set_to<<<data.n_out.feature_maps, 1>>>(dev_biases, 0.01);
-    set_to<<<data.n_out.feature_maps,1>>>(dev_biases_vel, 0);
-    set_to<<<data.n_out.feature_maps,1>>>(dev_biases_updt, 0);
+    set_to<<<biases_size, 1>>>(dev_biases, 0.01);
+    set_to<<<biases_size,1>>>(dev_biases_vel, 0);
+    set_to<<<biases_size,1>>>(dev_biases_updt, 0);
 
     cudaFree(dev_stddev);
 
@@ -222,26 +286,105 @@ void convolutional_layer::update(hyperparams* dev_params) {
     ::update<<<data.n_out.feature_maps, data.n_in.feature_maps*data.receptive_field_length*data.receptive_field_length>>> (dev_biases_vel, dev_weights_vel, dev_weights_updt, dev_biases_updt, dev_weights, dev_biases, dev_params, &dev_data->stride_length, &dev_data->n_out);
     cudaDeviceSynchronize();
 }
-/*
-void convolutional_layer::save(string filename) {
-    ofstream file(filename, std::ios_base::app);
 
-    file << LAYER_NUM_CONVOLUTIONAL << "//";
-    file << data.activation_function << "//";
-    file << data.stride_length << " " << data.receptive_field_length << " " << data.n_out.feature_maps << "//";
+void convolutional_layer::save(std::string filename) {
+    std::ofstream file(filename, std::ios_base::app);
 
+    file << LAYER_NUM_CONVOLUTIONAL << DEL;
+    file << data.activation_function << DEL;
+    file << data.stride_length << DEL << data.receptive_field_length << DEL << data.n_out.feature_maps << DEL;
+    file << biases_size << DEL;
+    file << weights_size << DEL;
+
+    float* biases = new float [data.n_out.feature_maps];
+    cudaMemcpy(biases, dev_biases, data.n_out.feature_maps*sizeof(float), cudaMemcpyDeviceToHost);
     for (int bias = 0; bias < data.n_out.feature_maps; bias++) file << biases[bias] << " ";
-    file << "//";
-    for (int biasVel = 0; biasVel < data.n_out.feature_maps; biasVel++) file << biasesVelocity[biasVel] << " ";
-    file << "//";
+    delete[] biases;
+    file << DEL;
+
+    float* biases_vel = new float [data.n_out.feature_maps];
+    cudaMemcpy(biases_vel, dev_biases_vel, data.n_out.feature_maps*sizeof(float), cudaMemcpyDeviceToHost);
+    for (int bias_vel = 0; bias_vel < data.n_out.feature_maps; bias_vel++) file << biases_vel[bias_vel] << " ";
+    delete[] biases_vel;
+    file << DEL;
+
+    float* weights = new float [weights_size];
+    cudaMemcpy(weights, dev_weights, weights_size*sizeof(float), cudaMemcpyDeviceToHost);
     for (int weight = 0; weight < weights_size; weight++) file << weights[weight] << " ";
-    file << "//";
-    for (int weightVel = 0; weightVel < weights_size; weightVel++) file << weightsVelocity[weightVel] << " ";
+    delete[] weights;
+    file << DEL;
+
+    float* weights_vel = new float [weights_size];
+    cudaMemcpy(weights_vel, dev_weights, weights_size*sizeof(float), cudaMemcpyDeviceToHost);
+    for (int weight_vel = 0; weight_vel < weights_size; weight_vel++) file << weights_vel[weight_vel] << " ";
+    delete[] weights_vel;
     file << "\n";
 
     file.close();
 }
-*/
+
+void convolutional_layer::load(std::string line, layer_data *layer, float* &biases, float* &biases_vel, float* &weights, float* &weights_vel) {
+    // TODO this could surely be written nicer
+    std::stringstream ss_line(line);
+    std::string str;
+    getline(ss_line, str, DEL); // type
+
+    getline(ss_line, str, DEL);
+    layer->activation_function = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    layer->stride_length = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    layer->receptive_field_length = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    layer->n_out.feature_maps = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    int biases_size = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    int weights_size = atoi(str.c_str());
+
+    biases = new float[biases_size];
+    biases_vel = new float[biases_size];
+    weights = new float[weights_size];
+    weights_vel = new float[weights_size];
+
+    getline(ss_line, str, DEL);
+    std::stringstream ss_str(str);
+    for (int bias = 0; bias < biases_size; bias++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        biases[bias] = atof(val_str.c_str());
+    }
+
+    getline(ss_line, str, DEL);
+    ss_str = std::stringstream(str);
+    for (int bias = 0; bias < biases_size; bias++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        biases_vel[bias] = atof(val_str.c_str());
+    }
+
+    getline(ss_line, str, DEL);
+    ss_str = std::stringstream(str);
+    for (int weight = 0; weight < weights_size; weight++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        weights[weight] = atof(val_str.c_str());
+    }
+
+    getline(ss_line, str, DEL);
+    ss_str = std::stringstream(str);
+    for (int weight = 0; weight < weights_size; weight++) {
+        std::string val_str;
+        getline(ss_str, val_str, ' ');
+        weights_vel[weight] = atof(val_str.c_str());
+    }
+}
+
 void convolutional_layer::clear() {
     cudaFree(delta);
     cudaFree(dev_weights);
@@ -253,78 +396,14 @@ void convolutional_layer::clear() {
     cudaFree(dev_data_previous);
     cudaFree(dev_data);
 }
-/*
-void max_pooling_layer::init(layer_data data, layer_data data_previous) {
-    data.n_in = data_previous.n_out;
-    this->data = data;
-    this->data_previous = data_previous;
-    this->data.n_out.x = data.n_in.x / data.summarized_region_length;
-    this->data.n_out.y = data.n_in.y / data.summarized_region_length;
-    this->data.n_out.feature_maps = data_previous.n_out.feature_maps;
-}
 
-void max_pooling_layer::feedforward(float* a, float* dz, float* &new_a, float* &new_dz) {
-    (void) dz;
-
-    for (int i = 0; i < data.n_out.feature_maps * data.n_out.y * data.n_out.x; i++) new_a[i] = numeric_limits<float>::lowest();
-
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-        for (int y = 0; y < data.n_out.y; y++) {
-            for (int x = 0; x < data.n_out.x; x++) {
-                for (int kernel_y = 0; kernel_y < data.summarized_region_length; kernel_y++) {
-                    for (int kernel_x = 0; kernel_x < data.summarized_region_length; kernel_x++) {
-                        new_a[get_data_index(map, y, x, data)] = max(new_a[get_data_index(map, y, x, data)], a[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data_previous)]);
-                    }
-                }
-                new_dz[get_data_index(map, y, x, data)] = new_a[get_data_index(map, y, x, data)];
-            }
-        }
-    }
-}
-
-void max_pooling_layer::backprop(float * &delta,
-                                 float* &activations, float* &derivative_z, float * &new_delta) {
-    const float epsilon = 1e-8;
-
-    //cout << activations[get_data_index(data.n_out.feature_maps-1, (data.n_out.y-1)*data.summarized_region_length+data.summarized_region_length-1, (data.n_out.x-1)*data.summarized_region_length+data.summarized_region_length-1, data_previous)] << "sdfkjdslksfjlsf\n";
-    for (int map = 0; map < data.n_out.feature_maps; map++) {
-        for (int y = 0; y < data.n_out.y; y++) {
-            for (int x = 0; x < data.n_out.x; x++) {
-                for (int kernel_y = 0; kernel_y < data.summarized_region_length; kernel_y++) {
-                    for (int kernel_x = 0; kernel_x < data.summarized_region_length; kernel_x++) {
-                        int act = activations[get_data_index(map, y * data.summarized_region_length + kernel_y, x * data.summarized_region_length + kernel_x, data_previous)];
-                        int dev = derivative_z[get_data_index(map, y, x, data)];
-                        if (act < dev) swap(act, dev);
-                        if (act - dev < epsilon) {
-                            new_delta[get_data_index(map, y * data.summarized_region_length + kernel_y,
-                                    x * data.summarized_region_length + kernel_x, data_previous)] = delta[get_data_index(map, y, x, data)];
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-void max_pooling_layer::update(hyperparams params) {
-    (void) params;
-}
-
-void max_pooling_layer::save(string filename) {
-    ofstream file(filename, std::ios_base::app);
-
-    file << LAYER_NUM_MAX_POOLING << "//";
-    file << data.summarized_region_length << "\n";
-
-    file.close();
-}
-
-void max_pooling_layer::clear() {}
-*/
 void input_layer::init(layer_data data, layer_data data_previous, float* new_delta) {
     data.elems = 0;
     this->data = data;
     cudaMalloc((void**) &delta, data.n_out.feature_maps*data.n_out.y*data.n_out.x*sizeof(float));
+
+    biases_size = 0;
+    weights_size = 0;
     (void) data_previous;
 }
 
@@ -337,10 +416,24 @@ void input_layer::update(hyperparams* params) {}
 void input_layer::save(std::string filename) {
     std::ofstream file(filename, std::ios_base::app);
 
-    file << LAYER_NUM_INPUT << "//";
-    file << data.n_out.x << " " << data.n_out.y << "\n";
+    file << LAYER_NUM_INPUT << DEL;
+    file << data.n_out.x << DEL << data.n_out.y << "\n";
 
     file.close();
+}
+
+void input_layer::load(std::string line, layer_data *layer, float* &biases, float* &biases_vel, float* &weights, float* &weights_vel) {
+    std::stringstream ss_line(line);
+    std::string str;
+    getline(ss_line, str, DEL); // type
+
+    getline(ss_line, str, DEL);
+    layer->n_out.x = atoi(str.c_str());
+
+    getline(ss_line, str, DEL);
+    layer->n_out.y = atoi(str.c_str());
+
+    layer->n_out.feature_maps = 1;
 }
 
 void input_layer::clear() {
