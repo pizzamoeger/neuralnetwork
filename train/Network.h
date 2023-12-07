@@ -70,12 +70,8 @@ struct layer_data {
 
     int elems;
 
-    bool last_layer = false;
-
     int stride_length;
     int receptive_field_length;
-
-    int summarized_region_length;
 
     int activation_function;
 };
@@ -144,9 +140,6 @@ struct convolutional_layer : public layer {
 
 struct input_layer : public layer {
 
-    //layer_data data;
-    // no biases or velocities
-
     void init (layer_data data, layer_data data_previous, float* new_delta);
 
     void feedforward(float* a, float* dz);
@@ -187,7 +180,7 @@ struct Network {
 
     void save(std::string filename);
 
-    void load(std::string filename);
+    void load(std::string filename, hyperparams params);
 
     void clear();
 
@@ -211,16 +204,5 @@ __global__ void dev_feedforward(float* weights, float* new_a, network_data* n_in
 __global__ void backprop_update_w_b_fc (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, int* data_n_in_x);
 __global__ void backprop_update_w_b_conv (float* dev_weights_upt, float* dev_delta, float* dev_activations, float* dev_biases_updt, network_data* n_in, int* stride_len);
 __global__ void dev_backprop(float* delta, float* dz, float* new_delta, float* weights, network_data* n, int* stride_len = NULL);
-
-// https://stackoverflow.com/questions/29906486/cuda-multiple-parallel-reductions-sometimes-fail
-/*
- * Suppose for example, that the input data has exactly 32 elements - the number of threads in a warp. In such scenario a single warp can be assigned to perform the reduction. Given that warp executes in a perfect sync, many __syncthreads() instructions can be removed - when compared to a block-level reduction.
- *
- * prev_map*prev_y*prev_x is max dimension of previous. has to be <= 1024 so that i can use it in one block (for parallel reduction).
- * not possible unless we only have one map. split up into multiple maps
- * blockIdx = for which previous_map
- * blockIdy = for which map
- * blcokIdz = for which x and y ?
- * */
 
 #endif

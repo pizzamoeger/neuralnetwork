@@ -40,7 +40,6 @@ int main(int argc, char** argv) {
     layer_data outt;
     outt.type = LAYER_NUM_FULLY_CONNECTED;
     outt.activation_function = RELU;
-    outt.last_layer = true;
     outt.n_out = {OUTPUT_NEURONS, 1, 1};
     //outt.n_out = {NEURONS, 1, 1};
 
@@ -96,7 +95,7 @@ int main(int argc, char** argv) {
         std::string file;
         std::cerr << "enter file where network is stored: ";
         std::cin >> file;
-        net.load(file);
+        net.load(file, params);
         net.params = params;
     } else net.init(layers, L, params);
     net.SGD(training_data, test_data);

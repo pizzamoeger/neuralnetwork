@@ -149,7 +149,7 @@ void Network::save(std::string filename) {
     for (int l = 0; l < L; l++) layers[l]->save(filename);
 }
 
-void Network::load(std::string filename) {
+void Network::load(std::string filename, hyperparams params) {
     std::ifstream file;
 
     file.open(filename);
@@ -188,7 +188,6 @@ void Network::load(std::string filename) {
 
     }
 
-    hyperparams params = get_params();
     init(layers, L, params);
 
     for (int l = 1; l < L; l++) {
