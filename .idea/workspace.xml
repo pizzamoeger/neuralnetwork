@@ -10,7 +10,9 @@
     <option name="reloaded" value="true" />
   </component>
   <component name="CMakeRunConfigurationManager">
-    <generated />
+    <generated>
+      <config projectName="neuralnetwork" targetName="neuralnetwork" />
+    </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
@@ -19,18 +21,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="added n squared GPU data">
-      <changelist_data name="pizzamoeger" email="osshannahsophie@gmail.com" date="1693341687000" />
-      <change afterPath="$PROJECT_DIR$/compare/GPU_n_squared.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/compare/plot.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/train/misc.cu" afterDir="false" />
+    <list default="true" id="2f8b235f-fd88-46d0-971a-6b532cd7e4b4" name="Changes" comment="important bug fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compare/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/compare/plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neuralnetwork" beforeDir="false" afterPath="$PROJECT_DIR$/neuralnetwork" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/train/Network.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/misc.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/train/misc.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train/timeToSizeData.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train/timeToSizeData.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/numberreader.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/numberreader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +74,7 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/ossha/CLionProjects/neuralnetwork/test&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ossha/CLionProjects/neuralnetwork&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -106,8 +100,13 @@
       <recent name="$PROJECT_DIR$/bf" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.neuralnetwork">
-    <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="neuralnetwork">
+  <component name="RunManager" selected="Python.numberreader">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="neuralnetwork" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neuralnetwork" TARGET_NAME="neuralnetwork" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="neuralnetwork" RUN_TARGET_NAME="neuralnetwork">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -125,6 +124,7 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="/usr/bin/python3.10" />
+      <option name="SDK_NAME" value="Python 3.10" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -152,6 +152,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bestHyperparams.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="numberreader" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="neuralnetwork" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/numberreader.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -205,10 +226,12 @@
     <list>
       <item itemvalue="CMake Application.neuralnetwork" />
       <item itemvalue="Python.bestHyperparams" />
+      <item itemvalue="Python.numberreader" />
       <item itemvalue="Python.tst" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.numberreader" />
         <item itemvalue="Python.tst" />
       </list>
     </recent_temporary>
@@ -241,19 +264,12 @@
       <workItem from="1689251629709" duration="25000" />
       <workItem from="1689252684328" duration="1850000" />
       <workItem from="1691481914558" duration="6512000" />
-      <workItem from="1691589507719" duration="3665000" />
-      <workItem from="1692106846631" duration="1515000" />
-      <workItem from="1692108422365" duration="186000" />
-      <workItem from="1692108886061" duration="433000" />
-      <workItem from="1692109590015" duration="3000" />
-      <workItem from="1692109710057" duration="115000" />
-      <workItem from="1692109892443" duration="25000" />
-      <workItem from="1692110144918" duration="150000" />
-      <workItem from="1692112315481" duration="112000" />
-      <workItem from="1692197975092" duration="7809000" />
-      <workItem from="1693342507065" duration="27000" />
-      <workItem from="1693342609939" duration="250000" />
-      <workItem from="1693368982467" duration="4000" />
+      <workItem from="1691589507719" duration="7799000" />
+      <workItem from="1691767783907" duration="108000" />
+      <workItem from="1691842302252" duration="9653000" />
+      <workItem from="1692041340490" duration="3560000" />
+      <workItem from="1692207149593" duration="817000" />
+      <workItem from="1692209556267" duration="56000" />
     </task>
     <task id="LOCAL-00001" summary="added automatic search for best hyperparameters">
       <created>1686325716311</created>
@@ -515,7 +531,22 @@
       <option name="project" value="LOCAL" />
       <updated>1691486952240</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="storing of activation function">
+      <option name="closed" value="true" />
+      <created>1691663145441</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1691663145441</updated>
+    </task>
+    <task id="LOCAL-00035" summary="important bug fix">
+      <created>1692041425967</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1692041425967</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -538,7 +569,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="cuda" />
+                        <option value="origin/cuda" />
                       </list>
                     </value>
                   </entry>
@@ -570,7 +601,29 @@
     <MESSAGE value="bug fixes in activation functions" />
     <MESSAGE value="improved bash scripts" />
     <MESSAGE value="fixed the python tester" />
-    <MESSAGE value="added n squared GPU data" />
-    <option name="LAST_COMMIT_MESSAGE" value="added n squared GPU data" />
+    <MESSAGE value="storing of activation function" />
+    <MESSAGE value="important bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="important bug fix" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/layer.cpp</url>
+          <line>68</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/layer.cpp</url>
+          <line>70</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/train/Network.cpp</url>
+          <line>144</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
